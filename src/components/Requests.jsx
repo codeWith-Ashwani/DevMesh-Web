@@ -4,39 +4,9 @@ import { BASE_URL } from "../utils/constants";
 import { useDispatch, useSelector } from "react-redux";
 import { addRequests, removeRequests } from "../utils/requestsSlice";
 
-function buildUrl(base, path) {
-  const cleanPath = path.startsWith("/") ? path : `/${path}`;
+const buildUrl = (base, path) =>
+  base ? `${base.replace(/\/$/, "")}${path.startsWith("/") ? path : `/${path}`}` : path;
 
-  if (typeof base === "string" && base.trim() !== "") {
-    const trimmed = base.trim().replace(/\/$/, ""); // remove trailing slash
-    // If base appears to include protocol -> treat as absolute base
-    if (/^https?:\/\//i.test(trimmed)) {
-      // safe absolute URL creation
-      try {
-        return new URL(cleanPath, trimmed).toString();
-      } catch (e) {
-        console.error("buildUrl: failed to construct absolute URL", e, {
-          base: trimmed,
-          path: cleanPath,
-        });
-        // fall through to relative
-      }
-    } else {
-      console.warn(
-        "buildUrl: BASE_URL does not include protocol. Falling back to relative path. BASE_URL:",
-        trimmed
-      );
-    }
-  } else {
-    console.warn(
-      "buildUrl: BASE_URL is empty or missing. Using relative path:",
-      cleanPath
-    );
-  }
-
-  // fallback: use relative path (works if your frontend and backend share same origin or proxy is setup)
-  return cleanPath;
-}
 
 function Requests() {
   const requests = useSelector((store) => store.requests);
