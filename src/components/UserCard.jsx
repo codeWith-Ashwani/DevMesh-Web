@@ -5,8 +5,18 @@ import { BASE_URL } from "../utils/constants";
 import { useDispatch, useSelector } from "react-redux";
 import { removeUserFeed } from "../utils/feedSlice";
 
-const buildUrl = (base, path) =>
-  base ? `${base.replace(/\/$/, "")}${path.startsWith("/") ? path : `/${path}`}` : path;
+function buildUrl(base, path) {
+  const cleanPath = path.startsWith("/") ? path : `/${path}`;
+
+  // If BASE_URL is given (like "/api"), prepend it
+  if (typeof base === "string" && base.trim() !== "") {
+    const trimmed = base.trim().replace(/\/$/, ""); // remove trailing slash
+    return `${trimmed}${cleanPath}`;                // "/api" + "/request/..." -> "/api/request/..."
+  }
+
+  // Fallback: just return the path
+  return cleanPath;
+}
 
 
 const UserCard = ({ user }) => {
