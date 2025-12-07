@@ -5,18 +5,7 @@ import { BASE_URL } from "../utils/constants";
 import { useDispatch, useSelector } from "react-redux";
 import { removeUserFeed } from "../utils/feedSlice";
 
-function buildUrl(base, path) {
-  const cleanPath = path.startsWith("/") ? path : `/${path}`;
 
-  // If BASE_URL is given (like "/api"), prepend it
-  if (typeof base === "string" && base.trim() !== "") {
-    const trimmed = base.trim().replace(/\/$/, ""); // remove trailing slash
-    return `${trimmed}${cleanPath}`;                // "/api" + "/request/..." -> "/api/request/..."
-  }
-
-  // Fallback: just return the path
-  return cleanPath;
-}
 
 
 const UserCard = ({ user }) => {
@@ -25,11 +14,10 @@ const UserCard = ({ user }) => {
   // const requests = useSelector((store) => store.requests);
   const dispatch = useDispatch();
   const handleSendRequest = async (status, userId) => {
-    const path = `/request/send/${status}/${userId}`;
-    const url = buildUrl(BASE_URL, path);
+    
     try {
       const res = await axios.post(
-        url,
+        BASE_URL + "/request/send/" + status + "/" + userId ,
         {},
         {
           withCredentials: true,
