@@ -15,7 +15,7 @@ function Requests() {
    
     try {
       const res = await axios.post(
-        BASE_URL+ "/request/review/" + status + "/" + _id,
+        `${BASE_URL}/request/review/${status}/${_id}`,
         {},
         {
           withCredentials: true,

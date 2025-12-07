@@ -17,7 +17,7 @@ const UserCard = ({ user }) => {
     
     try {
       const res = await axios.post(
-        BASE_URL + "/request/send/" + status + "/" + userId ,
+       `${BASE_URL}/request/send/${status}/${userId}` ,
         {},
         {
           withCredentials: true,
