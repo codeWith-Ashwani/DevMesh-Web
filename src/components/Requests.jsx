@@ -70,7 +70,7 @@ function Requests() {
         return (
           <div
             key={_id}
-            className=" flex m-4 p-4 border rounded-lg bg-base-300 w-full mx-auto"
+            className=" flex m-4 p-4 border rounded-lg bg-base-300 w-1/2 mx-auto"
           >
             <div>
               <img
