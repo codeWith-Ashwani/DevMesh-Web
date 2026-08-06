@@ -1,131 +1,14 @@
 import axios from "axios";
-import React, { useState } from "react";
+import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { addUser } from "../utils/userSlice";
 import { useNavigate } from "react-router-dom";
 import { BASE_URL } from "../utils/constants";
+import { addUser } from "../utils/userSlice";
 
 function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [isLoginForm, setIsLoginForm] = useState(false);
-  const [error, setError] = useState("");
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-
-  const handleLogin = async () => {
-    try {
-      const res = await axios.post(
-        BASE_URL + "/login",
-        {
-          email,
-          password,
-        },
-        {
-          withCredentials: true,
-        }
-      );
-
-      dispatch(addUser(res.data));
-      return navigate("/");
-    } catch (err) {
-      setError(err?.response?.data || "Something went wrong");
-    }
-  };
-
-  const handleSignUp = async () => {
-    try {
-      const res = await axios.post(
-        BASE_URL + "/signup",
-        {
-          firstName,
-          lastName,
-          email,
-          password,
-        },
-        {
-          withCredentials: true,
-        }
-      );
-
-      dispatch(addUser(res.data.data));
-      return navigate("/profile");
-    } catch (err) {
-      setError(err?.response?.data || "Something went wrong");
-    }
-  };
-
-  return (
-    <div className="flex justify-center my-10">
-      <div className="card bg-base-300 w-96 shadow-sm">
-        <div className="card-body">
-          <h2 className="card-title justify-center ">
-            {isLoginForm ? "Login" : "SignUp"}
-          </h2>
-          {!isLoginForm && (
-            <>
-              {" "}
-              <fieldset className="fieldset">
-                <legend className="fieldset-legend">First Name</legend>
-                <input
-                  type="text"
-                  value={firstName}
-                  className="input"
-                  onChange={(e) => setFirstName(e.target.value)}
-                />
-              </fieldset>
-              <fieldset className="fieldset">
-                <legend className="fieldset-legend">Last Name</legend>
-                <input
-                  type="text"
-                  value={lastName}
-                  className="input"
-                  onChange={(e) => setLastName(e.target.value)}
-                />
-              </fieldset>
-            </>
-          )}
-          <fieldset className="fieldset">
-            <legend className="fieldset-legend">Email ID</legend>
-            <input
-              type="text"
-              value={email}
-              className="input"
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </fieldset>
-          <fieldset className="fieldset">
-            <legend className="fieldset-legend">Password</legend>
-            <input
-              type="password"
-              value={password}
-              className="input"
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </fieldset>
-          <p className="text-red-300">{error}</p>
-          <div className="card-actions justify-center pt-1">
-            <button
-              className="btn btn-primary"
-              onClick={isLoginForm ? handleLogin : handleSignUp}
-            >
-              {isLoginForm ? "Login" : "SignUp"}
-            </button>
-          </div>
-          <p
-            className="flex justify-center mt-2 cursor-pointer"
-            onClick={() => setIsLoginForm((value) => !value)}
-          >
-            {isLoginForm
-              ? "New User? SignUp Here"
-              : "Existing User? Login Here"}
-          </p>
-        </div>
-      </div>
-    </div>
-  );
+  const [email, setEmail] = useState(""); const [password, setPassword] = useState(""); const [firstName, setFirstName] = useState(""); const [lastName, setLastName] = useState(""); const [isLoginForm, setIsLoginForm] = useState(true); const [error, setError] = useState(""); const dispatch = useDispatch(); const navigate = useNavigate();
+  const submit = async () => { setError(""); try { const response = await axios.post(`${BASE_URL}/${isLoginForm ? "login" : "signup"}`, isLoginForm ? { email, password } : { firstName, lastName, email, password }, { withCredentials: true }); dispatch(addUser(isLoginForm ? response.data : response.data.data)); navigate(isLoginForm ? "/" : "/profile"); } catch (err) { setError(err?.response?.data?.message || err?.response?.data || "Something went wrong. Please try again."); } };
+  const inputClass = "w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-800 outline-none placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-100";
+  return <main className="mx-auto grid w-full max-w-5xl items-center gap-10 px-5 py-12 md:grid-cols-2 md:py-20"><section className="order-2 md:order-1"><span className="rounded-full bg-pink-100 px-3 py-1 text-sm font-bold text-pink-600">Meet · Match · Build</span><h1 className="mt-5 text-4xl font-extrabold leading-tight text-slate-900 md:text-5xl">Your next great<br /><span className="text-blue-600">collaboration</span> starts here.</h1><p className="mt-5 max-w-md text-lg leading-8 text-slate-600">Connect with developers who share your interests, stack, and ambition.</p></section><section className="soft-card rounded-3xl border border-blue-100 bg-white p-7 sm:p-9"><h2 className="text-2xl font-bold text-slate-900">{isLoginForm ? "Welcome back" : "Create your profile"}</h2><p className="mt-1 text-sm text-slate-500">{isLoginForm ? "Sign in to discover your community." : "Start meeting developers today."}</p><div className="mt-6 space-y-4">{!isLoginForm && <div className="grid gap-4 sm:grid-cols-2"><input className={inputClass} placeholder="First name" value={firstName} onChange={(e) => setFirstName(e.target.value)} /><input className={inputClass} placeholder="Last name" value={lastName} onChange={(e) => setLastName(e.target.value)} /></div>}<input type="email" className={inputClass} placeholder="Email address" value={email} onChange={(e) => setEmail(e.target.value)} /><input type="password" className={inputClass} placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />{error && <p className="rounded-xl bg-pink-50 p-3 text-sm text-pink-700">{error}</p>}<button className="brand-gradient w-full rounded-xl px-4 py-3 font-bold text-white shadow-lg shadow-pink-200 hover:-translate-y-0.5" onClick={submit}>{isLoginForm ? "Sign in" : "Create account"}</button></div><button className="mt-6 w-full text-sm font-semibold text-blue-600 hover:text-pink-600" onClick={() => { setIsLoginForm(!isLoginForm); setError(""); }}>{isLoginForm ? "New here? Create an account" : "Already have an account? Sign in"}</button></section></main>;
 }
-
 export default Login;
