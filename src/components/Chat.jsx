@@ -1,46 +1,255 @@
+import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
-import { useEffect, useState } from "react";
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useParams, Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { BASE_URL } from "../utils/constants";
+import {
+  IconSend,
+  IconTerminal,
+  IconCode,
+  IconChevronLeft,
+  IconSparkles
+} from "./ui/Icons";
 
 function Chat() {
   const { userId } = useParams();
   const location = useLocation();
   const currentUser = useSelector((store) => store.user);
+  const connections = useSelector((store) => store.connections);
+
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
   const [error, setError] = useState("");
-  const otherUser = location.state?.user;
+  const [sending, setSending] = useState(false);
+  const messagesEndRef = useRef(null);
+
+  // If otherUser is passed in location.state or found in connections
+  const otherUser =
+    location.state?.user || connections?.find((u) => u._id === userId);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
   useEffect(() => {
     const loadMessages = async () => {
       try {
-        const response = await axios.get(`${BASE_URL}/chat/${userId}`, { withCredentials: true });
+        const response = await axios.get(`${BASE_URL}/chat/${userId}`, {
+          withCredentials: true,
+        });
         setMessages(response.data.data);
         setError("");
       } catch (err) {
-        setError(err?.response?.data?.message || "Unable to load this chat.");
+        setError(err?.response?.data?.message || "Unable to establish chat tunnel.");
       }
     };
+
     loadMessages();
     const interval = setInterval(loadMessages, 3000);
     return () => clearInterval(interval);
   }, [userId]);
 
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
   const sendMessage = async (event) => {
     event.preventDefault();
-    if (!text.trim()) return;
+    if (!text.trim() || sending) return;
+    setSending(true);
     try {
-      const response = await axios.post(`${BASE_URL}/chat/${userId}`, { text }, { withCredentials: true });
+      const response = await axios.post(
+        `${BASE_URL}/chat/${userId}`,
+        { text },
+        { withCredentials: true }
+      );
       setMessages((current) => [...current, response.data.data]);
       setText("");
     } catch (err) {
-      setError(err?.response?.data?.message || "Unable to send your message.");
+      setError(err?.response?.data?.message || "Unable to deliver packet.");
+    } finally {
+      setSending(false);
     }
   };
 
-  return <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col px-5 py-8"><section className="soft-card flex min-h-[70vh] flex-1 flex-col overflow-hidden rounded-3xl border border-blue-100 bg-white"><header className="flex items-center gap-3 border-b border-blue-100 px-6 py-4"><img className="h-11 w-11 rounded-xl object-cover" src={otherUser?.photoUrl || "https://placehold.co/96x96/e0e7ff/1e3a8a?text=Dev"} alt="Connection" /><div><p className="text-lg font-bold text-slate-900">{otherUser ? `${otherUser.firstName} ${otherUser.lastName}` : "Your connection"}</p><p className="text-sm text-blue-600">Messages refresh automatically</p></div></header><div className="flex-1 space-y-4 overflow-y-auto p-5">{error && <p className="rounded-xl bg-pink-50 p-3 text-sm text-pink-700">{error}</p>}{!error && messages.length === 0 && <div className="grid h-full place-items-center text-center"><div><p className="text-4xl font-mono text-blue-600">&lt;/&gt;</p><h1 className="mt-3 text-xl font-bold text-slate-800">Start the conversation</h1><p className="mt-1 text-slate-500">Say hello and discover what you can build together.</p></div></div>}{messages.map((message) => { const mine = message.fromUserId === currentUser?._id; return <div key={message._id} className={`flex ${mine ? "justify-end" : "justify-start"}`}><div className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-6 ${mine ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-700"}`}><p>{message.text}</p><p className={`mt-1 text-xs ${mine ? "text-blue-100" : "text-slate-400"}`}>{new Date(message.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</p></div></div>})}</div><form className="flex gap-3 border-t border-blue-100 p-4" onSubmit={sendMessage}><input className="min-w-0 flex-1 rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100" value={text} maxLength="2000" placeholder="Write a message..." onChange={(event) => setText(event.target.value)} /><button className="rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-700" type="submit">Send</button></form></section></main>;
+  return (
+    <div className="mx-auto flex h-[calc(100vh-3.5rem)] max-w-7xl flex-col p-3 sm:p-6">
+      <div className="flex flex-1 overflow-hidden rounded-xl border border-[#252A30] bg-[#111418] shadow-2xl">
+        {/* Left Sidebar: Peers List (Hidden on mobile if actively chatting) */}
+        <aside className="hidden w-64 border-r border-[#252A30] bg-[#0B0D0F] md:flex md:flex-col">
+          <div className="flex h-12 items-center justify-between border-b border-[#252A30] px-4">
+            <span className="font-mono text-xs font-bold uppercase tracking-wider text-[#8B949E]">
+              PEER CHANNELS
+            </span>
+            <span className="rounded-full border border-[#252A30] bg-[#161A1F] px-1.5 py-0.2 text-[10px] font-mono text-[#00E5FF]">
+              {connections.length}
+            </span>
+          </div>
+
+          <div className="flex-1 overflow-y-auto p-2 space-y-1">
+            {connections.length === 0 ? (
+              <p className="p-4 text-center font-mono text-xs text-[#57606A]">
+                No connected peer channels yet.
+              </p>
+            ) : (
+              connections.map((peer) => {
+                const isCurrent = peer._id === userId;
+                return (
+                  <Link
+                    key={peer._id}
+                    to={`/chat/${peer._id}`}
+                    state={{ user: peer }}
+                    className={`flex items-center gap-2.5 rounded-lg p-2 transition-colors ${
+                      isCurrent
+                        ? "bg-[#161A1F] border border-[#252A30] text-[#00E5FF]"
+                        : "text-[#8B949E] hover:bg-[#161A1F]/60 hover:text-[#F2F4F7]"
+                    }`}
+                  >
+                    <div className="relative shrink-0">
+                      <img
+                        className="h-8 w-8 rounded-lg border border-[#252A30] object-cover bg-[#161A1F]"
+                        src={peer.photoUrl || "https://placehold.co/80x80/161A1F/8B949E?text=DEV"}
+                        alt=""
+                      />
+                      <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full bg-[#10B981]" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-xs font-bold">{peer.firstName} {peer.lastName}</p>
+                      <p className="truncate font-mono text-[10px] text-[#57606A]">
+                        {peer.skills?.slice(0, 2).join(" · ") || "Developer"}
+                      </p>
+                    </div>
+                  </Link>
+                );
+              })
+            )}
+          </div>
+        </aside>
+
+        {/* Right Main Channel Workspace */}
+        <section className="flex flex-1 flex-col bg-[#111418] min-w-0">
+          {/* Channel Header */}
+          <header className="flex h-14 items-center justify-between border-b border-[#252A30] bg-[#161A1F] px-4">
+            <div className="flex items-center gap-3">
+              <Link
+                to="/connections"
+                className="flex h-7 w-7 items-center justify-center rounded-lg border border-[#252A30] text-[#8B949E] hover:text-[#F2F4F7] md:hidden"
+              >
+                <IconChevronLeft className="h-4 w-4" />
+              </Link>
+
+              <div className="relative">
+                <img
+                  className="h-9 w-9 rounded-lg border border-[#252A30] object-cover bg-[#0B0D0F]"
+                  src={otherUser?.photoUrl || "https://placehold.co/80x80/161A1F/8B949E?text=DEV"}
+                  alt=""
+                />
+                <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full bg-[#10B981] ring-2 ring-[#161A1F]" />
+              </div>
+
+              <div>
+                <h2 className="text-xs font-bold text-[#F2F4F7] sm:text-sm">
+                  {otherUser ? `${otherUser.firstName} ${otherUser.lastName}` : "Encrypted Peer Node"}
+                </h2>
+                <div className="flex items-center gap-2 font-mono text-[10px] text-[#57606A]">
+                  <span>@{otherUser?.firstName?.toLowerCase() || "node"}</span>
+                  <span>·</span>
+                  <span className="text-[#10B981]">TUNNEL: SECURE</span>
+                </div>
+              </div>
+            </div>
+
+            {otherUser?.skills && (
+              <div className="hidden lg:flex items-center gap-1">
+                {otherUser.skills.slice(0, 3).map((skill) => (
+                  <span key={skill} className="tech-tag text-[9px]">
+                    {skill}
+                  </span>
+                ))}
+              </div>
+            )}
+          </header>
+
+          {/* Messages Stream */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-3 tech-grid-bg">
+            {error && (
+              <div className="rounded-lg border border-[#F43F5E]/30 bg-[#F43F5E]/10 p-3 font-mono text-xs text-[#F43F5E]">
+                {error}
+              </div>
+            )}
+
+            {!error && messages.length === 0 && (
+              <div className="flex h-full flex-col items-center justify-center text-center">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-[#252A30] bg-[#161A1F] text-[#00E5FF]">
+                  <IconTerminal className="h-6 w-6" />
+                </div>
+                <h3 className="mt-3 font-mono text-xs font-bold text-[#F2F4F7]">
+                  SECURE COMMUNICATION CHANNEL ESTABLISHED
+                </h3>
+                <p className="mt-1 max-w-sm font-mono text-[11px] text-[#57606A]">
+                  Say hello, share GitHub repositories, and coordinate your build tasks.
+                </p>
+              </div>
+            )}
+
+            {messages.map((message) => {
+              const isMine = message.fromUserId === currentUser?._id;
+              return (
+                <div
+                  key={message._id}
+                  className={`flex flex-col ${isMine ? "items-end" : "items-start"}`}
+                >
+                  <div
+                    className={`max-w-[85%] sm:max-w-[70%] rounded-xl px-4 py-2.5 text-xs leading-relaxed ${
+                      isMine
+                        ? "bg-[#00E5FF] text-[#0B0D0F] font-medium shadow-md shadow-[#00E5FF]/10 rounded-br-none"
+                        : "bg-[#161A1F] border border-[#252A30] text-[#F2F4F7] rounded-bl-none"
+                    }`}
+                  >
+                    <p className="break-words whitespace-pre-wrap">{message.text}</p>
+                  </div>
+                  <span
+                    className={`mt-1 font-mono text-[9px] text-[#57606A] px-1`}
+                  >
+                    {new Date(message.createdAt).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </span>
+                </div>
+              );
+            })}
+            <div ref={messagesEndRef} />
+          </div>
+
+          {/* Input Terminal */}
+          <form
+            onSubmit={sendMessage}
+            className="flex items-center gap-2 border-t border-[#252A30] bg-[#0B0D0F] p-3"
+          >
+            <div className="relative flex-1">
+              <input
+                className="w-full rounded-lg border border-[#252A30] bg-[#161A1F] px-3.5 py-2.5 font-mono text-xs text-[#F2F4F7] placeholder-[#57606A] outline-none hover:border-[#363E48] focus:border-[#00E5FF] transition-colors"
+                value={text}
+                maxLength="2000"
+                placeholder="Type message packet or query... (Enter to send)"
+                onChange={(e) => setText(e.target.value)}
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={!text.trim() || sending}
+              className="btn-cyan flex h-9.5 items-center justify-center gap-1.5 px-4 font-mono text-xs font-bold disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <IconSend className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">TRANSMIT</span>
+            </button>
+          </form>
+        </section>
+      </div>
+    </div>
+  );
 }
 
 export default Chat;
+
