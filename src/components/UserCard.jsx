@@ -1,10 +1,25 @@
+import React from "react";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import { BASE_URL } from "../utils/constants";
 import { removeUserFeed } from "../utils/feedSlice";
+import { IconExternalLink, IconSparkles, IconTerminal, IconCheck, IconX } from "./ui/Icons";
 
 const UserCard = ({ user }) => {
-  const { _id, firstName, lastName, photoUrl, age, gender, about, skills = [], githubUrl, linkedInUrl, portfolioUrl, lookingFor } = user;
+  const {
+    _id,
+    firstName,
+    lastName,
+    photoUrl,
+    age,
+    gender,
+    about,
+    skills = [],
+    githubUrl,
+    linkedInUrl,
+    portfolioUrl,
+    lookingFor,
+  } = user;
   const dispatch = useDispatch();
   const isPreview = !_id;
 
@@ -18,27 +33,137 @@ const UserCard = ({ user }) => {
   };
 
   return (
-    <article className="soft-card w-full max-w-sm overflow-hidden rounded-3xl border border-blue-100 bg-white">
-      <div className="relative h-72 bg-gradient-to-br from-blue-100 to-pink-100">
-        <img className="h-full w-full object-cover" src={photoUrl} alt={`${firstName}'s profile`} />
-        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-slate-950/60 to-transparent" />
-        <div className="absolute bottom-4 left-5 text-white">
-          <h2 className="text-2xl font-bold">{firstName} {lastName}</h2>
-          {age && gender && <p className="text-sm text-blue-50">{age} years · {gender}</p>}
+    <article className="surface-card w-full max-w-sm overflow-hidden rounded-xl border border-[#252A30] bg-[#111418] shadow-xl transition-all hover:border-[#363E48]">
+      {/* Header bar / Status */}
+      <div className="flex items-center justify-between border-b border-[#252A30] bg-[#161A1F] px-4 py-2 text-[11px] font-mono">
+        <div className="flex items-center gap-1.5 text-[#10B981]">
+          <span className="h-1.5 w-1.5 rounded-full bg-[#10B981] animate-pulse" />
+          <span>STATUS: READY</span>
         </div>
+        <span className="text-[#57606A]">NODE://{_id ? _id.slice(-6) : "PREVIEW"}</span>
       </div>
-      <div className="space-y-5 p-6">
-        <p className="min-h-12 text-sm leading-6 text-slate-600">{about || "Tell the community a little about yourself."}</p>
-        {lookingFor && <p className="rounded-xl bg-pink-50 px-3 py-2 text-sm font-semibold text-pink-700">Looking for: {lookingFor}</p>}
-        {skills.length > 0 && <div className="flex flex-wrap gap-2">{skills.map((skill) => <span key={skill} className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">{skill}</span>)}</div>}
-        {(githubUrl || linkedInUrl || portfolioUrl) && <div className="flex flex-wrap gap-3 text-sm font-semibold">{githubUrl && <a className="text-blue-600 hover:text-pink-600" href={githubUrl} target="_blank" rel="noreferrer">GitHub</a>}{linkedInUrl && <a className="text-blue-600 hover:text-pink-600" href={linkedInUrl} target="_blank" rel="noreferrer">LinkedIn</a>}{portfolioUrl && <a className="text-blue-600 hover:text-pink-600" href={portfolioUrl} target="_blank" rel="noreferrer">Portfolio</a>}</div>}
-        {!isPreview && <div className="grid grid-cols-2 gap-3 pt-1">
-          <button className="rounded-xl border border-pink-200 bg-pink-50 px-4 py-3 font-semibold text-pink-600 hover:bg-pink-100" onClick={() => handleSendRequest("ignore")}>Skip</button>
-          <button className="brand-gradient rounded-xl px-4 py-3 font-semibold text-white shadow-lg shadow-pink-200 hover:-translate-y-0.5" onClick={() => handleSendRequest("interested")}>Connect</button>
-        </div>}
+
+      {/* Developer Hero */}
+      <div className="p-5 pb-3">
+        <div className="flex items-start gap-4">
+          <div className="relative shrink-0">
+            <img
+              className="h-16 w-16 rounded-xl border border-[#252A30] object-cover bg-[#0B0D0F]"
+              src={photoUrl || "https://placehold.co/120x120/161A1F/8B949E?text=DEV"}
+              alt={`${firstName}'s profile`}
+            />
+            <span className="absolute -bottom-1 -right-1 h-3 w-3 rounded-full bg-[#10B981] border-2 border-[#111418]" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <h3 className="truncate text-lg font-bold tracking-tight text-[#F2F4F7]">
+              {firstName} {lastName}
+            </h3>
+            <p className="truncate font-mono text-xs text-[#00E5FF]">
+              @{firstName?.toLowerCase() || "engineer"}
+            </p>
+            {(age || gender) && (
+              <p className="mt-0.5 font-mono text-[11px] text-[#8B949E]">
+                {[age ? `${age}y` : null, gender].filter(Boolean).join(" · ")}
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* Goal / Looking For Banner */}
+        {lookingFor && (
+          <div className="mt-4 rounded-lg border border-[#00E5FF]/20 bg-[#00E5FF]/5 px-3 py-2 text-xs font-mono text-[#00E5FF] flex items-center gap-2">
+            <IconTerminal className="h-3.5 w-3.5 shrink-0 text-[#00E5FF]" />
+            <span className="truncate">Looking for: {lookingFor}</span>
+          </div>
+        )}
+
+        {/* Bio */}
+        <div className="mt-3.5">
+          <p className="min-h-[3rem] text-xs leading-relaxed text-[#8B949E]">
+            {about || "Developer actively building software and open for engineering collaboration."}
+          </p>
+        </div>
+
+        {/* Skills */}
+        <div className="mt-4">
+          <p className="text-[10px] font-mono uppercase tracking-wider text-[#57606A] mb-1.5">
+            Technical Stack
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {skills.length > 0 ? (
+              skills.map((skill) => (
+                <span key={skill} className="tech-tag">
+                  {skill}
+                </span>
+              ))
+            ) : (
+              <span className="text-[11px] font-mono text-[#57606A]">Stack not configured</span>
+            )}
+          </div>
+        </div>
+
+        {/* Social / External Links */}
+        {(githubUrl || linkedInUrl || portfolioUrl) && (
+          <div className="mt-4 flex flex-wrap gap-2 border-t border-[#252A30] pt-3 text-xs font-mono">
+            {githubUrl && (
+              <a
+                href={githubUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center gap-1 text-[#8B949E] hover:text-[#00E5FF] transition-colors"
+              >
+                <span>GitHub</span>
+                <IconExternalLink className="h-3 w-3" />
+              </a>
+            )}
+            {linkedInUrl && (
+              <a
+                href={linkedInUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center gap-1 text-[#8B949E] hover:text-[#00E5FF] transition-colors"
+              >
+                <span>LinkedIn</span>
+                <IconExternalLink className="h-3 w-3" />
+              </a>
+            )}
+            {portfolioUrl && (
+              <a
+                href={portfolioUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center gap-1 text-[#8B949E] hover:text-[#00E5FF] transition-colors"
+              >
+                <span>Portfolio</span>
+                <IconExternalLink className="h-3 w-3" />
+              </a>
+            )}
+          </div>
+        )}
       </div>
+
+      {/* Actions */}
+      {!isPreview && (
+        <div className="grid grid-cols-2 gap-2 border-t border-[#252A30] bg-[#161A1F] p-3">
+          <button
+            className="flex items-center justify-center gap-1.5 rounded-lg border border-[#252A30] bg-[#111418] px-3 py-2 text-xs font-mono font-medium text-[#8B949E] hover:border-[#F43F5E]/40 hover:bg-[#F43F5E]/10 hover:text-[#F43F5E] transition-all"
+            onClick={() => handleSendRequest("ignore")}
+          >
+            <IconX className="h-3.5 w-3.5" />
+            <span>Skip</span>
+          </button>
+          <button
+            className="btn-cyan flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-mono font-bold"
+            onClick={() => handleSendRequest("interested")}
+          >
+            <IconSparkles className="h-3.5 w-3.5" />
+            <span>Connect</span>
+          </button>
+        </div>
+      )}
     </article>
   );
 };
 
 export default UserCard;
+
