@@ -247,7 +247,7 @@ export default function Connections() {
   }, [connections, searchQuery]);
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
+    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 space-y-6">
       {/* Top Header */}
       <PageTitle
         eyebrow="Network"
@@ -257,9 +257,9 @@ export default function Connections() {
 
       {/* Loading State */}
       {loading && (
-        <div className="flex h-96 flex-col items-center justify-center rounded-xl border border-[#252A30] bg-[#111418]">
-          <div className="flex items-center gap-3 text-xs text-[#00E5FF]">
-            <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-[#00E5FF] border-t-transparent" />
+        <div className="flex h-96 flex-col items-center justify-center rounded-2xl border border-[#1E2442] bg-[#0D1020]">
+          <div className="flex items-center gap-3 text-xs text-[#3B82F6] font-medium">
+            <span className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-[#3B82F6] border-t-transparent" />
             <span>Loading network topology...</span>
           </div>
         </div>
@@ -267,14 +267,14 @@ export default function Connections() {
 
       {/* Error State */}
       {!loading && error && (
-        <div className="flex h-96 flex-col items-center justify-center rounded-xl border border-[#F43F5E]/30 bg-[#111418] p-6 text-center">
-          <p className="text-sm text-[#F43F5E] mb-2">{error}</p>
-          <p className="text-xs text-[#8B949E] mb-4">
+        <div className="flex h-96 flex-col items-center justify-center rounded-2xl border border-[#F43F5E]/30 bg-[#0D1020] p-6 text-center">
+          <p className="text-sm font-semibold text-[#F43F5E] mb-2">{error}</p>
+          <p className="text-xs text-[#8B91A7] mb-4">
             Unable to sync peer links with the server.
           </p>
           <button
             onClick={fetchData}
-            className="btn-cyan flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold"
+            className="btn-primary flex items-center gap-1.5 px-4 py-2 text-xs font-semibold"
           >
             <IconRotateCcw className="h-3.5 w-3.5" />
             <span>Retry Connection</span>
@@ -284,21 +284,21 @@ export default function Connections() {
 
       {/* Empty State */}
       {!loading && !error && nodes.length <= 1 && (
-        <div className="flex flex-col items-center justify-center rounded-xl border border-[#252A30] bg-[#111418] p-12 text-center shadow-sm">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-[#00E5FF]/30 bg-[#00E5FF]/10 text-[#00E5FF] mb-3">
-            <IconNetwork className="h-6 w-6" />
+        <div className="flex flex-col items-center justify-center rounded-3xl border border-[#1E2442] bg-[#0D1020] p-12 text-center shadow-xl">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-[#3B82F6]/30 bg-[#3B82F6]/10 text-[#3B82F6] mb-4 shadow-lg shadow-blue-500/10">
+            <IconNetwork className="h-7 w-7" />
           </div>
-          <h3 className="text-base font-semibold text-[#F2F4F7]">Your mesh is still forming.</h3>
-          <p className="mt-1 max-w-md text-xs leading-relaxed text-[#8B949E]">
+          <h3 className="text-lg font-bold text-[#F5F7FF]">Your mesh is still forming.</h3>
+          <p className="mt-1.5 max-w-md text-xs sm:text-sm leading-relaxed text-[#8B91A7]">
             Connect with developers in the discovery feed or collaborate on projects to expand your interactive topology graph.
           </p>
-          <div className="mt-5 flex flex-wrap items-center gap-2.5 text-xs font-medium">
-            <Link to="/feed" className="btn-cyan px-3.5 py-1.5 flex items-center gap-1.5">
+          <div className="mt-6 flex flex-wrap items-center gap-3 text-xs font-semibold">
+            <Link to="/feed" className="btn-primary px-4 py-2 flex items-center gap-1.5">
               <IconSparkles className="h-3.5 w-3.5" />
               <span>Explore Developers</span>
             </Link>
-            <Link to="/projects" className="btn-secondary px-3.5 py-1.5 flex items-center gap-1.5">
-              <IconProjects className="h-3.5 w-3.5" />
+            <Link to="/projects" className="btn-secondary px-4 py-2 flex items-center gap-1.5">
+              <IconProjects className="h-3.5 w-3.5 text-[#3B82F6]" />
               <span>Browse Projects</span>
             </Link>
           </div>
@@ -347,39 +347,39 @@ export default function Connections() {
                 {filteredGridConnections.map((user) => (
                   <article
                     key={user._id}
-                    className="surface-card flex flex-col justify-between rounded-xl border border-[#252A30] bg-[#111418] p-5 shadow-sm hover:border-[#363E48] transition-colors"
+                    className="fintech-card flex flex-col justify-between rounded-2xl border border-[#1E2442] p-5 shadow-xl hover:border-[#2A335C] transition-all"
                   >
                     <div>
                       <div className="flex items-start gap-3.5">
                         <div className="relative shrink-0">
                           <img
-                            className="h-11 w-11 rounded-xl border border-[#252A30] object-cover bg-[#0B0D0F]"
-                            src={user.photoUrl || "https://placehold.co/80x80/161A1F/8B949E?text=DEV"}
+                            className="h-12 w-12 rounded-xl border border-[#1E2442] object-cover bg-[#0D1020]"
+                            src={user.photoUrl || "https://placehold.co/80x80/11152A/8B91A7?text=DEV"}
                             alt=""
                           />
-                          <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-[#10B981] border border-[#111418]" />
+                          <span className="absolute -bottom-0.5 -right-0.5 status-dot-active border border-[#0D1020]" />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <h3 className="truncate text-sm font-semibold text-[#F2F4F7]">
+                          <h3 className="truncate text-sm font-bold text-[#F5F7FF]">
                             {user.firstName} {user.lastName}
                           </h3>
-                          <p className="font-mono text-xs text-[#00E5FF]">
+                          <p className="text-xs text-[#3B82F6] font-semibold">
                             @{user.firstName?.toLowerCase()}
                           </p>
-                          <p className="font-mono text-[10px] text-[#57606A]">
+                          <p className="text-[11px] text-[#8B91A7]">
                             {user.age && user.gender ? `${user.age}y · ${user.gender}` : "Developer"}
                           </p>
                         </div>
                       </div>
 
-                      <p className="mt-3 text-xs leading-relaxed text-[#8B949E] line-clamp-2">
+                      <p className="mt-3 text-xs leading-relaxed text-[#8B91A7] line-clamp-2">
                         {user.about || "Developer actively contributing and building in the network."}
                       </p>
 
                       {user.skills?.length > 0 && (
-                        <div className="mt-3 flex flex-wrap gap-1">
+                        <div className="mt-3 flex flex-wrap gap-1.5">
                           {user.skills.map((skill) => (
-                            <span key={skill} className="tech-tag text-[10px]">
+                            <span key={skill} className="skill-pill text-[10px]">
                               {skill}
                             </span>
                           ))}
@@ -387,14 +387,14 @@ export default function Connections() {
                       )}
                     </div>
 
-                    <div className="mt-4 pt-3 border-t border-[#252A30] flex items-center justify-between">
-                      <span className="text-[11px] text-[#10B981] flex items-center gap-1.5">
-                        <span className="h-1.5 w-1.5 rounded-full bg-[#10B981]" />
+                    <div className="mt-4 pt-3.5 border-t border-[#1E2442] flex items-center justify-between">
+                      <span className="text-xs text-[#10B981] font-semibold flex items-center gap-1.5">
+                        <span className="status-dot-active" />
                         Connected
                       </span>
 
                       <Link
-                        className="btn-cyan flex items-center gap-1.5 px-3 py-1 text-xs font-semibold"
+                        className="btn-primary flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold"
                         to={`/chat/${user._id}`}
                         state={{ user }}
                       >
@@ -412,4 +412,5 @@ export default function Connections() {
     </div>
   );
 }
+
 

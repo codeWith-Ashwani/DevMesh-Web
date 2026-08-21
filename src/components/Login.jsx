@@ -41,57 +41,58 @@ function Login() {
   };
 
   const inputClass =
-    "w-full rounded-lg border border-[#252A30] bg-[#161A1F] px-3.5 py-2 text-xs text-[#F2F4F7] placeholder-[#57606A] outline-none hover:border-[#363E48] focus:border-[#00E5FF] transition-colors";
+    "w-full rounded-xl border border-[#1E2442] bg-[#11152A] px-4 py-2.5 text-xs text-[#F5F7FF] placeholder-[#515870] outline-none hover:border-[#2A335C] focus:border-[#3B82F6] transition-colors";
 
   return (
-    <div className="mx-auto grid w-full max-w-5xl items-center gap-10 px-4 py-12 md:grid-cols-2 md:py-20">
+    <div className="mx-auto grid w-full max-w-5xl items-center gap-12 px-4 py-12 md:grid-cols-2 md:py-20">
       {/* Left Manifesto / Product Intro */}
-      <section className="order-2 md:order-1 space-y-5">
-        <div className="flex items-center gap-2 text-xs text-[#00E5FF] font-medium">
-          <span className="h-2 w-2 rounded-full bg-[#10B981]" />
-          <span>DevMesh Network</span>
+      <section className="order-2 md:order-1 space-y-6">
+        <div className="flex items-center gap-2 text-xs text-[#3B82F6] font-semibold">
+          <span className="status-dot-blue" />
+          <span className="tracking-wider uppercase">DevMesh Platform</span>
         </div>
 
-        <h1 className="text-3xl font-extrabold tracking-tight text-[#F2F4F7] sm:text-4xl md:text-5xl leading-tight">
+        <h1 className="text-3xl font-extrabold tracking-tight text-[#F5F7FF] sm:text-4xl md:text-5xl leading-tight">
           The Developer <br />
-          <span className="text-[#00E5FF]">Network</span>
+          <span className="bg-gradient-to-r from-blue-400 via-indigo-300 to-cyan-300 bg-clip-text text-transparent">
+            Network
+          </span>
         </h1>
 
-        <p className="max-w-md text-xs leading-relaxed text-[#8B949E]">
-          Discover peer engineers, form distributed project squads, and communicate through an
-          information-dense workspace built for builders.
+        <p className="max-w-md text-xs sm:text-sm leading-relaxed text-[#8B91A7]">
+          Discover peer engineers, form distributed project squads, and build next-generation applications through a high-performance developer workspace.
         </p>
 
         {/* Feature bullets */}
-        <div className="space-y-2.5 text-xs text-[#8B949E]">
-          <div className="flex items-center gap-3 rounded-lg border border-[#252A30] bg-[#111418] p-3">
-            <span className="text-[#00E5FF] font-mono">&gt;</span>
-            <span>Developer identity &amp; verified tech stacks</span>
+        <div className="space-y-3 text-xs text-[#8B91A7]">
+          <div className="flex items-center gap-3 rounded-2xl border border-[#1E2442] bg-[#0D1020] p-3.5 shadow-md">
+            <span className="flex h-5 w-5 items-center justify-center rounded-lg bg-blue-500/10 text-[#3B82F6] font-bold">✓</span>
+            <span className="text-[#F5F7FF] font-medium">Developer identity &amp; verified tech stack graphs</span>
           </div>
-          <div className="flex items-center gap-3 rounded-lg border border-[#252A30] bg-[#111418] p-3">
-            <span className="text-[#10B981] font-mono">&gt;</span>
-            <span>Project collaboration &amp; role matching</span>
+          <div className="flex items-center gap-3 rounded-2xl border border-[#1E2442] bg-[#0D1020] p-3.5 shadow-md">
+            <span className="flex h-5 w-5 items-center justify-center rounded-lg bg-emerald-500/10 text-[#10B981] font-bold">✓</span>
+            <span className="text-[#F5F7FF] font-medium">Project initiative matching &amp; milestone tracking</span>
           </div>
-          <div className="flex items-center gap-3 rounded-lg border border-[#252A30] bg-[#111418] p-3">
-            <span className="text-[#38BDF8] font-mono">&gt;</span>
-            <span>Direct messaging &amp; interactive network topology</span>
+          <div className="flex items-center gap-3 rounded-2xl border border-[#1E2442] bg-[#0D1020] p-3.5 shadow-md">
+            <span className="flex h-5 w-5 items-center justify-center rounded-lg bg-cyan-500/10 text-cyan-400 font-bold">✓</span>
+            <span className="text-[#F5F7FF] font-medium">Direct peer messaging &amp; dynamic network mesh</span>
           </div>
         </div>
       </section>
 
       {/* Right Auth Card */}
-      <section className="order-1 md:order-2 surface-card rounded-xl border border-[#252A30] bg-[#111418] p-6 shadow-xl sm:p-8">
+      <section className="order-1 md:order-2 fintech-card rounded-3xl border border-[#1E2442] p-6 shadow-2xl sm:p-8">
         {/* Switch tabs */}
-        <div className="flex border-b border-[#252A30] mb-6">
+        <div className="flex border-b border-[#1E2442] mb-6">
           <button
             onClick={() => {
               setIsLoginForm(true);
               setError("");
             }}
-            className={`flex-1 pb-3 text-xs font-semibold transition-colors text-center ${
+            className={`flex-1 pb-3 text-xs font-bold transition-all text-center ${
               isLoginForm
-                ? "border-b-2 border-[#00E5FF] text-[#00E5FF]"
-                : "text-[#8B949E] hover:text-[#F2F4F7]"
+                ? "border-b-2 border-[#3B82F6] text-[#3B82F6]"
+                : "text-[#8B91A7] hover:text-[#F5F7FF]"
             }`}
           >
             Sign In
@@ -101,10 +102,10 @@ function Login() {
               setIsLoginForm(false);
               setError("");
             }}
-            className={`flex-1 pb-3 text-xs font-semibold transition-colors text-center ${
+            className={`flex-1 pb-3 text-xs font-bold transition-all text-center ${
               !isLoginForm
-                ? "border-b-2 border-[#00E5FF] text-[#00E5FF]"
-                : "text-[#8B949E] hover:text-[#F2F4F7]"
+                ? "border-b-2 border-[#3B82F6] text-[#3B82F6]"
+                : "text-[#8B91A7] hover:text-[#F5F7FF]"
             }`}
           >
             Create Account
@@ -115,7 +116,7 @@ function Login() {
           {!isLoginForm && (
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
-                <label className="block text-xs text-[#8B949E] mb-1 font-medium">
+                <label className="block text-xs font-semibold text-[#8B91A7] mb-1">
                   First Name
                 </label>
                 <input
@@ -127,7 +128,7 @@ function Login() {
                 />
               </div>
               <div>
-                <label className="block text-xs text-[#8B949E] mb-1 font-medium">
+                <label className="block text-xs font-semibold text-[#8B91A7] mb-1">
                   Last Name
                 </label>
                 <input
@@ -142,7 +143,7 @@ function Login() {
           )}
 
           <div>
-            <label className="block text-xs text-[#8B949E] mb-1 font-medium">
+            <label className="block text-xs font-semibold text-[#8B91A7] mb-1">
               Email Address
             </label>
             <input
@@ -156,7 +157,7 @@ function Login() {
           </div>
 
           <div>
-            <label className="block text-xs text-[#8B949E] mb-1 font-medium">
+            <label className="block text-xs font-semibold text-[#8B91A7] mb-1">
               Password
             </label>
             <input
@@ -170,7 +171,7 @@ function Login() {
           </div>
 
           {error && (
-            <div className="rounded-lg border border-[#F43F5E]/30 bg-[#F43F5E]/10 p-3 text-xs text-[#F43F5E]">
+            <div className="rounded-xl border border-[#F43F5E]/30 bg-[#F43F5E]/10 p-3.5 text-xs text-[#F43F5E]">
               {error}
             </div>
           )}
@@ -178,7 +179,7 @@ function Login() {
           <button
             type="submit"
             disabled={loading}
-            className="btn-cyan w-full py-2.5 text-xs font-semibold disabled:opacity-50"
+            className="btn-primary w-full py-2.5 text-xs font-bold disabled:opacity-50"
           >
             {loading
               ? "Signing in..."
@@ -188,9 +189,9 @@ function Login() {
           </button>
         </form>
 
-        <div className="mt-6 pt-4 border-t border-[#252A30] text-center">
+        <div className="mt-6 pt-4 border-t border-[#1E2442] text-center">
           <button
-            className="text-xs text-[#8B949E] hover:text-[#00E5FF] transition-colors"
+            className="text-xs font-medium text-[#8B91A7] hover:text-[#3B82F6] transition-colors"
             onClick={() => {
               setIsLoginForm(!isLoginForm);
               setError("");
@@ -205,5 +206,6 @@ function Login() {
 }
 
 export default Login;
+
 
 

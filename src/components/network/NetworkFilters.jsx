@@ -24,8 +24,8 @@ export default function NetworkFilters({
   ];
 
   return (
-    <div className="flex flex-col gap-3 rounded-xl border border-[#252A30] bg-[#111418] p-3 shadow-sm">
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+    <div className="fintech-card flex flex-col gap-3.5 rounded-2xl border border-[#1E2442] p-4 shadow-xl">
+      <div className="flex flex-col gap-3.5 lg:flex-row lg:items-center lg:justify-between">
         {/* Filter Type Pills */}
         <div className="flex flex-wrap items-center gap-1.5">
           {filterOptions.map((opt) => {
@@ -35,15 +35,15 @@ export default function NetworkFilters({
               <button
                 key={opt.id}
                 onClick={() => setActiveFilter(opt.id)}
-                className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs transition-colors ${
+                className={`flex items-center gap-2 rounded-xl px-3 py-1.5 text-xs transition-all ${
                   isActive
-                    ? "bg-[#161A1F] text-[#00E5FF] border border-[#252A30] font-medium"
-                    : "text-[#8B949E] hover:bg-[#161A1F] hover:text-[#F2F4F7] border border-transparent"
+                    ? "bg-[#151A32] text-[#F5F7FF] border border-[#232B4E] font-semibold shadow-sm"
+                    : "text-[#8B91A7] hover:bg-[#11152A] hover:text-[#F5F7FF] border border-transparent"
                 }`}
               >
-                <Icon className={`h-3.5 w-3.5 ${isActive ? "text-[#00E5FF]" : "text-[#8B949E]"}`} />
+                <Icon className={`h-3.5 w-3.5 ${isActive ? "text-[#3B82F6]" : "text-[#8B91A7]"}`} />
                 <span>{opt.label}</span>
-                <span className="rounded-full bg-[#1C2229] px-1.5 py-0.2 text-[10px] font-mono text-[#57606A]">
+                <span className="rounded-full bg-[#11152A] px-2 py-0.5 text-[10px] font-bold font-mono text-[#8B91A7]">
                   {opt.count}
                 </span>
               </button>
@@ -52,21 +52,21 @@ export default function NetworkFilters({
         </div>
 
         {/* Right Search and View Switcher */}
-        <div className="flex flex-wrap items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-3">
           {/* Search Box */}
-          <div className="relative min-w-[200px] flex-1 sm:flex-initial">
+          <div className="relative min-w-[220px] flex-1 sm:flex-initial">
             <input
               type="text"
-              className="w-full rounded-lg border border-[#252A30] bg-[#161A1F] px-3 py-1.5 pl-8 text-xs text-[#F2F4F7] placeholder-[#57606A] outline-none hover:border-[#363E48] focus:border-[#00E5FF] transition-colors"
+              className="w-full rounded-xl border border-[#1E2442] bg-[#11152A] px-3.5 py-1.5 pl-9 text-xs text-[#F5F7FF] placeholder-[#515870] outline-none hover:border-[#2A335C] focus:border-[#3B82F6] transition-colors"
               placeholder="Search node or skill..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
-            <IconSearch className="absolute left-2.5 top-2 h-3.5 w-3.5 text-[#57606A]" />
+            <IconSearch className="absolute left-3 top-2 h-3.5 w-3.5 text-[#515870]" />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery("")}
-                className="absolute right-2.5 top-1.5 text-xs text-[#8B949E] hover:text-[#F2F4F7]"
+                className="absolute right-3 top-1.5 text-xs text-[#8B91A7] hover:text-[#F5F7FF]"
               >
                 ✕
               </button>
@@ -74,27 +74,27 @@ export default function NetworkFilters({
           </div>
 
           {/* View Mode Toggle */}
-          <div className="flex items-center rounded-lg border border-[#252A30] bg-[#161A1F] p-0.5 text-xs font-medium">
+          <div className="flex items-center rounded-xl border border-[#1E2442] bg-[#11152A] p-1 text-xs font-semibold">
             <button
               onClick={() => setViewMode("graph")}
-              className={`flex items-center gap-1 rounded-md px-2.5 py-1 transition-colors ${
+              className={`flex items-center gap-1.5 rounded-lg px-3 py-1 transition-all ${
                 viewMode === "graph"
-                  ? "bg-[#111418] text-[#00E5FF] border border-[#252A30]"
-                  : "text-[#8B949E] hover:text-[#F2F4F7]"
+                  ? "bg-[#0D1020] text-[#3B82F6] border border-[#1E2442] shadow-sm"
+                  : "text-[#8B91A7] hover:text-[#F5F7FF]"
               }`}
             >
-              <IconNetwork className="h-3 w-3" />
+              <IconNetwork className="h-3.5 w-3.5" />
               <span>Graph</span>
             </button>
             <button
               onClick={() => setViewMode("grid")}
-              className={`flex items-center gap-1 rounded-md px-2.5 py-1 transition-colors ${
+              className={`flex items-center gap-1.5 rounded-lg px-3 py-1 transition-all ${
                 viewMode === "grid"
-                  ? "bg-[#111418] text-[#00E5FF] border border-[#252A30]"
-                  : "text-[#8B949E] hover:text-[#F2F4F7]"
+                  ? "bg-[#0D1020] text-[#3B82F6] border border-[#1E2442] shadow-sm"
+                  : "text-[#8B91A7] hover:text-[#F5F7FF]"
               }`}
             >
-              <IconLayers className="h-3 w-3" />
+              <IconLayers className="h-3.5 w-3.5" />
               <span>Directory</span>
             </button>
           </div>
@@ -102,24 +102,24 @@ export default function NetworkFilters({
       </div>
 
       {/* Quick Topology Legend Bar */}
-      <div className="flex flex-wrap items-center justify-between border-t border-[#252A30] pt-2 text-xs text-[#8B949E]">
+      <div className="flex flex-wrap items-center justify-between border-t border-[#1E2442] pt-2.5 text-xs text-[#8B91A7]">
         <div className="flex items-center gap-4 text-[11px]">
           <span className="flex items-center gap-1.5">
-            <span className="inline-block h-2.5 w-2.5 rounded-full border border-[#00E5FF] bg-[#00E5FF]/20" />
-            <span className="text-[#F2F4F7]">Developer (Circle)</span>
+            <span className="inline-block h-2.5 w-2.5 rounded-full border border-[#3B82F6] bg-[#3B82F6]/30 shadow-sm" />
+            <span className="text-[#F5F7FF] font-medium">Developer (Circle)</span>
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="inline-block h-2 w-2 rotate-45 border border-[#38BDF8] bg-[#38BDF8]/20" />
-            <span className="text-[#F2F4F7]">Skill (Diamond)</span>
+            <span className="inline-block h-2 w-2 rotate-45 border border-[#60A5FA] bg-[#60A5FA]/30" />
+            <span className="text-[#F5F7FF] font-medium">Skill (Diamond)</span>
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="inline-block h-2.5 w-2.5 rounded-sm border border-[#10B981] bg-[#10B981]/20" />
-            <span className="text-[#F2F4F7]">Project (Hex/Box)</span>
+            <span className="inline-block h-2.5 w-2.5 rounded-sm border border-[#10B981] bg-[#10B981]/30" />
+            <span className="text-[#F5F7FF] font-medium">Project (Box)</span>
           </span>
         </div>
 
-        <div className="flex items-center gap-2 text-[11px] text-[#57606A] font-mono">
-          <span>{stats.totalLinks} links</span>
+        <div className="flex items-center gap-2 text-[11px] text-[#515870] font-medium">
+          <span>{stats.totalLinks} relationships mapped</span>
           <span>·</span>
           <span>Click node to inspect</span>
         </div>
@@ -127,4 +127,5 @@ export default function NetworkFilters({
     </div>
   );
 }
+
 

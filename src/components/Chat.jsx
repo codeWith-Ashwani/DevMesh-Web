@@ -69,22 +69,22 @@ function Chat() {
   };
 
   return (
-    <div className="mx-auto flex h-[calc(100vh-3.5rem)] max-w-7xl flex-col p-3 sm:p-6">
-      <div className="flex flex-1 overflow-hidden rounded-xl border border-[#252A30] bg-[#111418] shadow-lg">
+    <div className="mx-auto flex h-[calc(100vh-4rem)] max-w-7xl flex-col p-3 sm:p-6">
+      <div className="flex flex-1 overflow-hidden rounded-2xl border border-[#1E2442] bg-[#0D1020] shadow-2xl">
         {/* Left Sidebar: Connections List */}
-        <aside className="hidden w-64 border-r border-[#252A30] bg-[#0B0D0F] md:flex md:flex-col">
-          <div className="flex h-12 items-center justify-between border-b border-[#252A30] px-4">
-            <span className="text-xs font-semibold text-[#8B949E] uppercase tracking-wider font-mono">
-              Conversations
+        <aside className="hidden w-72 border-r border-[#1E2442] bg-[#0D1020] md:flex md:flex-col">
+          <div className="flex h-14 items-center justify-between border-b border-[#1E2442] px-4">
+            <span className="text-xs font-bold text-[#8B91A7] uppercase tracking-wider">
+              Direct Messages
             </span>
-            <span className="rounded-full border border-[#252A30] bg-[#161A1F] px-1.5 py-0.2 text-[10px] font-mono text-[#00E5FF]">
+            <span className="rounded-full bg-[#11152A] px-2 py-0.5 text-[10px] font-bold font-mono text-[#3B82F6]">
               {connections.length}
             </span>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-2 space-y-1">
+          <div className="flex-1 overflow-y-auto p-2.5 space-y-1.5">
             {connections.length === 0 ? (
-              <p className="p-4 text-center text-xs text-[#57606A]">
+              <p className="p-6 text-center text-xs text-[#515870]">
                 No connected developers yet.
               </p>
             ) : (
@@ -95,23 +95,23 @@ function Chat() {
                     key={peer._id}
                     to={`/chat/${peer._id}`}
                     state={{ user: peer }}
-                    className={`flex items-center gap-2.5 rounded-lg p-2 transition-colors ${
+                    className={`flex items-center gap-3 rounded-xl p-2.5 transition-all ${
                       isCurrent
-                        ? "bg-[#161A1F] border border-[#252A30] text-[#00E5FF]"
-                        : "text-[#8B949E] hover:bg-[#161A1F]/60 hover:text-[#F2F4F7]"
+                        ? "bg-[#151A32] border border-[#232B4E] text-[#F5F7FF] shadow-sm"
+                        : "text-[#8B91A7] hover:bg-[#11152A] hover:text-[#F5F7FF] border border-transparent"
                     }`}
                   >
                     <div className="relative shrink-0">
                       <img
-                        className="h-8 w-8 rounded-lg border border-[#252A30] object-cover bg-[#161A1F]"
-                        src={peer.photoUrl || "https://placehold.co/80x80/161A1F/8B949E?text=DEV"}
+                        className="h-9 w-9 rounded-xl border border-[#1E2442] object-cover bg-[#080A14]"
+                        src={peer.photoUrl || "https://placehold.co/80x80/11152A/8B91A7?text=DEV"}
                         alt=""
                       />
-                      <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full bg-[#10B981]" />
+                      <span className="absolute -bottom-0.5 -right-0.5 status-dot-active" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-xs font-semibold">{peer.firstName} {peer.lastName}</p>
-                      <p className="truncate font-mono text-[10px] text-[#57606A]">
+                      <p className="truncate text-xs font-bold">{peer.firstName} {peer.lastName}</p>
+                      <p className="truncate text-[10px] text-[#8B91A7]">
                         {peer.skills?.slice(0, 2).join(" · ") || "Developer"}
                       </p>
                     </div>
@@ -123,42 +123,42 @@ function Chat() {
         </aside>
 
         {/* Right Main Channel Workspace */}
-        <section className="flex flex-1 flex-col bg-[#111418] min-w-0">
+        <section className="flex flex-1 flex-col bg-[#080A14] min-w-0">
           {/* Header */}
-          <header className="flex h-14 items-center justify-between border-b border-[#252A30] bg-[#161A1F] px-4">
+          <header className="flex h-14 items-center justify-between border-b border-[#1E2442] bg-[#0D1020] px-4">
             <div className="flex items-center gap-3">
               <Link
                 to="/connections"
-                className="flex h-7 w-7 items-center justify-center rounded-lg border border-[#252A30] text-[#8B949E] hover:text-[#F2F4F7] md:hidden"
+                className="flex h-7 w-7 items-center justify-center rounded-lg border border-[#1E2442] text-[#8B91A7] hover:text-[#F5F7FF] md:hidden"
               >
                 <IconChevronLeft className="h-4 w-4" />
               </Link>
 
               <div className="relative">
                 <img
-                  className="h-8 w-8 rounded-lg border border-[#252A30] object-cover bg-[#0B0D0F]"
-                  src={otherUser?.photoUrl || "https://placehold.co/80x80/161A1F/8B949E?text=DEV"}
+                  className="h-9 w-9 rounded-xl border border-[#1E2442] object-cover bg-[#080A14]"
+                  src={otherUser?.photoUrl || "https://placehold.co/80x80/11152A/8B91A7?text=DEV"}
                   alt=""
                 />
-                <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full bg-[#10B981] ring-2 ring-[#161A1F]" />
+                <span className="absolute -bottom-0.5 -right-0.5 status-dot-active ring-2 ring-[#0D1020]" />
               </div>
 
               <div>
-                <h2 className="text-xs font-bold text-[#F2F4F7] sm:text-sm">
+                <h2 className="text-xs font-bold text-[#F5F7FF] sm:text-sm">
                   {otherUser ? `${otherUser.firstName} ${otherUser.lastName}` : "Direct Message"}
                 </h2>
-                <div className="flex items-center gap-2 font-mono text-[10px] text-[#57606A]">
+                <div className="flex items-center gap-2 text-[10px] text-[#8B91A7]">
                   <span>@{otherUser?.firstName?.toLowerCase() || "developer"}</span>
                   <span>·</span>
-                  <span className="text-[#10B981]">Active</span>
+                  <span className="text-[#10B981] font-semibold">Active Mesh</span>
                 </div>
               </div>
             </div>
 
             {otherUser?.skills && (
-              <div className="hidden lg:flex items-center gap-1">
+              <div className="hidden lg:flex items-center gap-1.5">
                 {otherUser.skills.slice(0, 3).map((skill) => (
-                  <span key={skill} className="tech-tag text-[9px]">
+                  <span key={skill} className="skill-pill text-[9px]">
                     {skill}
                   </span>
                 ))}
@@ -167,22 +167,22 @@ function Chat() {
           </header>
 
           {/* Messages Stream */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-3">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-3.5">
             {error && (
-              <div className="rounded-lg border border-[#F43F5E]/30 bg-[#F43F5E]/10 p-3 text-xs text-[#F43F5E]">
+              <div className="rounded-xl border border-[#F43F5E]/30 bg-[#F43F5E]/10 p-3.5 text-xs text-[#F43F5E]">
                 {error}
               </div>
             )}
 
             {!error && messages.length === 0 && (
               <div className="flex h-full flex-col items-center justify-center text-center p-6">
-                <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl border border-[#252A30] bg-[#161A1F] text-[#8B949E] mb-3">
-                  <IconSend className="h-4 w-4" />
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl border border-[#1E2442] bg-[#11152A] text-[#8B91A7] mb-3 shadow-lg">
+                  <IconSend className="h-5 w-5 text-[#3B82F6]" />
                 </div>
-                <h3 className="text-xs font-semibold text-[#F2F4F7]">
+                <h3 className="text-sm font-bold text-[#F5F7FF]">
                   Start a conversation
                 </h3>
-                <p className="mt-1 max-w-sm text-xs text-[#57606A]">
+                <p className="mt-1 max-w-sm text-xs text-[#8B91A7]">
                   Say hello, discuss technical stacks, and coordinate collaboration on projects.
                 </p>
               </div>
@@ -196,16 +196,16 @@ function Chat() {
                   className={`flex flex-col ${isMine ? "items-end" : "items-start"}`}
                 >
                   <div
-                    className={`max-w-[85%] sm:max-w-[70%] rounded-xl px-3.5 py-2 text-xs leading-relaxed ${
+                    className={`max-w-[85%] sm:max-w-[70%] rounded-2xl px-4 py-2.5 text-xs leading-relaxed shadow-md ${
                       isMine
-                        ? "bg-[#00E5FF] text-[#0B0D0F] font-medium rounded-br-none"
-                        : "bg-[#161A1F] border border-[#252A30] text-[#F2F4F7] rounded-bl-none"
+                        ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white font-medium rounded-br-sm shadow-blue-500/10"
+                        : "bg-[#11152A] border border-[#1E2442] text-[#F5F7FF] rounded-bl-sm"
                     }`}
                   >
                     <p className="break-words whitespace-pre-wrap">{message.text}</p>
                   </div>
                   <span
-                    className="mt-1 font-mono text-[9px] text-[#57606A] px-1"
+                    className="mt-1 text-[10px] text-[#515870] font-mono px-1 font-medium"
                   >
                     {new Date(message.createdAt).toLocaleTimeString([], {
                       hour: "2-digit",
@@ -221,11 +221,11 @@ function Chat() {
           {/* Input Bar */}
           <form
             onSubmit={sendMessage}
-            className="flex items-center gap-2 border-t border-[#252A30] bg-[#0B0D0F] p-3"
+            className="flex items-center gap-2.5 border-t border-[#1E2442] bg-[#0D1020] p-3 sm:p-4"
           >
             <div className="relative flex-1">
               <input
-                className="w-full rounded-lg border border-[#252A30] bg-[#161A1F] px-3.5 py-2 text-xs text-[#F2F4F7] placeholder-[#57606A] outline-none hover:border-[#363E48] focus:border-[#00E5FF] transition-colors"
+                className="w-full rounded-xl border border-[#1E2442] bg-[#11152A] px-4 py-2.5 text-xs text-[#F5F7FF] placeholder-[#515870] outline-none hover:border-[#2A335C] focus:border-[#3B82F6] transition-colors"
                 value={text}
                 maxLength="2000"
                 placeholder="Type a message... (Press Enter to send)"
@@ -235,7 +235,7 @@ function Chat() {
             <button
               type="submit"
               disabled={!text.trim() || sending}
-              className="btn-cyan flex h-8.5 items-center justify-center gap-1.5 px-3.5 text-xs font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
+              className="btn-primary flex h-10 items-center justify-center gap-2 px-5 text-xs font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <IconSend className="h-3.5 w-3.5" />
               <span>Send</span>
@@ -248,6 +248,3 @@ function Chat() {
 }
 
 export default Chat;
-
-
-

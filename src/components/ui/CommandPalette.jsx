@@ -70,28 +70,28 @@ export default function CommandPalette({ isOpen, onClose }) {
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 px-4">
       <div 
-        className="fixed inset-0 bg-black/70 backdrop-blur-sm transition-opacity" 
+        className="fixed inset-0 bg-black/80 backdrop-blur-md transition-opacity" 
         onClick={onClose} 
       />
-      <div className="relative w-full max-w-xl rounded-xl border border-[#252A30] bg-[#111418] shadow-2xl shadow-black/80 overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-150">
-        <div className="flex items-center gap-3 border-b border-[#252A30] px-4 py-3 bg-[#161A1F]">
-          <IconTerminal className="w-4 h-4 text-[#00E5FF]" />
+      <div className="relative w-full max-w-xl rounded-2xl border border-[#1E2442] bg-[#0D1020] shadow-2xl shadow-black/80 overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-150">
+        <div className="flex items-center gap-3 border-b border-[#1E2442] px-4 py-3.5 bg-[#11152A]">
+          <IconTerminal className="w-4 h-4 text-[#3B82F6]" />
           <input
             ref={inputRef}
             type="text"
-            className="w-full bg-transparent text-xs font-mono text-[#F2F4F7] placeholder-[#57606A] outline-none"
+            className="w-full bg-transparent text-xs text-[#F5F7FF] placeholder-[#515870] outline-none font-medium"
             placeholder="Type a command or jump to workspace..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
-          <kbd className="hidden sm:inline-flex items-center rounded border border-[#252A30] bg-[#111418] px-1.5 py-0.5 text-[9px] font-mono text-[#8B949E]">
+          <kbd className="hidden sm:inline-flex items-center rounded-md border border-[#1E2442] bg-[#0D1020] px-2 py-0.5 text-[9px] font-mono text-[#8B91A7]">
             ESC
           </kbd>
         </div>
 
-        <div className="max-h-72 overflow-y-auto p-2 space-y-1">
+        <div className="max-h-72 overflow-y-auto p-2.5 space-y-1">
           {filtered.length === 0 ? (
-            <div className="py-8 text-center text-xs font-mono text-[#57606A]">
+            <div className="py-8 text-center text-xs text-[#515870]">
               No commands matching "{query}"
             </div>
           ) : (
@@ -106,17 +106,17 @@ export default function CommandPalette({ isOpen, onClose }) {
                     onClose();
                   }}
                   onMouseEnter={() => setSelectedIndex(idx)}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-mono transition-colors text-left ${
+                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs transition-all text-left ${
                     isSelected
-                      ? "bg-[#1C2229] text-[#00E5FF] border border-[#252A30]"
-                      : "text-[#8B949E] hover:bg-[#161A1F] hover:text-[#F2F4F7]"
+                      ? "bg-[#151A32] text-[#F5F7FF] border border-[#232B4E] shadow-sm font-semibold"
+                      : "text-[#8B91A7] hover:bg-[#11152A] hover:text-[#F5F7FF]"
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <Icon className={`w-4 h-4 ${isSelected ? "text-[#00E5FF]" : "text-[#8B949E]"}`} />
+                    <Icon className={`w-4 h-4 ${isSelected ? "text-[#3B82F6]" : "text-[#8B91A7]"}`} />
                     <span>{item.label}</span>
                   </div>
-                  <span className="text-[10px] text-[#57606A] uppercase tracking-wider">{item.category}</span>
+                  <span className="text-[10px] text-[#515870] uppercase font-bold tracking-wider">{item.category}</span>
                 </button>
               );
             })
@@ -124,17 +124,18 @@ export default function CommandPalette({ isOpen, onClose }) {
 
         </div>
 
-        <div className="flex items-center justify-between border-t border-[#252A30] bg-[#0B0D0F] px-4 py-2 text-[11px] font-mono text-[#57606A]">
+        <div className="flex items-center justify-between border-t border-[#1E2442] bg-[#080A14] px-4 py-2.5 text-xs text-[#515870]">
           <div className="flex items-center gap-2">
             <span>Navigation:</span>
-            <kbd className="rounded border border-[#252A30] bg-[#161A1F] px-1 text-[9px] text-[#8B949E]">↑</kbd>
-            <kbd className="rounded border border-[#252A30] bg-[#161A1F] px-1 text-[9px] text-[#8B949E]">↓</kbd>
+            <kbd className="rounded border border-[#1E2442] bg-[#11152A] px-1 text-[9px] text-[#8B91A7]">↑</kbd>
+            <kbd className="rounded border border-[#1E2442] bg-[#11152A] px-1 text-[9px] text-[#8B91A7]">↓</kbd>
             <span>Select:</span>
-            <kbd className="rounded border border-[#252A30] bg-[#161A1F] px-1 text-[9px] text-[#8B949E]">↵</kbd>
+            <kbd className="rounded border border-[#1E2442] bg-[#11152A] px-1 text-[9px] text-[#8B91A7]">↵</kbd>
           </div>
-          <span className="text-[#00E5FF]/70">DevMesh OS v1.0</span>
+          <span className="text-[#3B82F6] font-semibold text-[11px]">DevMesh Studio</span>
         </div>
       </div>
     </div>
   );
 }
+

@@ -68,29 +68,29 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
 
       {/* Sidebar Container */}
       <aside
-        className={`fixed top-0 bottom-0 left-0 z-40 flex flex-col border-r border-[#252A30] bg-[#111418] transition-all duration-150 ease-in-out lg:static ${
-          isCollapsed ? "lg:w-16" : "lg:w-56"
+        className={`fixed top-0 bottom-0 left-0 z-40 flex flex-col border-r border-[#1E2442] bg-[#0D1020] transition-all duration-200 ease-in-out lg:static ${
+          isCollapsed ? "lg:w-16" : "lg:w-60"
         } ${
-          isMobileOpen ? "translate-x-0 w-64" : "-translate-x-full lg:translate-x-0"
+          isMobileOpen ? "translate-x-0 w-64 shadow-2xl" : "-translate-x-full lg:translate-x-0"
         }`}
       >
         {/* Brand / Header */}
-        <div className="flex h-14 items-center justify-between border-b border-[#252A30] px-4">
+        <div className="flex h-14 items-center justify-between border-b border-[#1E2442] px-4">
           <Link
             to="/"
             onClick={() => setIsMobileOpen(false)}
-            className="flex items-center gap-2.5 overflow-hidden"
+            className="flex items-center gap-3 overflow-hidden"
           >
-            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#00E5FF]/10 border border-[#00E5FF]/30 text-[#00E5FF]">
-              <IconTerminal className="h-4 w-4" />
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/20">
+              <span className="font-bold text-xs">DM</span>
             </div>
             {(!isCollapsed || isMobileOpen) && (
               <div className="flex flex-col leading-none">
-                <span className="font-bold text-xs tracking-wide text-[#F2F4F7]">
-                  Dev<span className="text-[#00E5FF]">Mesh</span>
+                <span className="font-bold text-sm tracking-tight text-[#F5F7FF]">
+                  Dev<span className="text-[#3B82F6]">Mesh</span>
                 </span>
-                <span className="font-mono text-[9px] text-[#57606A] mt-0.5">
-                  developer network
+                <span className="text-[10px] text-[#8B91A7] mt-0.5 font-medium">
+                  Developer Platform
                 </span>
               </div>
             )}
@@ -99,7 +99,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
           {/* Desktop Collapse Toggle */}
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="hidden lg:flex h-6 w-6 items-center justify-center rounded border border-[#252A30] bg-[#161A1F] text-[#8B949E] hover:border-[#363E48] hover:text-[#F2F4F7] transition-colors"
+            className="hidden lg:flex h-6 w-6 items-center justify-center rounded-lg border border-[#1E2442] bg-[#11152A] text-[#8B91A7] hover:border-[#2A335C] hover:text-[#F5F7FF] transition-colors"
             title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
             {isCollapsed ? (
@@ -111,7 +111,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
         </div>
 
         {/* Navigation Section */}
-        <nav className="flex-1 space-y-1 p-2 overflow-y-auto">
+        <nav className="flex-1 space-y-1.5 p-3 overflow-y-auto">
           {navItems.map((item) => {
             const active = isActive(item.path);
             const Icon = item.icon;
@@ -120,31 +120,31 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
                 key={item.path + item.label}
                 to={item.path}
                 onClick={() => setIsMobileOpen(false)}
-                className={`group relative flex items-center gap-3 rounded-lg px-3 py-2 text-xs transition-colors ${
+                className={`group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-xs transition-all ${
                   active
-                    ? "bg-[#161A1F] text-[#00E5FF] font-medium border border-[#252A30]"
-                    : "text-[#8B949E] hover:bg-[#161A1F] hover:text-[#F2F4F7]"
+                    ? "bg-[#151A32] text-[#F5F7FF] font-semibold border border-[#232B4E] shadow-sm"
+                    : "text-[#8B91A7] hover:bg-[#11152A] hover:text-[#F5F7FF]"
                 } ${isCollapsed && !isMobileOpen ? "justify-center px-2" : ""}`}
                 title={isCollapsed && !isMobileOpen ? item.label : undefined}
               >
                 {active && (
-                  <span className="absolute left-0 top-1.5 bottom-1.5 w-0.5 rounded-r bg-[#00E5FF]" />
+                  <span className="absolute left-0 top-2 bottom-2 w-1 rounded-r-full bg-[#3B82F6] shadow-[0_0_8px_#3B82F6]" />
                 )}
                 <Icon
                   className={`h-4 w-4 shrink-0 transition-colors ${
-                    active ? "text-[#00E5FF]" : "text-[#8B949E] group-hover:text-[#F2F4F7]"
+                    active ? "text-[#3B82F6]" : "text-[#8B91A7] group-hover:text-[#F5F7FF]"
                   }`}
                 />
                 {(!isCollapsed || isMobileOpen) && (
                   <span className="truncate">{item.label}</span>
                 )}
                 {item.badge && (!isCollapsed || isMobileOpen) && (
-                  <span className="ml-auto rounded-full bg-[#00E5FF]/10 px-1.5 py-0.2 text-[10px] font-bold font-mono text-[#00E5FF] border border-[#00E5FF]/30">
+                  <span className="ml-auto rounded-full bg-[#2563EB]/20 px-2 py-0.5 text-[10px] font-bold text-[#60A5FA] border border-[#3B82F6]/30">
                     {item.badge}
                   </span>
                 )}
                 {item.badge && isCollapsed && !isMobileOpen && (
-                  <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-[#00E5FF]" />
+                  <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-[#3B82F6]" />
                 )}
               </Link>
             );
@@ -153,19 +153,19 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
 
         {/* User Card / Session Bar */}
         {user ? (
-          <div className="border-t border-[#252A30] p-2 bg-[#0B0D0F]">
+          <div className="border-t border-[#1E2442] p-3 bg-[#080A14]/70">
             <div
-              className={`flex items-center gap-2.5 rounded-lg p-2 ${
+              className={`flex items-center gap-3 rounded-xl p-1.5 ${
                 isCollapsed && !isMobileOpen ? "justify-center" : ""
               }`}
             >
               <Link to="/profile" onClick={() => setIsMobileOpen(false)} className="relative shrink-0">
                 <img
-                  className="h-8 w-8 rounded-lg border border-[#252A30] object-cover bg-[#161A1F]"
-                  src={user.photoUrl || "https://placehold.co/80x80/161A1F/8B949E?text=DEV"}
+                  className="h-8 w-8 rounded-xl border border-[#1E2442] object-cover bg-[#11152A]"
+                  src={user.photoUrl || "https://placehold.co/80x80/11152A/8B91A7?text=DEV"}
                   alt={user.firstName}
                 />
-                <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full bg-[#10B981] border border-[#0B0D0F]" />
+                <span className="absolute -bottom-0.5 -right-0.5 status-dot-active border border-[#080A14]" />
               </Link>
 
               {(!isCollapsed || isMobileOpen) && (
@@ -173,11 +173,11 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
                   <Link
                     to="/profile"
                     onClick={() => setIsMobileOpen(false)}
-                    className="block truncate text-xs font-semibold text-[#F2F4F7] hover:text-[#00E5FF] transition-colors"
+                    className="block truncate text-xs font-semibold text-[#F5F7FF] hover:text-[#3B82F6] transition-colors"
                   >
                     {user.firstName} {user.lastName}
                   </Link>
-                  <p className="truncate font-mono text-[10px] text-[#57606A]">
+                  <p className="truncate text-[11px] text-[#8B91A7]">
                     @{user.firstName?.toLowerCase() || "dev"}
                   </p>
                 </div>
@@ -186,7 +186,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
               {(!isCollapsed || isMobileOpen) && (
                 <button
                   onClick={handleLogout}
-                  className="h-7 w-7 rounded border border-transparent text-[#8B949E] hover:border-[#252A30] hover:bg-[#161A1F] hover:text-[#F43F5E] flex items-center justify-center transition-colors"
+                  className="h-7 w-7 rounded-lg text-[#8B91A7] hover:bg-[#F43F5E]/10 hover:text-[#F43F5E] flex items-center justify-center transition-colors"
                   title="Sign out"
                 >
                   <IconLogOut className="h-3.5 w-3.5" />
@@ -195,11 +195,11 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
             </div>
           </div>
         ) : (
-          <div className="border-t border-[#252A30] p-3 bg-[#0B0D0F]">
+          <div className="border-t border-[#1E2442] p-3 bg-[#080A14]/70">
             <Link
               to="/login"
               onClick={() => setIsMobileOpen(false)}
-              className="btn-cyan flex w-full items-center justify-center px-3 py-2 text-xs font-semibold"
+              className="btn-primary flex w-full items-center justify-center px-3 py-2 text-xs font-semibold"
             >
               {isCollapsed && !isMobileOpen ? "→" : "Sign In"}
             </Link>
@@ -209,4 +209,5 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
     </>
   );
 }
+
 

@@ -2,18 +2,23 @@
 
 @layer base {
   :root {
-    --bg-main: #0B0D0F;
-    --surface-1: #111418;
-    --surface-2: #161A1F;
-    --surface-3: #1C2229;
-    --border-subtle: #1E232A;
-    --border-base: #252A30;
-    --border-bright: #363E48;
-    --text-primary: #F2F4F7;
-    --text-secondary: #8B949E;
-    --text-muted: #57606A;
-    --accent-cyan: #00E5FF;
-    --accent-blue: #38BDF8;
+    --bg-main: #080A14;
+    --bg-secondary: #0B0D18;
+    --surface-1: #0D1020;
+    --surface-2: #11152A;
+    --surface-3: #151A32;
+    --border-subtle: #1E2442;
+    --border-base: #232B4E;
+    --border-bright: #364273;
+    --text-primary: #F5F7FF;
+    --text-secondary: #8B91A7;
+    --text-muted: #515870;
+    --accent-blue: #2563EB;
+    --accent-blue-bright: #3B82F6;
+    --accent-cyan: #06B6D4;
+    --accent-teal: #14B8A6;
+    --accent-violet: #8B5CF6;
+    --accent-indigo: #6366F1;
     --accent-emerald: #10B981;
     --accent-amber: #F59E0B;
     --accent-rose: #F43F5E;
@@ -23,143 +28,235 @@
   }
 
   body {
-    background-color: #0B0D0F;
-    color: #F2F4F7;
+    background-color: #080A14;
+    color: #F5F7FF;
     min-height: 100vh;
     overflow-x: hidden;
     letter-spacing: -0.01em;
   }
 
-  /* Custom subtle developer scrollbar */
+  /* Custom subtle dark navy scrollbar */
   ::-webkit-scrollbar {
-    width: 5px;
-    height: 5px;
+    width: 6px;
+    height: 6px;
   }
   ::-webkit-scrollbar-track {
-    background: #0B0D0F;
+    background: #080A14;
   }
   ::-webkit-scrollbar-thumb {
-    background: #252A30;
-    border-radius: 3px;
+    background: #1E2442;
+    border-radius: 4px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #363E48;
+    background: #2A335C;
   }
 }
 
-/* Monospace font utility */
+/* Monospace font utility for code and technical metadata */
 .font-mono {
   font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
+/* Ambient Radial Glow Backgrounds */
+.ambient-glow-bg {
+  background-image: 
+    radial-gradient(circle at 15% 10%, rgba(37, 99, 235, 0.07) 0%, transparent 40%),
+    radial-gradient(circle at 85% 60%, rgba(139, 92, 246, 0.06) 0%, transparent 45%),
+    radial-gradient(circle at 50% 90%, rgba(6, 182, 212, 0.04) 0%, transparent 50%);
+  background-attachment: fixed;
+}
+
 /* Subtle Technical Grid Overlay */
-.tech-grid-bg {
-  background-image: radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+.fintech-grid-bg {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px);
   background-size: 24px 24px;
 }
 
-.tech-dots {
-  background-image: radial-gradient(rgba(0, 229, 255, 0.05) 1px, transparent 1px);
-  background-size: 16px 16px;
+/* Premium Fintech Surface Cards */
+.fintech-card {
+  background: linear-gradient(180deg, #11152A 0%, #0D1020 100%);
+  border: 1px solid #1E2442;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Clean Surface Cards */
-.surface-card {
-  background-color: #111418;
-  border: 1px solid #252A30;
-  transition: border-color 0.15s ease, background-color 0.15s ease;
+.fintech-card:hover {
+  border-color: #2A335C;
 }
 
-.surface-card:hover {
-  border-color: #363E48;
+.fintech-card-elevated {
+  background: linear-gradient(180deg, #151A32 0%, #11152A 100%);
+  border: 1px solid #232B4E;
+  box-shadow: 0 14px 40px -12px rgba(0, 0, 0, 0.6);
 }
 
-.surface-elevated {
-  background-color: #161A1F;
-  border: 1px solid #252A30;
+.fintech-card-glow {
+  position: relative;
 }
 
-/* Linear/GitHub-Inspired Developer Buttons */
-.btn-cyan, .btn-primary {
-  background-color: #00E5FF;
-  color: #0B0D0F;
+.fintech-card-glow::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.3) 0%, rgba(139, 92, 246, 0.15) 50%, transparent 100%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Buttons */
+.btn-primary {
+  background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
+  color: #FFFFFF;
   font-weight: 600;
-  border-radius: 6px;
-  transition: background-color 0.15s ease, opacity 0.15s ease, transform 0.1s ease;
+  border-radius: 10px;
+  box-shadow: 0 4px 14px 0 rgba(37, 99, 235, 0.35);
+  transition: all 0.18s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.btn-cyan:hover, .btn-primary:hover {
-  background-color: #33EBFF;
+.btn-primary:hover {
+  background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+  box-shadow: 0 6px 20px 0 rgba(37, 99, 235, 0.5);
+  transform: translateY(-1px);
 }
 
-.btn-cyan:active, .btn-primary:active {
-  transform: scale(0.98);
+.btn-primary:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px 0 rgba(37, 99, 235, 0.3);
+}
+
+.btn-cyan {
+  background: linear-gradient(135deg, #06B6D4 0%, #0891B2 100%);
+  color: #080A14;
+  font-weight: 600;
+  border-radius: 10px;
+  box-shadow: 0 4px 14px 0 rgba(6, 182, 212, 0.3);
+  transition: all 0.18s ease;
+}
+
+.btn-cyan:hover {
+  background: linear-gradient(135deg, #22D3EE 0%, #06B6D4 100%);
+  box-shadow: 0 6px 20px 0 rgba(6, 182, 212, 0.45);
+  transform: translateY(-1px);
 }
 
 .btn-secondary {
-  background-color: #161A1F;
-  color: #F2F4F7;
-  border: 1px solid #252A30;
-  border-radius: 6px;
+  background: #11152A;
+  color: #F5F7FF;
+  border: 1px solid #1E2442;
+  border-radius: 10px;
   font-weight: 500;
-  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  transition: all 0.18s ease;
 }
 
 .btn-secondary:hover {
-  background-color: #1C2229;
-  border-color: #363E48;
+  background: #151A32;
+  border-color: #2A335C;
   color: #FFFFFF;
 }
 
 .btn-danger {
-  background-color: rgba(244, 63, 94, 0.1);
+  background-color: rgba(244, 63, 94, 0.08);
   color: #F43F5E;
-  border: 1px solid rgba(244, 63, 94, 0.3);
-  border-radius: 6px;
+  border: 1px solid rgba(244, 63, 94, 0.25);
+  border-radius: 10px;
   font-weight: 500;
-  transition: background-color 0.15s ease, border-color 0.15s ease;
+  transition: all 0.18s ease;
 }
 
 .btn-danger:hover {
-  background-color: rgba(244, 63, 94, 0.2);
+  background-color: rgba(244, 63, 94, 0.18);
   border-color: #F43F5E;
 }
 
-/* Compact Technical Skill / Tag */
+/* Technical Skill / Stack Tag */
+.skill-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6875rem;
+  letter-spacing: -0.01em;
+  background: rgba(17, 21, 42, 0.85);
+  color: #8B91A7;
+  border: 1px solid #1E2442;
+  border-radius: 6px;
+  padding: 2.5px 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.15s ease;
+}
+
+.skill-pill:hover {
+  border-color: #2A335C;
+  color: #F5F7FF;
+}
+
+.skill-pill-active {
+  background: rgba(37, 99, 235, 0.15);
+  color: #60A5FA;
+  border-color: rgba(59, 130, 246, 0.4);
+}
+
+/* Backwards compatibility aliases for existing classes */
+.surface-card {
+  background: linear-gradient(180deg, #11152A 0%, #0D1020 100%);
+  border: 1px solid #1E2442;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+.surface-card:hover {
+  border-color: #2A335C;
+}
+.surface-elevated {
+  background: #151A32;
+  border: 1px solid #232B4E;
+}
 .tech-tag {
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.6875rem;
-  letter-spacing: -0.02em;
-  background-color: #161A1F;
-  color: #8B949E;
-  border: 1px solid #252A30;
-  border-radius: 4px;
-  padding: 1.5px 6px;
+  letter-spacing: -0.01em;
+  background: #11152A;
+  color: #8B91A7;
+  border: 1px solid #1E2442;
+  border-radius: 6px;
+  padding: 2.5px 8px;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   transition: all 0.12s ease;
 }
-
+.tech-tag:hover {
+  border-color: #2A335C;
+  color: #F5F7FF;
+}
 .tech-tag-active {
-  background-color: rgba(0, 229, 255, 0.08);
-  color: #00E5FF;
-  border-color: rgba(0, 229, 255, 0.35);
+  background: rgba(37, 99, 235, 0.15);
+  color: #60A5FA;
+  border-color: rgba(59, 130, 246, 0.4);
+}
+.tech-grid-bg {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 24px 24px;
 }
 
-/* Status Indicator Dot */
+/* Status Indicators */
 .status-dot-active {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background-color: #10B981;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
 }
 
-.status-dot-cyan {
-  width: 6px;
-  height: 6px;
+.status-dot-blue {
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
-  background-color: #00E5FF;
+  background-color: #3B82F6;
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
 }
+
 
 
