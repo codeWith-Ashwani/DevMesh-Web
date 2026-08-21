@@ -36,7 +36,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
 
   const navItems = [
     { label: "Dashboard", icon: IconHome, path: "/" },
-    { label: "Explore Devs", icon: IconExplore, path: "/feed" },
+    { label: "Explore", icon: IconExplore, path: "/feed" },
     { label: "Network", icon: IconNetwork, path: "/connections" },
     { 
       label: "Requests", 
@@ -45,7 +45,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
       badge: requests?.length > 0 ? requests.length : null 
     },
     { label: "Projects", icon: IconProjects, path: "/projects" },
-    { label: "Profile & OS", icon: IconSettings, path: "/profile" },
+    { label: "Profile", icon: IconSettings, path: "/profile" },
   ];
 
   const currentPath = location.pathname;
@@ -68,13 +68,13 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
 
       {/* Sidebar Container */}
       <aside
-        className={`fixed top-0 bottom-0 left-0 z-40 flex flex-col border-r border-[#252A30] bg-[#111418] transition-all duration-200 ease-in-out lg:static ${
-          isCollapsed ? "lg:w-16" : "lg:w-60"
+        className={`fixed top-0 bottom-0 left-0 z-40 flex flex-col border-r border-[#252A30] bg-[#111418] transition-all duration-150 ease-in-out lg:static ${
+          isCollapsed ? "lg:w-16" : "lg:w-56"
         } ${
           isMobileOpen ? "translate-x-0 w-64" : "-translate-x-full lg:translate-x-0"
         }`}
       >
-        {/* Workspace Brand / Header */}
+        {/* Brand / Header */}
         <div className="flex h-14 items-center justify-between border-b border-[#252A30] px-4">
           <Link
             to="/"
@@ -85,12 +85,12 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
               <IconTerminal className="h-4 w-4" />
             </div>
             {(!isCollapsed || isMobileOpen) && (
-              <div className="flex flex-col">
-                <span className="font-mono text-xs font-bold tracking-wider text-[#F2F4F7]">
-                  DEV<span className="text-[#00E5FF]">MESH</span>
+              <div className="flex flex-col leading-none">
+                <span className="font-bold text-xs tracking-wide text-[#F2F4F7]">
+                  Dev<span className="text-[#00E5FF]">Mesh</span>
                 </span>
-                <span className="font-mono text-[9px] text-[#57606A] tracking-tighter">
-                  OS v1.0.4
+                <span className="font-mono text-[9px] text-[#57606A] mt-0.5">
+                  developer network
                 </span>
               </div>
             )}
@@ -99,7 +99,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
           {/* Desktop Collapse Toggle */}
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="hidden lg:flex h-6 w-6 items-center justify-center rounded border border-[#252A30] bg-[#161A1F] text-[#8B949E] hover:border-[#363E48] hover:text-[#F2F4F7]"
+            className="hidden lg:flex h-6 w-6 items-center justify-center rounded border border-[#252A30] bg-[#161A1F] text-[#8B949E] hover:border-[#363E48] hover:text-[#F2F4F7] transition-colors"
             title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
             {isCollapsed ? (
@@ -110,16 +110,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
           </button>
         </div>
 
-        {/* Section Label */}
-        {(!isCollapsed || isMobileOpen) && (
-          <div className="px-4 pt-4 pb-1">
-            <span className="font-mono text-[10px] uppercase tracking-widest text-[#57606A]">
-              Workspace
-            </span>
-          </div>
-        )}
-
-        {/* Navigation Items */}
+        {/* Navigation Section */}
         <nav className="flex-1 space-y-1 p-2 overflow-y-auto">
           {navItems.map((item) => {
             const active = isActive(item.path);
@@ -129,9 +120,9 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
                 key={item.path + item.label}
                 to={item.path}
                 onClick={() => setIsMobileOpen(false)}
-                className={`group relative flex items-center gap-3 rounded-lg px-3 py-2 text-xs font-mono transition-colors ${
+                className={`group relative flex items-center gap-3 rounded-lg px-3 py-2 text-xs transition-colors ${
                   active
-                    ? "bg-[#161A1F] text-[#00E5FF] border border-[#252A30]"
+                    ? "bg-[#161A1F] text-[#00E5FF] font-medium border border-[#252A30]"
                     : "text-[#8B949E] hover:bg-[#161A1F] hover:text-[#F2F4F7]"
                 } ${isCollapsed && !isMobileOpen ? "justify-center px-2" : ""}`}
                 title={isCollapsed && !isMobileOpen ? item.label : undefined}
@@ -148,7 +139,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
                   <span className="truncate">{item.label}</span>
                 )}
                 {item.badge && (!isCollapsed || isMobileOpen) && (
-                  <span className="ml-auto rounded-full bg-[#00E5FF]/10 px-1.5 py-0.2 text-[10px] font-bold text-[#00E5FF] border border-[#00E5FF]/30">
+                  <span className="ml-auto rounded-full bg-[#00E5FF]/10 px-1.5 py-0.2 text-[10px] font-bold font-mono text-[#00E5FF] border border-[#00E5FF]/30">
                     {item.badge}
                   </span>
                 )}
@@ -170,7 +161,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
             >
               <Link to="/profile" onClick={() => setIsMobileOpen(false)} className="relative shrink-0">
                 <img
-                  className="h-8 w-8 rounded-lg border border-[#252A30] object-cover"
+                  className="h-8 w-8 rounded-lg border border-[#252A30] object-cover bg-[#161A1F]"
                   src={user.photoUrl || "https://placehold.co/80x80/161A1F/8B949E?text=DEV"}
                   alt={user.firstName}
                 />
@@ -182,7 +173,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
                   <Link
                     to="/profile"
                     onClick={() => setIsMobileOpen(false)}
-                    className="block truncate text-xs font-semibold text-[#F2F4F7] hover:text-[#00E5FF]"
+                    className="block truncate text-xs font-semibold text-[#F2F4F7] hover:text-[#00E5FF] transition-colors"
                   >
                     {user.firstName} {user.lastName}
                   </Link>
@@ -195,8 +186,8 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
               {(!isCollapsed || isMobileOpen) && (
                 <button
                   onClick={handleLogout}
-                  className="h-7 w-7 rounded border border-transparent text-[#8B949E] hover:border-[#252A30] hover:bg-[#161A1F] hover:text-[#F43F5E] flex items-center justify-center"
-                  title="Log out"
+                  className="h-7 w-7 rounded border border-transparent text-[#8B949E] hover:border-[#252A30] hover:bg-[#161A1F] hover:text-[#F43F5E] flex items-center justify-center transition-colors"
+                  title="Sign out"
                 >
                   <IconLogOut className="h-3.5 w-3.5" />
                 </button>
@@ -208,9 +199,9 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
             <Link
               to="/login"
               onClick={() => setIsMobileOpen(false)}
-              className="flex w-full items-center justify-center rounded-lg bg-[#00E5FF] px-3 py-2 text-xs font-bold text-[#0B0D0F] hover:bg-[#33EBFF] transition-all font-mono"
+              className="btn-cyan flex w-full items-center justify-center px-3 py-2 text-xs font-semibold"
             >
-              {isCollapsed && !isMobileOpen ? "→" : "INITIALIZE"}
+              {isCollapsed && !isMobileOpen ? "→" : "Sign In"}
             </Link>
           </div>
         )}
@@ -218,3 +209,4 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
     </>
   );
 }
+

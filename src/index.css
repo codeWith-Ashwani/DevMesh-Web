@@ -27,12 +27,13 @@
     color: #F2F4F7;
     min-height: 100vh;
     overflow-x: hidden;
+    letter-spacing: -0.01em;
   }
 
   /* Custom subtle developer scrollbar */
   ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 5px;
+    height: 5px;
   }
   ::-webkit-scrollbar-track {
     background: #0B0D0F;
@@ -53,28 +54,20 @@
 
 /* Subtle Technical Grid Overlay */
 .tech-grid-bg {
-  background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-image: radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px);
   background-size: 24px 24px;
 }
 
 .tech-dots {
-  background-image: radial-gradient(rgba(0, 229, 255, 0.08) 1px, transparent 1px);
+  background-image: radial-gradient(rgba(0, 229, 255, 0.05) 1px, transparent 1px);
   background-size: 16px 16px;
 }
 
-/* Technical Glow & Borders */
-.border-os {
-  border: 1px solid #252A30;
-}
-
-.border-os-bright {
-  border: 1px solid #363E48;
-}
-
+/* Clean Surface Cards */
 .surface-card {
   background-color: #111418;
   border: 1px solid #252A30;
-  transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
 }
 
 .surface-card:hover {
@@ -86,57 +79,72 @@
   border: 1px solid #252A30;
 }
 
-/* Technical Glow Button */
-.btn-cyan {
-  background: #00E5FF;
+/* Linear/GitHub-Inspired Developer Buttons */
+.btn-cyan, .btn-primary {
+  background-color: #00E5FF;
   color: #0B0D0F;
   font-weight: 600;
-  border-radius: 8px;
-  transition: all 0.15s ease;
+  border-radius: 6px;
+  transition: background-color 0.15s ease, opacity 0.15s ease, transform 0.1s ease;
 }
 
-.btn-cyan:hover {
-  background: #33EBFF;
-  box-shadow: 0 0 16px rgba(0, 229, 255, 0.35);
+.btn-cyan:hover, .btn-primary:hover {
+  background-color: #33EBFF;
 }
 
-.btn-cyan:active {
+.btn-cyan:active, .btn-primary:active {
   transform: scale(0.98);
 }
 
 .btn-secondary {
-  background: #161A1F;
+  background-color: #161A1F;
   color: #F2F4F7;
   border: 1px solid #252A30;
-  border-radius: 8px;
-  transition: all 0.15s ease;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
 
 .btn-secondary:hover {
-  background: #1C2229;
+  background-color: #1C2229;
   border-color: #363E48;
   color: #FFFFFF;
 }
 
-/* Technical Pill / Tag */
+.btn-danger {
+  background-color: rgba(244, 63, 94, 0.1);
+  color: #F43F5E;
+  border: 1px solid rgba(244, 63, 94, 0.3);
+  border-radius: 6px;
+  font-weight: 500;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.btn-danger:hover {
+  background-color: rgba(244, 63, 94, 0.2);
+  border-color: #F43F5E;
+}
+
+/* Compact Technical Skill / Tag */
 .tech-tag {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
   letter-spacing: -0.02em;
   background-color: #161A1F;
   color: #8B949E;
   border: 1px solid #252A30;
   border-radius: 4px;
-  padding: 2px 8px;
+  padding: 1.5px 6px;
   display: inline-flex;
   align-items: center;
   gap: 4px;
+  transition: all 0.12s ease;
 }
 
 .tech-tag-active {
-  background-color: rgba(0, 229, 255, 0.1);
+  background-color: rgba(0, 229, 255, 0.08);
   color: #00E5FF;
-  border-color: rgba(0, 229, 255, 0.3);
+  border-color: rgba(0, 229, 255, 0.35);
 }
 
 /* Status Indicator Dot */
@@ -145,7 +153,6 @@
   height: 6px;
   border-radius: 50%;
   background-color: #10B981;
-  box-shadow: 0 0 8px #10B981;
 }
 
 .status-dot-cyan {
@@ -153,16 +160,6 @@
   height: 6px;
   border-radius: 50%;
   background-color: #00E5FF;
-  box-shadow: 0 0 8px #00E5FF;
 }
 
-/* Animation utilities */
-@keyframes pulseGlow {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
-}
-
-.animate-pulse-glow {
-  animation: pulseGlow 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
 

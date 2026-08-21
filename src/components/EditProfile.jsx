@@ -5,13 +5,13 @@ import UserCard from "./UserCard";
 import { addUser } from "../utils/userSlice";
 import { BASE_URL } from "../utils/constants";
 import { PageTitle } from "./Requests";
-import { IconSettings, IconCheck, IconTerminal, IconCode } from "./ui/Icons";
+import { IconCheck, IconCode } from "./ui/Icons";
 
 const inputClass =
-  "mt-1 w-full rounded-lg border border-[#252A30] bg-[#161A1F] px-3.5 py-2.5 text-xs font-mono text-[#F2F4F7] placeholder-[#57606A] outline-none hover:border-[#363E48] focus:border-[#00E5FF] transition-colors";
+  "mt-1 w-full rounded-lg border border-[#252A30] bg-[#161A1F] px-3.5 py-2 text-xs text-[#F2F4F7] placeholder-[#57606A] outline-none hover:border-[#363E48] focus:border-[#00E5FF] transition-colors";
 
 const Field = ({ label, children }) => (
-  <label className="block font-mono text-[11px] text-[#8B949E]">
+  <label className="block text-xs font-medium text-[#8B949E]">
     {label}
     {children}
   </label>
@@ -49,7 +49,7 @@ function EditProfile({ user }) {
       setTimeout(() => setSaved(false), 3000);
     } catch (err) {
       setError(
-        err?.response?.data || "Could not write identity configuration to registry. Try again."
+        err?.response?.data || "Could not save profile changes. Please try again."
       );
     } finally {
       setSaving(false);
@@ -59,40 +59,37 @@ function EditProfile({ user }) {
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
       <PageTitle
-        eyebrow="SYSTEM CONFIGURATION"
+        eyebrow="Profile Settings"
         title="Developer Identity & Profile"
-        subtitle="Configure public mesh metadata, technical competencies, and external links"
+        subtitle="Manage your public developer profile, technical skills, and portfolio links"
       />
 
       <div className="grid items-start gap-8 lg:grid-cols-[1fr_24rem]">
         {/* Identity Config Form */}
-        <section className="rounded-xl border border-[#252A30] bg-[#111418] p-6 shadow-xl space-y-5">
+        <section className="rounded-xl border border-[#252A30] bg-[#111418] p-6 shadow-sm space-y-4">
           <div className="flex items-center justify-between border-b border-[#252A30] pb-3">
-            <div className="flex items-center gap-2">
-              <IconCode className="h-4 w-4 text-[#00E5FF]" />
-              <h2 className="font-mono text-xs font-bold uppercase text-[#F2F4F7]">
-                Identity Schema Parameters
-              </h2>
-            </div>
-            <span className="font-mono text-[10px] text-[#57606A]">MUTABLE</span>
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-[#F2F4F7] font-mono">
+              Profile Details
+            </h2>
+            <span className="tech-tag text-[10px]">EDITABLE</span>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="FIRST NAME">
+            <Field label="First Name">
               <input
                 className={inputClass}
                 value={form.firstName}
                 onChange={(e) => update("firstName", e.target.value)}
               />
             </Field>
-            <Field label="LAST NAME">
+            <Field label="Last Name">
               <input
                 className={inputClass}
                 value={form.lastName}
                 onChange={(e) => update("lastName", e.target.value)}
               />
             </Field>
-            <Field label="AGE">
+            <Field label="Age">
               <input
                 type="number"
                 min="18"
@@ -101,7 +98,7 @@ function EditProfile({ user }) {
                 onChange={(e) => update("age", e.target.value)}
               />
             </Field>
-            <Field label="GENDER">
+            <Field label="Gender">
               <select
                 className={inputClass}
                 value={form.gender}
@@ -115,7 +112,7 @@ function EditProfile({ user }) {
             </Field>
           </div>
 
-          <Field label="AVATAR IMAGE URL">
+          <Field label="Avatar Image URL">
             <input
               className={inputClass}
               value={form.photoUrl}
@@ -124,7 +121,7 @@ function EditProfile({ user }) {
             />
           </Field>
 
-          <Field label="COLLABORATION OBJECTIVE (LOOKING FOR)">
+          <Field label="Objective / Looking For">
             <select
               className={inputClass}
               value={form.lookingFor}
@@ -141,7 +138,7 @@ function EditProfile({ user }) {
           </Field>
 
           <div className="grid gap-4 sm:grid-cols-3">
-            <Field label="GITHUB URL">
+            <Field label="GitHub URL">
               <input
                 type="url"
                 className={inputClass}
@@ -150,7 +147,7 @@ function EditProfile({ user }) {
                 onChange={(e) => update("githubUrl", e.target.value)}
               />
             </Field>
-            <Field label="LINKEDIN URL">
+            <Field label="LinkedIn URL">
               <input
                 type="url"
                 className={inputClass}
@@ -159,27 +156,27 @@ function EditProfile({ user }) {
                 onChange={(e) => update("linkedInUrl", e.target.value)}
               />
             </Field>
-            <Field label="PORTFOLIO URL">
+            <Field label="Portfolio URL">
               <input
                 type="url"
                 className={inputClass}
-                placeholder="https://domain.dev"
+                placeholder="https://example.dev"
                 value={form.portfolioUrl}
                 onChange={(e) => update("portfolioUrl", e.target.value)}
               />
             </Field>
           </div>
 
-          <Field label="TECHNICAL BIO & MISSION">
+          <Field label="About / Bio">
             <textarea
               className={`${inputClass} min-h-24 resize-y`}
               value={form.about}
-              placeholder="Detail your engineering domain, open-source focus, or architecture interests..."
+              placeholder="Describe your engineering focus, experience, and interests..."
               onChange={(e) => update("about", e.target.value)}
             />
           </Field>
 
-          <Field label="STACK & COMPETENCIES (COMMA SEPARATED)">
+          <Field label="Skills (comma-separated)">
             <input
               className={inputClass}
               value={form.skills.join(", ")}
@@ -197,28 +194,28 @@ function EditProfile({ user }) {
           </Field>
 
           {error && (
-            <p className="rounded-lg border border-[#F43F5E]/30 bg-[#F43F5E]/10 p-3 font-mono text-xs text-[#F43F5E]">
+            <p className="rounded-lg border border-[#F43F5E]/30 bg-[#F43F5E]/10 p-3 text-xs text-[#F43F5E]">
               {error}
             </p>
           )}
 
           <div className="pt-2">
             <button
-              className="btn-cyan flex items-center justify-center gap-2 px-6 py-2.5 font-mono text-xs font-bold disabled:opacity-50"
+              className="btn-cyan flex items-center justify-center gap-2 px-5 py-2 text-xs font-semibold disabled:opacity-50"
               onClick={saveProfile}
               disabled={saving}
             >
               <IconCheck className="h-4 w-4" />
-              <span>{saving ? "SAVING CONFIG..." : "COMMIT CHANGES"}</span>
+              <span>{saving ? "Saving Changes..." : "Save Profile"}</span>
             </button>
           </div>
         </section>
 
-        {/* Live Identity Card Preview */}
+        {/* Live Profile Card Preview */}
         <aside className="lg:sticky lg:top-20 space-y-3">
           <div className="flex items-center justify-between">
-            <span className="font-mono text-xs font-bold uppercase tracking-wider text-[#8B949E]">
-              LIVE NODE PREVIEW
+            <span className="text-xs font-semibold uppercase tracking-wider text-[#8B949E] font-mono">
+              Live Preview
             </span>
             <span className="tech-tag text-[10px]">SYNCED</span>
           </div>
@@ -230,9 +227,9 @@ function EditProfile({ user }) {
       {/* Success Toast */}
       {saved && (
         <div className="fixed bottom-8 right-8 z-50 animate-in fade-in slide-in-from-bottom-5">
-          <div className="flex items-center gap-2 rounded-xl border border-[#10B981]/40 bg-[#111418] px-4 py-3 font-mono text-xs text-[#10B981] shadow-2xl">
+          <div className="flex items-center gap-2 rounded-xl border border-[#10B981]/40 bg-[#111418] px-4 py-3 text-xs text-[#10B981] shadow-2xl">
             <IconCheck className="h-4 w-4" />
-            <span>Profile schema updated in network registry.</span>
+            <span>Profile successfully updated.</span>
           </div>
         </div>
       )}
@@ -241,4 +238,6 @@ function EditProfile({ user }) {
 }
 
 export default EditProfile;
+
+
 

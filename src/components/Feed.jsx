@@ -7,11 +7,8 @@ import { addConnections } from "../utils/connectionsSlice";
 import UserCard from "./UserCard";
 import {
   IconSearch,
-  IconTerminal,
   IconSparkles,
   IconActivity,
-  IconNetwork,
-  IconCode,
   IconChevronRight
 } from "./ui/Icons";
 
@@ -20,8 +17,8 @@ const PAGE_SIZE = 50;
 
 function Feed() {
   const feed = useSelector((store) => store.feed);
-  const connections = useSelector((store) => store.connections);
-  const requests = useSelector((store) => store.requests);
+  const connections = useSelector((store) => store.connections) || [];
+  const requests = useSelector((store) => store.requests) || [];
   const currentUser = useSelector((store) => store.user);
   const dispatch = useDispatch();
 
@@ -93,98 +90,88 @@ function Feed() {
 
   const getTimeGreeting = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return "GOOD MORNING";
-    if (hour < 18) return "GOOD AFTERNOON";
-    return "GOOD EVENING";
+    if (hour < 12) return "Good morning";
+    if (hour < 18) return "Good afternoon";
+    return "Good evening";
   };
 
   if (feed === null) {
     return (
-      <div className="flex h-[70vh] flex-col items-center justify-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#252A30] bg-[#111418]">
+      <div className="flex h-[60vh] flex-col items-center justify-center gap-3">
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#252A30] bg-[#111418]">
           <span className="h-4 w-4 rounded-full border-2 border-[#00E5FF] border-t-transparent animate-spin" />
         </div>
-        <p className="font-mono text-xs text-[#8B949E]">INITIALIZING DEVELOPER FEED PROTOCOL...</p>
+        <p className="text-xs text-[#8B949E]">Loading developers...</p>
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      {/* OS Header & Greeting */}
-      <div className="mb-6 rounded-xl border border-[#252A30] bg-[#111418] p-6 shadow-xl relative overflow-hidden">
-        <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-gradient-to-l from-[#00E5FF]/5 to-transparent pointer-events-none" />
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between relative z-10">
-          <div>
-            <div className="flex items-center gap-2 font-mono text-xs text-[#00E5FF] mb-1">
-              <span className="h-2 w-2 rounded-full bg-[#00E5FF] animate-pulse" />
-              <span>
-                {getTimeGreeting()},{" "}
-                {currentUser?.firstName ? currentUser.firstName.toUpperCase() : "DEVELOPER"}
-              </span>
-            </div>
-            <h1 className="text-2xl font-bold tracking-tight text-[#F2F4F7] sm:text-3xl">
-              Developer Network Workspace
-            </h1>
-            <p className="mt-1 font-mono text-xs text-[#8B949E]">
-              Match stack compatibility · Form project squads · Coordinate builds
-            </p>
+    <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 space-y-6">
+      {/* Workspace Header & Greeting */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-[#252A30] pb-5">
+        <div>
+          <div className="flex items-center gap-2 text-xs text-[#00E5FF] font-medium mb-1">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#10B981]" />
+            <span>
+              {getTimeGreeting()}, {currentUser?.firstName || "Developer"}
+            </span>
           </div>
+          <h1 className="text-2xl font-bold tracking-tight text-[#F2F4F7]">
+            Developer Workspace
+          </h1>
+          <p className="text-xs text-[#8B949E] mt-0.5">
+            Discover peer developers, align technical stacks, and build projects together.
+          </p>
+        </div>
 
-          <div className="flex items-center gap-2">
-            <div className="rounded-lg border border-[#252A30] bg-[#161A1F] px-3 py-2 font-mono text-xs text-[#8B949E]">
-              <span className="text-[#00E5FF] font-bold">{feed.length}</span> nodes online
-            </div>
+        <div className="flex items-center gap-2">
+          <div className="rounded-md border border-[#252A30] bg-[#161A1F] px-3 py-1.5 text-xs text-[#8B949E]">
+            <span className="text-[#00E5FF] font-bold font-mono">{feed.length}</span> discoverable engineers
           </div>
         </div>
       </div>
 
-      {/* Developer Telemetry Metrics */}
-      <section className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+      {/* Quick Metrics Ribbon */}
+      <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <MetricCard
-          label="DISCOVERABLE NODES"
+          label="Discoverable"
           value={feed.length}
-          meta="In network pool"
+          meta="In developer pool"
           color="cyan"
         />
         <MetricCard
-          label="COLLABORATORS"
+          label="Squad Seeking"
           value={collaborationCount}
-          meta="Looking for squads"
+          meta="Open to collaborate"
           color="emerald"
         />
         <MetricCard
-          label="CONNECTED NODES"
+          label="Connections"
           value={connections.length}
-          meta="Direct mesh links"
+          meta="Direct peer links"
           color="blue"
         />
         <MetricCard
-          label="PENDING INBOX"
-          value={requests?.length || 0}
-          meta="Link authorizations"
+          label="Pending Requests"
+          value={requests.length}
+          meta="Awaiting response"
           color="amber"
         />
       </section>
 
-      {/* Filter / Stack Selector Console */}
-      <section className="mb-8 rounded-xl border border-[#252A30] bg-[#111418] p-4 shadow-md">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+      {/* Filter / Stack Selector Bar */}
+      <section className="rounded-xl border border-[#252A30] bg-[#111418] p-3.5 shadow-sm">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex-1">
-            <div className="flex items-center gap-2 mb-2">
-              <IconCode className="h-3.5 w-3.5 text-[#00E5FF]" />
-              <span className="font-mono text-[11px] uppercase tracking-wider text-[#8B949E]">
-                Filter by Stack Archetype
-              </span>
-            </div>
-            <div className="flex flex-wrap gap-1.5">
+            <div className="flex flex-wrap items-center gap-1.5">
               {skillFilters.map((skill) => {
                 const isActive = selectedSkill === skill;
                 return (
                   <button
                     key={skill}
                     onClick={() => setSelectedSkill(skill)}
-                    className={`tech-tag cursor-pointer transition-all ${
+                    className={`tech-tag cursor-pointer transition-colors ${
                       isActive ? "tech-tag-active" : "hover:border-[#363E48] hover:text-[#F2F4F7]"
                     }`}
                   >
@@ -196,9 +183,9 @@ function Feed() {
           </div>
 
           {/* Goal Select & Search */}
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2.5">
             <select
-              className="rounded-lg border border-[#252A30] bg-[#161A1F] px-3 py-2 text-xs font-mono text-[#F2F4F7] outline-none hover:border-[#363E48] focus:border-[#00E5FF]"
+              className="rounded-lg border border-[#252A30] bg-[#161A1F] px-3 py-1.5 text-xs text-[#F2F4F7] outline-none hover:border-[#363E48] focus:border-[#00E5FF] transition-colors"
               value={goal}
               onChange={(e) => setGoal(e.target.value)}
             >
@@ -211,56 +198,53 @@ function Feed() {
               <option>Open-source contributors</option>
             </select>
 
-            <div className="relative min-w-[220px]">
+            <div className="relative min-w-[200px]">
               <input
-                className="w-full rounded-lg border border-[#252A30] bg-[#161A1F] px-3 py-2 pl-8 text-xs font-mono text-[#F2F4F7] placeholder-[#57606A] outline-none hover:border-[#363E48] focus:border-[#00E5FF]"
+                className="w-full rounded-lg border border-[#252A30] bg-[#161A1F] px-3 py-1.5 pl-8 text-xs text-[#F2F4F7] placeholder-[#57606A] outline-none hover:border-[#363E48] focus:border-[#00E5FF] transition-colors"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search name, bio, stack..."
               />
-              <IconSearch className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-[#57606A]" />
+              <IconSearch className="absolute left-2.5 top-2 h-3.5 w-3.5 text-[#57606A]" />
             </div>
           </div>
         </div>
       </section>
 
-      {/* Main Workspace split */}
+      {/* Main Workspace Split */}
       {featuredUser ? (
-        <section className="grid items-start gap-8 lg:grid-cols-[24rem_1fr]">
-          {/* Featured Card */}
+        <section className="grid items-start gap-6 lg:grid-cols-[22rem_1fr]">
+          {/* Left: Featured Card */}
           <div>
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-[#00E5FF]" />
-                <span className="font-mono text-xs uppercase tracking-wider text-[#8B949E]">
-                  Target Developer Node
-                </span>
-              </div>
+            <div className="flex items-center justify-between mb-2 px-1">
+              <span className="text-xs font-semibold text-[#8B949E] uppercase tracking-wider font-mono">
+                Featured Profile
+              </span>
               <span className="font-mono text-[11px] text-[#57606A]">
-                NODE {filteredFeed.indexOf(featuredUser) + 1} OF {filteredFeed.length}
+                {filteredFeed.indexOf(featuredUser) + 1} of {filteredFeed.length}
               </span>
             </div>
 
             <UserCard user={featuredUser} />
           </div>
 
-          {/* Right Workspace telemetry & discovery grid */}
-          <div className="space-y-6">
+          {/* Right: Telemetry & Active Developer Grid */}
+          <div className="space-y-4">
             {/* Match Telemetry Box */}
-            <div className="rounded-xl border border-[#252A30] bg-[#111418] p-5 shadow-lg">
-              <div className="flex items-center justify-between border-b border-[#252A30] pb-3 mb-4">
+            <div className="rounded-xl border border-[#252A30] bg-[#111418] p-4 shadow-sm">
+              <div className="flex items-center justify-between border-b border-[#252A30] pb-2.5 mb-3">
                 <div className="flex items-center gap-2">
-                  <IconActivity className="h-4 w-4 text-[#00E5FF]" />
-                  <h3 className="font-mono text-xs font-bold uppercase tracking-wider text-[#F2F4F7]">
-                    Connection Telemetry & Synergy
+                  <IconActivity className="h-3.5 w-3.5 text-[#00E5FF]" />
+                  <h3 className="text-xs font-semibold text-[#F2F4F7]">
+                    Compatibility &amp; Focus
                   </h3>
                 </div>
-                <span className="tech-tag text-[10px]">REAL-TIME</span>
+                <span className="tech-tag text-[10px]">LIVE</span>
               </div>
 
               <p className="text-xs leading-relaxed text-[#8B949E]">
                 <strong className="text-[#F2F4F7]">{featuredUser.firstName}</strong> is looking for{" "}
-                <span className="text-[#00E5FF] font-mono">
+                <span className="text-[#00E5FF]">
                   {featuredUser.lookingFor?.toLowerCase() || "engineering connections"}
                 </span>
                 .{" "}
@@ -270,22 +254,24 @@ function Feed() {
                     <strong className="text-[#F2F4F7]">{featuredUser.skills.slice(0, 3).join(", ")}</strong>.
                   </span>
                 ) : (
-                  "Explore their profile to initiate collaboration."
+                  "Explore their profile to connect and initiate collaboration."
                 )}
               </p>
             </div>
 
             {/* Quick Discover Grid */}
-            <div className="rounded-xl border border-[#252A30] bg-[#111418] p-5 shadow-lg">
-              <div className="flex items-center justify-between mb-4">
+            <div className="rounded-xl border border-[#252A30] bg-[#111418] p-4 shadow-sm">
+              <div className="flex items-center justify-between mb-3">
                 <div>
-                  <h2 className="text-sm font-bold text-[#F2F4F7]">Discover Active Developers</h2>
-                  <p className="font-mono text-[11px] text-[#57606A]">
-                    Click any node to focus workspace
+                  <h2 className="text-xs font-semibold text-[#F2F4F7] uppercase tracking-wider font-mono">
+                    Discover More Developers
+                  </h2>
+                  <p className="text-[11px] text-[#57606A]">
+                    Select any profile to view in focus
                   </p>
                 </div>
-                <span className="rounded-full border border-[#252A30] bg-[#161A1F] px-2 py-0.5 font-mono text-[11px] text-[#00E5FF]">
-                  {filteredFeed.length} matches
+                <span className="rounded-md border border-[#252A30] bg-[#161A1F] px-2 py-0.5 font-mono text-[10px] text-[#00E5FF]">
+                  {filteredFeed.length} available
                 </span>
               </div>
 
@@ -296,23 +282,23 @@ function Feed() {
                     <button
                       key={user._id}
                       onClick={() => setSelectedId(user._id)}
-                      className={`flex items-center gap-3 rounded-lg border p-2.5 text-left transition-all ${
+                      className={`flex items-center gap-3 rounded-lg border p-2.5 text-left transition-colors ${
                         isSelected
-                          ? "border-[#00E5FF]/50 bg-[#161A1F] shadow-[0_0_12px_rgba(0,229,255,0.15)]"
+                          ? "border-[#00E5FF]/40 bg-[#161A1F]"
                           : "border-[#252A30] bg-[#111418] hover:border-[#363E48] hover:bg-[#161A1F]"
                       }`}
                     >
                       <img
-                        className="h-10 w-10 rounded-lg border border-[#252A30] object-cover bg-[#0B0D0F]"
+                        className="h-9 w-9 rounded-lg border border-[#252A30] object-cover bg-[#0B0D0F]"
                         src={user.photoUrl || "https://placehold.co/80x80/161A1F/8B949E?text=DEV"}
                         alt=""
                       />
                       <div className="min-w-0 flex-1">
-                        <span className="block truncate text-xs font-semibold text-[#F2F4F7]">
+                        <span className="block truncate text-xs font-medium text-[#F2F4F7]">
                           {user.firstName} {user.lastName}
                         </span>
                         <span className="block truncate font-mono text-[10px] text-[#8B949E]">
-                          {user.skills?.slice(0, 2).join(" · ") || "Fullstack Dev"}
+                          {user.skills?.slice(0, 2).join(" · ") || "Fullstack"}
                         </span>
                       </div>
                       <IconChevronRight
@@ -328,30 +314,27 @@ function Feed() {
           </div>
         </section>
       ) : (
-        <section className="rounded-xl border border-[#252A30] bg-[#111418] p-12 text-center shadow-xl">
+        <section className="rounded-xl border border-[#252A30] bg-[#111418] p-12 text-center shadow-sm">
           {isLoadingMore ? (
             <div>
-              <span className="h-6 w-6 rounded-full border-2 border-[#00E5FF] border-t-transparent animate-spin inline-block" />
-              <h2 className="mt-3 font-mono text-sm font-bold text-[#F2F4F7]">
-                Fetching developer nodes...
+              <span className="h-5 w-5 rounded-full border-2 border-[#00E5FF] border-t-transparent animate-spin inline-block" />
+              <h2 className="mt-2 text-xs font-semibold text-[#F2F4F7]">
+                Fetching developers...
               </h2>
-              <p className="mt-1 font-mono text-xs text-[#57606A]">
-                Querying the mesh network registry.
-              </p>
             </div>
           ) : (
             <div>
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl border border-[#252A30] bg-[#161A1F] text-[#8B949E]">
-                <IconSearch className="h-6 w-6" />
+              <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl border border-[#252A30] bg-[#161A1F] text-[#8B949E] mb-3">
+                <IconSearch className="h-5 w-5" />
               </div>
-              <h2 className="mt-4 text-base font-bold text-[#F2F4F7]">
-                No developer nodes match current query
+              <h2 className="text-sm font-bold text-[#F2F4F7]">
+                No developers match current query
               </h2>
-              <p className="mt-1 font-mono text-xs text-[#8B949E]">
+              <p className="mt-1 text-xs text-[#8B949E]">
                 Adjust filter parameters or reset search query.
               </p>
               <button
-                className="btn-secondary mt-5 px-4 py-2 text-xs font-mono"
+                className="btn-secondary mt-4 px-3.5 py-1.5 text-xs font-medium"
                 onClick={() => {
                   setSearch("");
                   setSelectedSkill("All");
@@ -377,15 +360,16 @@ function MetricCard({ label, value, meta, color }) {
   };
 
   return (
-    <div className="rounded-xl border border-[#252A30] bg-[#111418] p-3.5 shadow-md">
-      <p className="font-mono text-[10px] uppercase tracking-wider text-[#57606A]">{label}</p>
-      <p className={`mt-1 font-mono text-2xl font-bold ${colorMap[color] || "text-[#F2F4F7]"}`}>
+    <div className="rounded-xl border border-[#252A30] bg-[#111418] p-3.5 shadow-sm">
+      <p className="text-[11px] font-medium text-[#8B949E]">{label}</p>
+      <p className={`mt-0.5 font-mono text-xl font-bold ${colorMap[color] || "text-[#F2F4F7]"}`}>
         {value}
       </p>
-      <p className="mt-0.5 text-[10px] font-mono text-[#8B949E]">{meta}</p>
+      <p className="text-[10px] text-[#57606A] mt-0.5">{meta}</p>
     </div>
   );
 }
 
 export default Feed;
+
 
