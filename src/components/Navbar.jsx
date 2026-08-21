@@ -6,7 +6,6 @@ import { BASE_URL } from "../utils/constants";
 import { removeUser } from "../utils/userSlice";
 import {
   IconSearch,
-  IconCommand,
   IconPlus,
   IconBell,
   IconMenu,
@@ -35,51 +34,47 @@ function Navbar({ onOpenCommandPalette, onToggleMobileMenu }) {
   };
 
   return (
-    <header className="sticky top-0 z-30 flex h-14 w-full items-center justify-between border-b border-[#252A30] bg-[#0B0D0F]/90 px-4 backdrop-blur-md">
-      {/* Left: Mobile trigger & System status */}
+    <header className="sticky top-0 z-30 flex h-14 w-full items-center justify-between border-b border-[#252A30] bg-[#0B0D0F]/95 px-4 backdrop-blur-md">
+      {/* Left: Mobile trigger & Network Status */}
       <div className="flex items-center gap-3">
         <button
           onClick={onToggleMobileMenu}
           className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#252A30] bg-[#111418] text-[#8B949E] hover:border-[#363E48] hover:text-[#F2F4F7] lg:hidden"
-          aria-label="Open menu"
+          aria-label="Open navigation menu"
         >
           <IconMenu className="h-4 w-4" />
         </button>
 
-        <div className="hidden items-center gap-2 rounded-full border border-[#252A30] bg-[#111418] px-2.5 py-1 text-[10px] font-mono sm:flex">
-          <span className="h-1.5 w-1.5 rounded-full bg-[#10B981] animate-pulse" />
-          <span className="text-[#8B949E]">DEV_OS</span>
-          <span className="text-[#57606A]">::</span>
-          <span className="text-[#00E5FF]">ONLINE</span>
+        <div className="hidden items-center gap-2 rounded-md border border-[#252A30] bg-[#111418] px-2.5 py-1 text-xs font-mono sm:flex">
+          <span className="h-2 w-2 rounded-full bg-[#10B981]" />
+          <span className="text-[#8B949E]">Network</span>
+          <span className="text-[#38BDF8]">Live</span>
         </div>
       </div>
 
-      {/* Middle: Global Search / Command Palette Bar */}
+      {/* Middle: Global Search / Command Palette Trigger */}
       <button
         onClick={onOpenCommandPalette}
-        className="flex w-full max-w-xs sm:max-w-md items-center justify-between rounded-lg border border-[#252A30] bg-[#111418] px-3 py-1.5 text-xs font-mono text-[#8B949E] transition-all hover:border-[#363E48] hover:text-[#F2F4F7] hover:shadow-[0_0_12px_rgba(0,0,0,0.5)]"
+        className="flex w-full max-w-xs sm:max-w-md items-center justify-between rounded-lg border border-[#252A30] bg-[#111418] px-3 py-1.5 text-xs text-[#8B949E] transition-colors hover:border-[#363E48] hover:text-[#F2F4F7]"
       >
         <div className="flex items-center gap-2">
           <IconSearch className="h-3.5 w-3.5 text-[#57606A]" />
-          <span className="truncate">Search devs, stacks, or commands...</span>
+          <span className="truncate">Search developers, skills, or projects...</span>
         </div>
-        <div className="flex items-center gap-1">
-          <kbd className="hidden sm:inline-flex items-center rounded border border-[#252A30] bg-[#161A1F] px-1.5 py-0.5 text-[9px] font-mono text-[#8B949E]">
-            Ctrl
-          </kbd>
-          <kbd className="hidden sm:inline-flex items-center rounded border border-[#252A30] bg-[#161A1F] px-1.5 py-0.5 text-[9px] font-mono text-[#8B949E]">
-            K
+        <div className="flex items-center gap-1 font-mono">
+          <kbd className="hidden sm:inline-flex items-center rounded border border-[#252A30] bg-[#161A1F] px-1.5 py-0.5 text-[10px] text-[#8B949E]">
+            Ctrl K
           </kbd>
         </div>
       </button>
 
-      {/* Right: Quick actions & User menu */}
+      {/* Right: Quick Actions & Profile */}
       <div className="flex items-center gap-2">
         {user ? (
           <>
             <Link
               to="/projects"
-              className="hidden sm:flex items-center gap-1.5 rounded-lg border border-[#252A30] bg-[#161A1F] px-2.5 py-1.5 text-xs font-mono font-medium text-[#F2F4F7] hover:border-[#00E5FF]/40 hover:text-[#00E5FF] transition-colors"
+              className="hidden sm:flex items-center gap-1.5 rounded-lg border border-[#252A30] bg-[#161A1F] px-2.5 py-1.5 text-xs font-medium text-[#F2F4F7] hover:border-[#363E48] hover:text-[#00E5FF] transition-colors"
             >
               <IconPlus className="h-3.5 w-3.5 text-[#00E5FF]" />
               <span>Project</span>
@@ -98,7 +93,7 @@ function Navbar({ onOpenCommandPalette, onToggleMobileMenu }) {
               )}
             </Link>
 
-            {/* Profile Menu Trigger */}
+            {/* Profile Dropdown Menu */}
             <div className="relative">
               <button
                 onClick={() => setShowDropdown(!showDropdown)}
@@ -106,15 +101,14 @@ function Navbar({ onOpenCommandPalette, onToggleMobileMenu }) {
                 className="flex items-center gap-2 rounded-lg border border-[#252A30] bg-[#111418] p-1 hover:border-[#363E48] transition-colors"
               >
                 <img
-                  className="h-6 w-6 rounded-md object-cover"
+                  className="h-6 w-6 rounded-md object-cover bg-[#161A1F]"
                   src={user.photoUrl || "https://placehold.co/80x80/161A1F/8B949E?text=DEV"}
                   alt={user.firstName}
                 />
               </button>
 
-              {/* Dropdown Menu */}
               {showDropdown && (
-                <div className="absolute right-0 mt-2 w-56 rounded-xl border border-[#252A30] bg-[#111418] p-1.5 shadow-2xl shadow-black/90 z-50 animate-in fade-in zoom-in-95">
+                <div className="absolute right-0 mt-2 w-56 rounded-xl border border-[#252A30] bg-[#111418] p-1.5 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-100">
                   <div className="border-b border-[#252A30] px-3 py-2">
                     <p className="text-xs font-semibold text-[#F2F4F7] truncate">
                       {user.firstName} {user.lastName}
@@ -127,41 +121,41 @@ function Navbar({ onOpenCommandPalette, onToggleMobileMenu }) {
                   <div className="py-1">
                     <Link
                       to="/profile"
-                      className="flex items-center gap-2.5 rounded-lg px-3 py-1.5 text-xs font-mono text-[#8B949E] hover:bg-[#161A1F] hover:text-[#F2F4F7]"
+                      className="flex items-center gap-2.5 rounded-lg px-3 py-1.5 text-xs text-[#8B949E] hover:bg-[#161A1F] hover:text-[#F2F4F7] transition-colors"
                     >
                       <IconSettings className="h-3.5 w-3.5" />
-                      <span>Edit Profile</span>
+                      <span>Profile &amp; Settings</span>
                     </Link>
                     <Link
                       to="/connections"
-                      className="flex items-center gap-2.5 rounded-lg px-3 py-1.5 text-xs font-mono text-[#8B949E] hover:bg-[#161A1F] hover:text-[#F2F4F7]"
+                      className="flex items-center gap-2.5 rounded-lg px-3 py-1.5 text-xs text-[#8B949E] hover:bg-[#161A1F] hover:text-[#F2F4F7] transition-colors"
                     >
                       <IconNetwork className="h-3.5 w-3.5" />
-                      <span>My Network</span>
+                      <span>Network Graph</span>
                     </Link>
                     <Link
                       to="/projects"
-                      className="flex items-center gap-2.5 rounded-lg px-3 py-1.5 text-xs font-mono text-[#8B949E] hover:bg-[#161A1F] hover:text-[#F2F4F7]"
+                      className="flex items-center gap-2.5 rounded-lg px-3 py-1.5 text-xs text-[#8B949E] hover:bg-[#161A1F] hover:text-[#F2F4F7] transition-colors"
                     >
                       <IconProjects className="h-3.5 w-3.5" />
                       <span>Projects</span>
                     </Link>
                     <Link
                       to="/requests"
-                      className="flex items-center gap-2.5 rounded-lg px-3 py-1.5 text-xs font-mono text-[#8B949E] hover:bg-[#161A1F] hover:text-[#F2F4F7]"
+                      className="flex items-center gap-2.5 rounded-lg px-3 py-1.5 text-xs text-[#8B949E] hover:bg-[#161A1F] hover:text-[#F2F4F7] transition-colors"
                     >
                       <IconRequests className="h-3.5 w-3.5" />
-                      <span>Requests</span>
+                      <span>Connection Requests</span>
                     </Link>
                   </div>
 
                   <div className="border-t border-[#252A30] pt-1">
                     <button
                       onClick={handleLogout}
-                      className="flex w-full items-center gap-2.5 rounded-lg px-3 py-1.5 text-xs font-mono text-[#F43F5E] hover:bg-[#F43F5E]/10"
+                      className="flex w-full items-center gap-2.5 rounded-lg px-3 py-1.5 text-xs font-mono text-[#F43F5E] hover:bg-[#F43F5E]/10 transition-colors"
                     >
                       <IconLogOut className="h-3.5 w-3.5" />
-                      <span>Log Out</span>
+                      <span>Sign Out</span>
                     </button>
                   </div>
                 </div>
@@ -171,9 +165,9 @@ function Navbar({ onOpenCommandPalette, onToggleMobileMenu }) {
         ) : (
           <Link
             to="/login"
-            className="flex items-center gap-2 rounded-lg bg-[#00E5FF] px-3 py-1.5 text-xs font-mono font-bold text-[#0B0D0F] hover:bg-[#33EBFF] transition-colors"
+            className="btn-cyan px-3.5 py-1.5 text-xs font-semibold"
           >
-            <span>INITIALIZE</span>
+            Sign In
           </Link>
         )}
       </div>
@@ -182,4 +176,5 @@ function Navbar({ onOpenCommandPalette, onToggleMobileMenu }) {
 }
 
 export default Navbar;
+
 

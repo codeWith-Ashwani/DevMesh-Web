@@ -5,16 +5,14 @@ import { BASE_URL } from "../utils/constants";
 import {
   IconProjects,
   IconPlus,
-  IconCode,
   IconExternalLink,
   IconX,
   IconCheck,
-  IconSparkles,
-  IconTerminal
+  IconSparkles
 } from "./ui/Icons";
 
 const inputClass =
-  "mt-1 w-full rounded-lg border border-[#252A30] bg-[#161A1F] px-3.5 py-2.5 text-xs font-mono text-[#F2F4F7] placeholder-[#57606A] outline-none hover:border-[#363E48] focus:border-[#00E5FF] transition-colors";
+  "mt-1 w-full rounded-lg border border-[#252A30] bg-[#161A1F] px-3.5 py-2 text-xs text-[#F2F4F7] placeholder-[#57606A] outline-none hover:border-[#363E48] focus:border-[#00E5FF] transition-colors";
 
 const splitValues = (value) =>
   value
@@ -54,11 +52,11 @@ function Projects() {
 
   if (loading) {
     return (
-      <div className="flex h-[70vh] flex-col items-center justify-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#252A30] bg-[#111418]">
+      <div className="flex h-[60vh] flex-col items-center justify-center gap-3">
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#252A30] bg-[#111418]">
           <span className="h-4 w-4 rounded-full border-2 border-[#00E5FF] border-t-transparent animate-spin" />
         </div>
-        <p className="font-mono text-xs text-[#8B949E]">LOADING PROJECT REPOSITORIES...</p>
+        <p className="text-xs text-[#8B949E]">Loading projects...</p>
       </div>
     );
   }
@@ -66,40 +64,40 @@ function Projects() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       {/* Header */}
-      <header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-[#252A30] pb-5">
         <div>
           <div className="flex items-center gap-2 mb-1">
             <span className="h-1.5 w-1.5 rounded-full bg-[#00E5FF]" />
-            <p className="font-mono text-[11px] uppercase tracking-widest text-[#00E5FF]">
-              COLLABORATION REGISTRY
+            <p className="font-mono text-[11px] uppercase tracking-wider text-[#00E5FF]">
+              Collaborations
             </p>
           </div>
           <h1 className="text-2xl font-bold tracking-tight text-[#F2F4F7] sm:text-3xl">
-            Engineering Projects & Builds
+            Engineering Projects
           </h1>
-          <p className="mt-1 font-mono text-xs text-[#8B949E]">
-            Assemble cross-functional teams, contribute to open initiatives, build production apps.
+          <p className="mt-1 text-xs text-[#8B949E]">
+            Assemble cross-functional teams, contribute to open initiatives, and build production apps.
           </p>
         </div>
 
         <button
-          className="btn-cyan flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-mono font-bold"
+          className="btn-cyan flex items-center justify-center gap-2 px-3.5 py-2 text-xs font-semibold"
           onClick={() => setShowCreate(true)}
         >
           <IconPlus className="h-4 w-4" />
-          <span>New Project Initiative</span>
+          <span>New Project</span>
         </button>
       </header>
 
       {/* Stage filter pills */}
-      <div className="mb-6 flex items-center gap-2 border-b border-[#252A30] pb-3">
-        <span className="font-mono text-[11px] text-[#57606A] mr-2">STAGE:</span>
+      <div className="mb-6 flex items-center gap-2">
+        <span className="font-mono text-[11px] text-[#57606A] mr-1">Stage:</span>
         {["All", "Idea", "Building", "Launched"].map((stage) => (
           <button
             key={stage}
             onClick={() => setFilterStage(stage)}
-            className={`tech-tag cursor-pointer ${
-              filterStage === stage ? "tech-tag-active" : "hover:border-[#363E48]"
+            className={`tech-tag cursor-pointer transition-colors ${
+              filterStage === stage ? "tech-tag-active" : "hover:border-[#363E48] hover:text-[#F2F4F7]"
             }`}
           >
             {stage}
@@ -108,26 +106,26 @@ function Projects() {
       </div>
 
       {error && (
-        <div className="mb-6 rounded-lg border border-[#F43F5E]/30 bg-[#F43F5E]/10 p-3 font-mono text-xs text-[#F43F5E]">
+        <div className="mb-6 rounded-lg border border-[#F43F5E]/30 bg-[#F43F5E]/10 p-3 text-xs text-[#F43F5E]">
           {error}
         </div>
       )}
 
       {/* Project Cards Grid */}
       {filteredProjects.length === 0 ? (
-        <div className="rounded-xl border border-[#252A30] bg-[#111418] p-12 text-center shadow-lg">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl border border-[#252A30] bg-[#161A1F] text-[#00E5FF]">
-            <IconTerminal className="h-6 w-6" />
+        <div className="rounded-xl border border-[#252A30] bg-[#111418] p-12 text-center shadow-sm">
+          <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-xl border border-[#252A30] bg-[#161A1F] text-[#8B949E] mb-3">
+            <IconProjects className="h-5 w-5" />
           </div>
-          <h2 className="mt-4 text-base font-bold text-[#F2F4F7]">
-            No projects registered under current filter
+          <h2 className="text-sm font-semibold text-[#F2F4F7]">
+            No projects found
           </h2>
-          <p className="mt-1 font-mono text-xs text-[#8B949E]">
-            Be the first to initialize an engineering build and recruit contributors.
+          <p className="mt-1 text-xs text-[#8B949E]">
+            Be the first to create an engineering project and recruit collaborators.
           </p>
         </div>
       ) : (
-        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {filteredProjects.map((project) => (
             <ProjectCard
               key={project._id}
@@ -139,6 +137,7 @@ function Projects() {
           ))}
         </div>
       )}
+
 
       {/* Modals */}
       {showCreate && (
