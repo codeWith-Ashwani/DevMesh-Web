@@ -242,7 +242,7 @@ export default function NetworkGraph({
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-[620px] rounded-xl border border-[#252A30] bg-[#0B0D0F] overflow-hidden select-none"
+      className="relative w-full h-[620px] rounded-2xl border border-[#1E2442] bg-[#080A14] overflow-hidden select-none shadow-2xl"
       onWheel={handleWheel}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
@@ -255,8 +255,8 @@ export default function NetworkGraph({
         onClick={() => onSelectNode(null)}
       >
         <defs>
-          <pattern id="grid-dots" width="24" height="24" patternUnits="userSpaceOnUse">
-            <circle cx="2" cy="2" r="1" fill="#252A30" opacity="0.6" />
+          <pattern id="grid-dots" width="28" height="28" patternUnits="userSpaceOnUse">
+            <circle cx="2" cy="2" r="1" fill="#1E2442" opacity="0.6" />
           </pattern>
         </defs>
 
@@ -278,17 +278,17 @@ export default function NetworkGraph({
               const hasActiveSelection = Boolean(hoveredNode || selectedNode);
               const linkOpacity = hasActiveSelection
                 ? isLinkActive
-                  ? 0.9
+                  ? 0.95
                   : 0.08
-                : 0.25;
+                : 0.28;
 
               const strokeColor = isLinkActive
-                ? "#00E5FF"
+                ? "#3B82F6"
                 : link.type === "dev-dev"
                 ? "#10B981"
                 : link.type === "proj-skill"
-                ? "#38BDF8"
-                : "#252A30";
+                ? "#8B5CF6"
+                : "#1E2442";
 
               return (
                 <line
@@ -298,7 +298,7 @@ export default function NetworkGraph({
                   x2={targetNode.x}
                   y2={targetNode.y}
                   stroke={strokeColor}
-                  strokeWidth={isLinkActive ? 2 : 1}
+                  strokeWidth={isLinkActive ? 2.5 : 1.2}
                   strokeOpacity={linkOpacity}
                   strokeDasharray={isLinkActive ? "4 2" : undefined}
                   className="transition-all duration-150"
@@ -349,22 +349,22 @@ export default function NetworkGraph({
       {/* Floating HUD Tooltip */}
       {hoveredNode && (
         <div
-          className="pointer-events-none absolute z-20 -translate-x-1/2 -translate-y-full rounded-lg border border-[#252A30] bg-[#161A1F]/95 px-3 py-2 text-xs font-mono shadow-2xl backdrop-blur-md transition-all duration-75"
+          className="pointer-events-none absolute z-20 -translate-x-1/2 -translate-y-full rounded-xl border border-[#1E2442] bg-[#0D1020]/95 px-3.5 py-2.5 text-xs shadow-2xl backdrop-blur-md transition-all duration-75"
           style={{
             left: tooltipPos.x,
             top: tooltipPos.y - 12,
           }}
         >
-          <div className="flex items-center gap-1.5 mb-0.5">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#00E5FF]" />
-            <span className="font-bold text-[#F2F4F7]">{hoveredNode.label}</span>
+          <div className="flex items-center gap-2 mb-0.5">
+            <span className="status-dot-blue" />
+            <span className="font-bold text-[#F5F7FF]">{hoveredNode.label}</span>
           </div>
-          <p className="text-[10px] text-[#8B949E] uppercase tracking-wider">
+          <p className="text-[10px] text-[#8B91A7] uppercase font-semibold tracking-wider">
             {hoveredNode.type}
-            {hoveredNode.isConnection && " · Direct Connection"}
+            {hoveredNode.isConnection && " · Direct Peer"}
           </p>
           {hoveredNode.data?.skills?.length > 0 && (
-            <p className="mt-1 text-[10px] text-[#57606A]">
+            <p className="mt-1 text-[11px] text-[#8B91A7]">
               Stack: {hoveredNode.data.skills.slice(0, 3).join(", ")}
             </p>
           )}
@@ -372,25 +372,25 @@ export default function NetworkGraph({
       )}
 
       {/* Canvas Viewport Controls Overlay */}
-      <div className="absolute bottom-4 left-4 z-10 flex items-center gap-1.5 rounded-lg border border-[#252A30] bg-[#111418]/90 p-1 backdrop-blur-sm">
+      <div className="absolute bottom-4 left-4 z-10 flex items-center gap-1.5 rounded-xl border border-[#1E2442] bg-[#0D1020]/90 p-1.5 backdrop-blur-md shadow-lg">
         <button
           onClick={handleZoomIn}
-          className="flex h-7 w-7 items-center justify-center rounded text-[#8B949E] hover:bg-[#161A1F] hover:text-[#F2F4F7]"
+          className="flex h-7 w-7 items-center justify-center rounded-lg text-[#8B91A7] hover:bg-[#11152A] hover:text-[#F5F7FF] transition-colors"
           title="Zoom In"
         >
           <IconZoomIn className="h-3.5 w-3.5" />
         </button>
         <button
           onClick={handleZoomOut}
-          className="flex h-7 w-7 items-center justify-center rounded text-[#8B949E] hover:bg-[#161A1F] hover:text-[#F2F4F7]"
+          className="flex h-7 w-7 items-center justify-center rounded-lg text-[#8B91A7] hover:bg-[#11152A] hover:text-[#F5F7FF] transition-colors"
           title="Zoom Out"
         >
           <IconZoomOut className="h-3.5 w-3.5" />
         </button>
-        <div className="h-3.5 w-px bg-[#252A30]" />
+        <div className="h-4 w-px bg-[#1E2442]" />
         <button
           onClick={handleResetZoom}
-          className="flex h-7 w-7 items-center justify-center rounded text-[#8B949E] hover:bg-[#161A1F] hover:text-[#F2F4F7]"
+          className="flex h-7 w-7 items-center justify-center rounded-lg text-[#8B91A7] hover:bg-[#11152A] hover:text-[#F5F7FF] transition-colors"
           title="Reset Zoom & Center"
         >
           <IconRotateCcw className="h-3.5 w-3.5" />
@@ -398,10 +398,11 @@ export default function NetworkGraph({
       </div>
 
       {/* Real-Time Topology HUD indicator */}
-      <div className="absolute top-4 left-4 z-10 hidden sm:flex items-center gap-2 rounded-lg border border-[#252A30] bg-[#111418]/80 px-2.5 py-1 text-[10px] font-mono text-[#8B949E] backdrop-blur-sm">
-        <span className="h-1.5 w-1.5 rounded-full bg-[#10B981] animate-pulse" />
-        <span>FORCE MESH :: ONLINE</span>
+      <div className="absolute top-4 left-4 z-10 hidden sm:flex items-center gap-2 rounded-xl border border-[#1E2442] bg-[#0D1020]/90 px-3 py-1.5 text-xs text-[#8B91A7] backdrop-blur-md shadow-md">
+        <span className="status-dot-active" />
+        <span className="font-semibold text-[11px] text-[#F5F7FF]">Live Network Mesh</span>
       </div>
     </div>
   );
 }
+

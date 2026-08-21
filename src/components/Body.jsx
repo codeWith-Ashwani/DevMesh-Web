@@ -55,7 +55,7 @@ function Body() {
 
   if (isAuthPage) {
     return (
-      <div className="flex min-h-screen flex-col bg-[#0B0D0F]">
+      <div className="flex min-h-screen flex-col bg-[#080A14] ambient-glow-bg text-[#F5F7FF]">
         <div className="flex-1 flex items-center justify-center">
           <Outlet />
         </div>
@@ -65,7 +65,7 @@ function Body() {
   }
 
   return (
-    <div className="flex min-h-screen bg-[#0B0D0F] text-[#F2F4F7]">
+    <div className="flex min-h-screen bg-[#080A14] ambient-glow-bg text-[#F5F7FF]">
       {/* Sidebar */}
       <Sidebar
         isCollapsed={isSidebarCollapsed}
@@ -81,7 +81,7 @@ function Body() {
           onToggleMobileMenu={() => setIsMobileOpen((prev) => !prev)}
         />
         
-        <main className="flex-1 overflow-x-hidden bg-[#0B0D0F] tech-grid-bg">
+        <main className="flex-1 overflow-x-hidden fintech-grid-bg">
           <Outlet />
         </main>
 
@@ -98,3 +98,4 @@ function Body() {
 }
 
 export default Body;
+
