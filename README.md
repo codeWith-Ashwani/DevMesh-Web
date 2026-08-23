@@ -30,7 +30,7 @@ The frontend is built as a single-page application (SPA) with React 19, Vite, an
 
 - **Direct Peer Messaging (Chat)**
   - Dedicated 1-on-1 direct messaging interface with connected peers.
-  - Real-time polling synchronization (3-second intervals) with automatic bottom scrolling.
+  - polling-based synchronization (3-second intervals) with automatic bottom scrolling.
   - Message history tracking with ISO timestamp formatting and status indicators.
 
 - **Connection Requests Management**
@@ -108,7 +108,7 @@ DevMesh Web functions as a decoupled client layer in a client-server architectur
 ## 📂 Project Structure
 
 ```
-devTinderWeb/
+DevMesh-Web/
 ├── public/                 # Static public assets (Vite icon, etc.)
 ├── src/
 │   ├── components/         # Page views and modular UI components
