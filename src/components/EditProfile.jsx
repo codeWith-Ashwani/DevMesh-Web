@@ -37,19 +37,23 @@ function EditProfile({ user }) {
   const [saving, setSaving] = useState(false);
   const dispatch = useDispatch();
 
-  const update = (key, value) => setForm((current) => ({ ...current, [key]: value }));
+  const update = (key, value) =>
+    setForm((current) => ({ ...current, [key]: value }));
 
   const saveProfile = async () => {
     setSaving(true);
     setError("");
     try {
-      const res = await axios.patch(`${BASE_URL}/profile/edit`, form, { withCredentials: true });
+      const res = await axios.patch(`${BASE_URL}/profile/edit`, form, {
+        withCredentials: true,
+      });
       dispatch(addUser(res.data.data));
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     } catch (err) {
       setError(
-        err?.response?.data || "Could not save profile changes. Please try again."
+        err?.response?.data?.message ||
+          "Could not save profile changes. Please try again.",
       );
     } finally {
       setSaving(false);
@@ -187,7 +191,7 @@ function EditProfile({ user }) {
                   e.target.value
                     .split(",")
                     .map((skill) => skill.trim())
-                    .filter(Boolean)
+                    .filter(Boolean),
                 )
               }
             />
@@ -238,7 +242,3 @@ function EditProfile({ user }) {
 }
 
 export default EditProfile;
-
-
-
-
