@@ -41,24 +41,23 @@ function EditProfile({ user }) {
     setForm((current) => ({ ...current, [key]: value }));
 
   const saveProfile = async () => {
-    setSaving(true);
-    setError("");
-    try {
-      const res = await axios.patch(`${BASE_URL}/profile/edit`, form, {
-        withCredentials: true,
-      });
-      dispatch(addUser(res.data.data));
-      setSaved(true);
-      setTimeout(() => setSaved(false), 3000);
-    } catch (err) {
-      setError(
-        err?.response?.data?.message ||
-          "Could not save profile changes. Please try again.",
-      );
-    } finally {
-      setSaving(false);
-    }
-  };
+  setSaving(true);
+  setError("");
+  try {
+    // Remove empty-string fields so enum validators don't reject them
+    const payload = Object.fromEntries(
+      Object.entries(form).filter(([_, value]) => value !== "")
+    );
+    const res = await axios.patch(`${BASE_URL}/profile/edit`, payload, { withCredentials: true });
+    dispatch(addUser(res.data.data));
+    setSaved(true);
+    setTimeout(() => setSaved(false), 3000);
+  } catch (err) {
+    setError(err?.response?.data?.message || "Could not save profile changes. Please try again.");
+  } finally {
+    setSaving(false);
+  }
+};
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 space-y-6">
