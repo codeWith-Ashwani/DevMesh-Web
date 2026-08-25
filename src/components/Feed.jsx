@@ -13,10 +13,21 @@ import {
   IconChevronRight,
   IconNetwork,
   IconProjects,
-  IconCode
+  IconCode,
 } from "./ui/Icons";
 
-const skillFilters = ["All", "React", "Node.js", "TypeScript", "Python", "Next.js", "AWS", "Rust", "Go", "TailwindCSS"];
+const skillFilters = [
+  "All",
+  "React",
+  "Node.js",
+  "TypeScript",
+  "Python",
+  "Next.js",
+  "AWS",
+  "Rust",
+  "Go",
+  "TailwindCSS",
+];
 const PAGE_SIZE = 50;
 
 function Feed() {
@@ -39,9 +50,12 @@ function Feed() {
     async (nextPage, replace = false) => {
       setIsLoadingMore(true);
       try {
-        const response = await axios.get(`${BASE_URL}/feed?page=${nextPage}&limit=${PAGE_SIZE}`, {
-          withCredentials: true,
-        });
+        const response = await axios.get(
+          `${BASE_URL}/feed?page=${nextPage}&limit=${PAGE_SIZE}`,
+          {
+            withCredentials: true,
+          },
+        );
         const users = response.data;
         dispatch(replace ? addFeed(users) : appendFeed(users));
         setPage(nextPage);
@@ -54,14 +68,18 @@ function Feed() {
         setIsLoadingMore(false);
       }
     },
-    [dispatch]
+    [dispatch],
   );
 
   useEffect(() => {
-    if (feed === null) fetchFeedPage(1, true);
-  }, [feed, fetchFeedPage]);
+    if (currentUser) {
+      fetchFeedPage(1, true);
+    }
+  }, [currentUser, fetchFeedPage]);
 
   useEffect(() => {
+    if (!currentUser) return;
+
     axios
       .get(`${BASE_URL}/user/connections`, { withCredentials: true })
       .then((res) => dispatch(addConnections(res.data.data)))
@@ -71,10 +89,16 @@ function Feed() {
       .get(`${BASE_URL}/projects`, { withCredentials: true })
       .then((res) => setProjects(res.data.data || []))
       .catch(() => setProjects([]));
-  }, [dispatch]);
+  }, [currentUser, dispatch]);
 
   useEffect(() => {
-    if (Array.isArray(feed) && feed.length === 0 && !isLoadingMore && hasMore && page > 0) {
+    if (
+      Array.isArray(feed) &&
+      feed.length === 0 &&
+      !isLoadingMore &&
+      hasMore &&
+      page > 0
+    ) {
       fetchFeedPage(page + 1);
     }
   }, [feed, isLoadingMore, hasMore, page, fetchFeedPage]);
@@ -83,9 +107,10 @@ function Feed() {
     if (!feed) return [];
     const query = search.trim().toLowerCase();
     return feed.filter((user) => {
-      const searchable = `${user.firstName} ${user.lastName} ${user.about || ""} ${(
-        user.skills || []
-      ).join(" ")}`.toLowerCase();
+      const searchable =
+        `${user.firstName} ${user.lastName} ${user.about || ""} ${(
+          user.skills || []
+        ).join(" ")}`.toLowerCase();
       return (
         (!query || searchable.includes(query)) &&
         (selectedSkill === "All" || user.skills?.includes(selectedSkill)) &&
@@ -94,11 +119,13 @@ function Feed() {
     });
   }, [feed, search, selectedSkill, goal]);
 
-  const featuredUser = filteredFeed.find((user) => user._id === selectedId) || filteredFeed[0];
-  
+  const featuredUser =
+    filteredFeed.find((user) => user._id === selectedId) || filteredFeed[0];
+
   // Real Statistics Computation
   const collaborationCount =
-    feed?.filter((user) => user.lookingFor === "Project collaborators").length || 0;
+    feed?.filter((user) => user.lookingFor === "Project collaborators")
+      .length || 0;
 
   // Compute skill frequencies across real feed data for the analytics chart
   const topSkillsData = useMemo(() => {
@@ -133,7 +160,9 @@ function Feed() {
         <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[#1E2442] bg-[#0D1020] shadow-xl">
           <span className="h-5 w-5 rounded-full border-2 border-[#3B82F6] border-t-transparent animate-spin" />
         </div>
-        <p className="text-xs font-medium text-[#8B91A7]">Synchronizing developer mesh...</p>
+        <p className="text-xs font-medium text-[#8B91A7]">
+          Synchronizing developer mesh...
+        </p>
       </div>
     );
   }
@@ -150,13 +179,16 @@ function Feed() {
           <div className="space-y-2 max-w-2xl">
             <div className="flex items-center gap-2 text-xs font-semibold text-[#3B82F6]">
               <span className="status-dot-active" />
-              <span>{getTimeGreeting()}, {currentUser?.firstName || "Developer"}</span>
+              <span>
+                {getTimeGreeting()}, {currentUser?.firstName || "Developer"}
+              </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#F5F7FF]">
               Developer Intelligence Dashboard
             </h1>
             <p className="text-xs sm:text-sm text-[#8B91A7] leading-relaxed">
-              Connect with vetted engineers, match verified technical stacks, and build collaborative engineering initiatives.
+              Connect with vetted engineers, match verified technical stacks,
+              and build collaborative engineering initiatives.
             </p>
           </div>
 
@@ -221,7 +253,8 @@ function Feed() {
                 Developer Ecosystem Activity
               </h2>
               <p className="text-xs text-[#8B91A7] mt-0.5">
-                Real-time technical stack distribution across discoverable engineers
+                Real-time technical stack distribution across discoverable
+                engineers
               </p>
             </div>
             <div className="flex items-center gap-1.5 rounded-xl border border-[#1E2442] bg-[#11152A] px-3 py-1 text-xs text-[#38BDF8] font-medium">
@@ -237,12 +270,18 @@ function Feed() {
                 <div key={skill.name} className="space-y-1.5">
                   <div className="flex items-center justify-between text-xs font-medium">
                     <span className="text-[#F5F7FF] flex items-center gap-2">
-                      <span className="font-mono text-[10px] text-[#515870]">0{idx + 1}</span>
+                      <span className="font-mono text-[10px] text-[#515870]">
+                        0{idx + 1}
+                      </span>
                       <span>{skill.name}</span>
                     </span>
                     <div className="flex items-center gap-2">
-                      <span className="text-[11px] text-[#8B91A7] font-mono">{skill.count} devs</span>
-                      <span className="text-xs font-bold text-[#3B82F6] font-mono">{skill.percent}%</span>
+                      <span className="text-[11px] text-[#8B91A7] font-mono">
+                        {skill.count} devs
+                      </span>
+                      <span className="text-xs font-bold text-[#3B82F6] font-mono">
+                        {skill.percent}%
+                      </span>
                     </div>
                   </div>
                   <div className="h-2 w-full overflow-hidden rounded-full bg-[#11152A] border border-[#1E2442]">
@@ -254,7 +293,9 @@ function Feed() {
                 </div>
               ))
             ) : (
-              <p className="text-xs text-[#8B91A7] py-4 text-center">No skill telemetry recorded.</p>
+              <p className="text-xs text-[#8B91A7] py-4 text-center">
+                No skill telemetry recorded.
+              </p>
             )}
           </div>
 
@@ -262,12 +303,16 @@ function Feed() {
           <div className="grid grid-cols-2 gap-3 pt-3 border-t border-[#1E2442]">
             <div className="rounded-xl border border-[#1E2442] bg-[#11152A]/60 p-3">
               <p className="text-[11px] text-[#8B91A7]">Active Projects</p>
-              <p className="mt-1 text-base font-bold text-[#F5F7FF] font-mono">{projects.length}</p>
+              <p className="mt-1 text-base font-bold text-[#F5F7FF] font-mono">
+                {projects.length}
+              </p>
             </div>
             <div className="rounded-xl border border-[#1E2442] bg-[#11152A]/60 p-3">
               <p className="text-[11px] text-[#8B91A7]">Mesh Connection Rate</p>
               <p className="mt-1 text-base font-bold text-[#10B981] font-mono">
-                {feed.length ? `${Math.round((connections.length / (feed.length + connections.length || 1)) * 100)}%` : "0%"}
+                {feed.length
+                  ? `${Math.round((connections.length / (feed.length + connections.length || 1)) * 100)}%`
+                  : "0%"}
               </p>
             </div>
           </div>
@@ -308,7 +353,9 @@ function Feed() {
                     key={skill}
                     onClick={() => setSelectedSkill(skill)}
                     className={`skill-pill cursor-pointer transition-all ${
-                      isActive ? "skill-pill-active font-semibold shadow-sm" : ""
+                      isActive
+                        ? "skill-pill-active font-semibold shadow-sm"
+                        : ""
                     }`}
                   >
                     {skill}
@@ -355,7 +402,8 @@ function Feed() {
               Recommended Developers
             </h2>
             <p className="text-xs text-[#8B91A7] mt-0.5">
-              Select any engineer to view their complete profile in the focus panel
+              Select any engineer to view their complete profile in the focus
+              panel
             </p>
           </div>
           <span className="rounded-xl border border-[#1E2442] bg-[#11152A] px-3 py-1 font-mono text-xs font-semibold text-[#3B82F6]">
@@ -368,8 +416,12 @@ function Feed() {
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl border border-[#1E2442] bg-[#11152A] text-[#8B91A7] mb-3">
               <IconSearch className="h-5 w-5" />
             </div>
-            <h3 className="text-sm font-bold text-[#F5F7FF]">No developers match current query</h3>
-            <p className="mt-1 text-xs text-[#8B91A7]">Adjust filter parameters or reset search query.</p>
+            <h3 className="text-sm font-bold text-[#F5F7FF]">
+              No developers match current query
+            </h3>
+            <p className="mt-1 text-xs text-[#8B91A7]">
+              Adjust filter parameters or reset search query.
+            </p>
             <button
               className="btn-secondary mt-4 px-4 py-2 text-xs font-semibold"
               onClick={() => {
@@ -398,7 +450,10 @@ function Feed() {
                   <div className="flex items-start gap-3 w-full">
                     <img
                       className="h-10 w-10 rounded-xl border border-[#1E2442] object-cover bg-[#0D1020] shrink-0"
-                      src={user.photoUrl || "https://placehold.co/80x80/11152A/8B91A7?text=DEV"}
+                      src={
+                        user.photoUrl ||
+                        "https://placehold.co/80x80/11152A/8B91A7?text=DEV"
+                      }
                       alt=""
                     />
                     <div className="min-w-0 flex-1">
@@ -426,7 +481,10 @@ function Feed() {
 
                   <div className="mt-3 flex flex-wrap gap-1">
                     {(user.skills || []).slice(0, 3).map((skill) => (
-                      <span key={skill} className="skill-pill text-[10px] py-0.5 px-1.5">
+                      <span
+                        key={skill}
+                        className="skill-pill text-[10px] py-0.5 px-1.5"
+                      >
                         {skill}
                       </span>
                     ))}
@@ -459,7 +517,9 @@ function MetricCard({ label, value, meta, color, trend }) {
           </span>
         )}
       </div>
-      <p className={`text-2xl sm:text-3xl font-extrabold font-mono ${colorMap[color] || "text-[#F5F7FF]"}`}>
+      <p
+        className={`text-2xl sm:text-3xl font-extrabold font-mono ${colorMap[color] || "text-[#F5F7FF]"}`}
+      >
         {value}
       </p>
       <p className="text-[11px] text-[#515870]">{meta}</p>
@@ -468,6 +528,3 @@ function MetricCard({ label, value, meta, color, trend }) {
 }
 
 export default Feed;
-
-
-
