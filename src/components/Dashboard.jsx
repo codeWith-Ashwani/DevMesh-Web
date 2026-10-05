@@ -60,7 +60,6 @@ export default function Dashboard() {
   return (
     <div className="page-wrap space-y-7">
       <header>
-        <p className="eyebrow mb-3">// your developer workbench</p>
         <h1 className="page-title">
           Let’s build something, {user?.firstName || "developer"}
           <span className="text-[#82B4FF]">.</span>
@@ -147,9 +146,6 @@ export default function Dashboard() {
         </div>
         <div className="hidden md:block relative z-10 shrink-0 pr-4 text-center">
           <GuideAvatar className="h-36 w-36 mx-auto" />
-          <p className="mt-3 font-mono text-xs text-[#82B4FF]">
-            hello, builder_
-          </p>
           <p className="text-[11px] text-[#A5B4CE] mt-2">
             A little help from Patch.
           </p>

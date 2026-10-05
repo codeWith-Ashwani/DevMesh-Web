@@ -115,7 +115,7 @@ export default function DeveloperGuide() {
       {open && (
         <Modal label="Workspace guide" onClose={close} className="guide-panel">
           <div className="flex items-center justify-between border-b border-[#293B5B] px-5 py-3">
-            <span className="eyebrow">// your workspace companion</span>
+            <span className="eyebrow">Workspace guide</span>
             <button
               className="icon-button"
               aria-label="Close guide"

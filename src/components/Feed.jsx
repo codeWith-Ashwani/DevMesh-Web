@@ -73,7 +73,6 @@ export default function Feed() {
   return (
     <div className="page-wrap space-y-7">
       <header>
-        <p className="eyebrow mb-3">// find your people</p>
         <h1 className="page-title">
           Meet your next collaborator<span className="text-[#82B4FF]">.</span>
         </h1>

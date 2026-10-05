@@ -58,9 +58,6 @@ export default function Login() {
       </div>
       <div className="grid lg:grid-cols-[1.2fr_1fr] gap-10 lg:gap-20 items-center">
         <section>
-          <p className="eyebrow text-[#82B4FF] mb-5">
-            // good things are built together
-          </p>
           <h1 className="text-4xl sm:text-5xl lg:text-[56px] leading-[1.08] font-semibold tracking-[-.05em]">
             You bring the idea.
             <br />

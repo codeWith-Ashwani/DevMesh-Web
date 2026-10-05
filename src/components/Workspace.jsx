@@ -134,7 +134,6 @@ export default function Workspace() {
     <div className="page-wrap text-[#EEF4FF] space-y-6">
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="eyebrow mb-3">// team workspace</p>
           <h1 className="page-title">{data.project.title}</h1>
           <p className="text-[#A5B4CE] mt-2">
             First deliverable:{" "}

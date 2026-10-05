@@ -428,7 +428,6 @@ function ChatSession() {
     <div className="page-wrap text-[#EEF4FF]">
       <header className="flex justify-between items-center mb-4">
         <div>
-          <p className="eyebrow mb-3">// your team's conversation space</p>
           <h1 className="page-title">Messages</h1>
           <p className="text-sm text-[#A5B4CE]">
             Personal conversations and collaboration groups

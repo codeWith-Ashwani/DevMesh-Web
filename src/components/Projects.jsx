@@ -97,12 +97,6 @@ function Projects() {
       {/* Header */}
       <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-[#293B5B] pb-6">
         <div>
-          <div className="flex items-center gap-2 mb-1.5">
-            <span className="status-dot-blue" />
-            <p className="text-xs uppercase font-bold tracking-wider text-[#82B4FF]">
-              // build something together
-            </p>
-          </div>
           <h1 className="text-2xl font-extrabold tracking-tight text-[#EEF4FF] sm:text-3xl">
             Find a problem worth solving.
           </h1>

@@ -168,13 +168,6 @@ export default function Sidebar({
             {expanded && "My profile"}
           </Link>
         </nav>
-        {expanded && (
-          <div className="mx-5 mb-5 text-[10px] leading-5 font-mono text-[#7B91B5]">
-            // find your people.
-            <br />
-            // ship something useful.
-          </div>
-        )}
         <div className="border-t border-[#293B5B] p-3 flex items-center justify-between gap-2">
           <Link
             to="/profile"

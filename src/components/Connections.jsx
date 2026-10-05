@@ -85,7 +85,7 @@ export default function Connections() {
       nodesList.push({
         id: `dev_${currentUserId}`,
         type: "developer",
-        label: `${currentUser.firstName || "You"} (Node:0)`,
+        label: currentUser.firstName || "You",
         isCurrentUser: true,
         isConnection: false,
         data: currentUser,

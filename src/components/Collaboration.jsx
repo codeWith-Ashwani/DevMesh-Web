@@ -103,9 +103,6 @@ export default function Collaboration() {
   return (
     <div className="page-wrap text-[#EEF4FF] space-y-6">
       <header>
-        <p className="eyebrow mb-3">
-          // from learning alone to shipping together
-        </p>
         <h1 className="page-title">Find your team</h1>
         <p className="text-[#A5B4CE] mt-2">
           Find people with compatible skills and commitments. Try a small
