@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
-import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom";
 import { BASE_URL } from "../utils/constants";
 import {
   IconProjects,
@@ -10,7 +10,7 @@ import {
   IconX,
   IconCheck,
   IconSparkles,
-  IconActivity
+  IconActivity,
 } from "./ui/Icons";
 
 const inputClass =
@@ -34,11 +34,15 @@ function Projects() {
 
   const loadProjects = useCallback(async () => {
     try {
-      const response = await axios.get(`${BASE_URL}/projects`, { withCredentials: true });
+      const response = await axios.get(`${BASE_URL}/projects`, {
+        withCredentials: true,
+      });
       setProjects(response.data.data);
       setError("");
     } catch (err) {
-      setError(err?.response?.data?.message || "Unable to load engineering projects.");
+      setError(
+        err?.response?.data?.message || "Unable to load engineering projects.",
+      );
     } finally {
       setLoading(false);
     }
@@ -49,7 +53,7 @@ function Projects() {
   }, [loadProjects]);
 
   const filteredProjects = projects.filter(
-    (p) => filterStage === "All" || p.stage === filterStage
+    (p) => filterStage === "All" || p.stage === filterStage,
   );
 
   if (loading) {
@@ -58,7 +62,9 @@ function Projects() {
         <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[#1E2442] bg-[#0D1020] shadow-xl">
           <span className="h-5 w-5 rounded-full border-2 border-[#3B82F6] border-t-transparent animate-spin" />
         </div>
-        <p className="text-xs font-medium text-[#8B91A7]">Loading collaboration projects...</p>
+        <p className="text-xs font-medium text-[#8B91A7]">
+          Loading collaboration projects...
+        </p>
       </div>
     );
   }
@@ -78,7 +84,8 @@ function Projects() {
             Engineering Projects
           </h1>
           <p className="mt-1 text-xs sm:text-sm text-[#8B91A7]">
-            Assemble cross-functional teams, contribute to open initiatives, and build production apps.
+            Assemble cross-functional teams, contribute to open initiatives, and
+            build production apps.
           </p>
         </div>
 
@@ -93,13 +100,17 @@ function Projects() {
 
       {/* Stage filter pills */}
       <div className="flex items-center gap-2">
-        <span className="text-xs font-medium text-[#8B91A7] mr-1">Filter Stage:</span>
+        <span className="text-xs font-medium text-[#8B91A7] mr-1">
+          Filter Stage:
+        </span>
         {["All", "Idea", "Building", "Launched"].map((stage) => (
           <button
             key={stage}
             onClick={() => setFilterStage(stage)}
             className={`skill-pill cursor-pointer transition-all ${
-              filterStage === stage ? "skill-pill-active font-semibold shadow-sm" : ""
+              filterStage === stage
+                ? "skill-pill-active font-semibold shadow-sm"
+                : ""
             }`}
           >
             {stage}
@@ -123,7 +134,8 @@ function Projects() {
             No projects found
           </h2>
           <p className="mt-1 text-xs text-[#8B91A7]">
-            Be the first to initialize an engineering initiative and recruit collaborators.
+            Be the first to initialize an engineering initiative and recruit
+            collaborators.
           </p>
         </div>
       ) : (
@@ -135,7 +147,17 @@ function Projects() {
               currentUser={currentUser}
               onApply={setApplyingTo}
               onReview={setReviewing}
-              onWithdraw={async project => { try { await axios.delete(`${BASE_URL}/projects/${project._id}/application`, { withCredentials: true }); loadProjects(); } catch(e) { setError(e.response?.data?.message || 'Unable to withdraw'); } }}
+              onWithdraw={async (project) => {
+                try {
+                  await axios.delete(
+                    `${BASE_URL}/projects/${project._id}/application`,
+                    { withCredentials: true },
+                  );
+                  loadProjects();
+                } catch (e) {
+                  setError(e.response?.data?.message || "Unable to withdraw");
+                }
+              }}
             />
           ))}
         </div>
@@ -177,12 +199,28 @@ function ProjectCard({ project, currentUser, onApply, onReview, onWithdraw }) {
   const isCreator = project.creator?._id === currentUser?._id;
 
   const stageMeta = {
-    Idea: { progress: 25, color: "from-sky-500 to-cyan-400", badge: "border-sky-500/30 bg-sky-500/10 text-sky-400" },
-    Building: { progress: 65, color: "from-blue-600 to-indigo-500", badge: "border-blue-500/30 bg-blue-500/10 text-blue-400" },
-    Launched: { progress: 100, color: "from-emerald-500 to-teal-400", badge: "border-emerald-500/30 bg-emerald-500/10 text-emerald-400" },
+    Idea: {
+      progress: 25,
+      color: "from-sky-500 to-cyan-400",
+      badge: "border-sky-500/30 bg-sky-500/10 text-sky-400",
+    },
+    Building: {
+      progress: 65,
+      color: "from-blue-600 to-indigo-500",
+      badge: "border-blue-500/30 bg-blue-500/10 text-blue-400",
+    },
+    Launched: {
+      progress: 100,
+      color: "from-emerald-500 to-teal-400",
+      badge: "border-emerald-500/30 bg-emerald-500/10 text-emerald-400",
+    },
   };
 
-  const meta = stageMeta[project.stage] || { progress: 40, color: "from-blue-600 to-cyan-400", badge: "border-[#1E2442] bg-[#11152A] text-[#8B91A7]" };
+  const meta = stageMeta[project.stage] || {
+    progress: 40,
+    color: "from-blue-600 to-cyan-400",
+    badge: "border-[#1E2442] bg-[#11152A] text-[#8B91A7]",
+  };
 
   return (
     <article className="fintech-card flex flex-col justify-between rounded-2xl border border-[#1E2442] p-5 shadow-xl hover:border-[#2A335C] transition-all">
@@ -194,11 +232,15 @@ function ProjectCard({ project, currentUser, onApply, onReview, onWithdraw }) {
           >
             {project.stage}
           </span>
-          <span className="text-[11px] text-[#8B91A7] font-medium">{project.commitment}</span>
+          <span className="text-[11px] text-[#8B91A7] font-medium">
+            {project.commitment}
+          </span>
         </div>
 
         {/* Title */}
-        <h2 className="mt-3 text-base font-bold text-[#F5F7FF] tracking-tight">{project.title}</h2>
+        <h2 className="mt-3 text-base font-bold text-[#F5F7FF] tracking-tight">
+          {project.title}
+        </h2>
 
         {/* Description */}
         <p className="mt-2 text-xs leading-relaxed text-[#8B91A7] line-clamp-3">
@@ -206,14 +248,34 @@ function ProjectCard({ project, currentUser, onApply, onReview, onWithdraw }) {
         </p>
 
         {/* Actual first deliverable; stage is not a completion percentage. */}
-        <p className="mt-4 text-xs text-[#8B91A7]">First deliverable: {project.firstDeliverable || 'To be agreed by the team'} · {project.durationWeeks || 4} weeks</p>
-        {project.isTeamMember && <Link className="block mt-3 text-blue-400 text-sm" to={`/projects/${project._id}/workspace`}>Open team workspace →</Link>}
-        {project.applicationStatus === 'pending' && <button className="block mt-2 text-sm text-[#8B91A7]" onClick={() => onWithdraw(project)}>Withdraw application</button>}
+        <p className="mt-4 text-xs text-[#8B91A7]">
+          First deliverable:{" "}
+          {project.firstDeliverable || "To be agreed by the team"} ·{" "}
+          {project.durationWeeks || 4} weeks
+        </p>
+        {project.isTeamMember && (
+          <Link
+            className="block mt-3 text-blue-400 text-sm"
+            to={`/projects/${project._id}/workspace`}
+          >
+            Open team workspace →
+          </Link>
+        )}
+        {project.applicationStatus === "pending" && (
+          <button
+            className="block mt-2 text-sm text-[#8B91A7]"
+            onClick={() => onWithdraw(project)}
+          >
+            Withdraw application
+          </button>
+        )}
         {/* Stage indicator */}
         <div className="mt-4 space-y-1.5">
           <div className="flex items-center justify-between text-[10px] font-medium text-[#8B91A7]">
             <span>Project stage</span>
-            <span className="font-mono text-[#F5F7FF] font-bold">{project.stage}</span>
+            <span className="font-mono text-[#F5F7FF] font-bold">
+              {project.stage}
+            </span>
           </div>
           <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#11152A] border border-[#1E2442]">
             <div
@@ -235,9 +297,13 @@ function ProjectCard({ project, currentUser, onApply, onReview, onWithdraw }) {
         {/* Roles needed */}
         {project.rolesNeeded?.length > 0 && (
           <div className="mt-4 border-t border-[#1E2442] pt-3">
-            <p className="text-[10px] uppercase font-semibold tracking-wider text-[#515870]">Roles required</p>
+            <p className="text-[10px] uppercase font-semibold tracking-wider text-[#515870]">
+              Roles required
+            </p>
             <p className="mt-0.5 text-xs text-[#F5F7FF] font-medium">
-              {(project.roleOpenings || []).map(o => `${o.title}: ${o.seats - o.filled} open`).join(' · ') || project.rolesNeeded.join(' · ')}
+              {(project.roleOpenings || [])
+                .map((o) => `${o.title}: ${o.seats - o.filled} open`)
+                .join(" · ") || project.rolesNeeded.join(" · ")}
             </p>
           </div>
         )}
@@ -248,7 +314,10 @@ function ProjectCard({ project, currentUser, onApply, onReview, onWithdraw }) {
         <div className="flex items-center gap-2.5 text-xs text-[#8B91A7] min-w-0">
           <img
             className="h-6 w-6 rounded-lg border border-[#1E2442] object-cover bg-[#0D1020] shrink-0"
-            src={project.creator?.photoUrl || "https://placehold.co/80x80/11152A/8B91A7?text=DEV"}
+            src={
+              project.creator?.photoUrl ||
+              "https://placehold.co/80x80/11152A/8B91A7?text=DEV"
+            }
             alt=""
           />
           <span className="truncate font-medium">
@@ -290,10 +359,10 @@ function ProjectForm({ onClose, onCreated }) {
     stage: "Idea",
     commitment: "Flexible",
     githubUrl: "",
-    firstDeliverable: '',
+    firstDeliverable: "",
     durationWeeks: 4,
     seatsPerRole: 1,
-    goal: 'Ship a portfolio project',
+    goal: "Ship a portfolio project",
   });
   const [error, setError] = useState("");
 
@@ -306,10 +375,13 @@ function ProjectForm({ onClose, onCreated }) {
           ...form,
           techStack: splitValues(form.techStack),
           rolesNeeded: splitValues(form.rolesNeeded),
-          roleOpenings: splitValues(form.rolesNeeded).map(title => ({ title, seats: Number(form.seatsPerRole) })),
+          roleOpenings: splitValues(form.rolesNeeded).map((title) => ({
+            title,
+            seats: Number(form.seatsPerRole),
+          })),
           durationWeeks: Number(form.durationWeeks),
         },
-        { withCredentials: true }
+        { withCredentials: true },
       );
       onCreated();
     } catch (err) {
@@ -317,14 +389,61 @@ function ProjectForm({ onClose, onCreated }) {
     }
   };
 
-  const update = (field) => (event) => setForm({ ...form, [field]: event.target.value });
+  const update = (field) => (event) =>
+    setForm({ ...form, [field]: event.target.value });
 
   return (
     <Modal title="Initialize Collaboration Project" onClose={onClose}>
       <form className="space-y-4" onSubmit={submit}>
-        <Field label="FIRST DELIVERABLE"><input className={inputClass} maxLength={500} value={form.firstDeliverable} onChange={update('firstDeliverable')} placeholder="A working login flow with tests" /></Field>
-        <Field label="COLLABORATION GOAL"><select className={inputClass} value={form.goal} onChange={update('goal')}>{['Learn together', 'Ship a portfolio project', 'Contribute to open source', 'Launch a product'].map(g => <option key={g}>{g}</option>)}</select></Field>
-        <div className="grid grid-cols-2 gap-4"><Field label="DURATION (WEEKS)"><input className={inputClass} required type="number" min={1} max={52} value={form.durationWeeks} onChange={update('durationWeeks')} /></Field><Field label="SEATS PER ROLE"><input className={inputClass} required type="number" min={1} max={10} value={form.seatsPerRole} onChange={update('seatsPerRole')} /></Field></div>
+        <Field label="FIRST DELIVERABLE">
+          <input
+            className={inputClass}
+            maxLength={500}
+            value={form.firstDeliverable}
+            onChange={update("firstDeliverable")}
+            placeholder="A working login flow with tests"
+          />
+        </Field>
+        <Field label="COLLABORATION GOAL">
+          <select
+            className={inputClass}
+            value={form.goal}
+            onChange={update("goal")}
+          >
+            {[
+              "Learn together",
+              "Ship a portfolio project",
+              "Contribute to open source",
+              "Launch a product",
+            ].map((g) => (
+              <option key={g}>{g}</option>
+            ))}
+          </select>
+        </Field>
+        <div className="grid grid-cols-2 gap-4">
+          <Field label="DURATION (WEEKS)">
+            <input
+              className={inputClass}
+              required
+              type="number"
+              min={1}
+              max={52}
+              value={form.durationWeeks}
+              onChange={update("durationWeeks")}
+            />
+          </Field>
+          <Field label="SEATS PER ROLE">
+            <input
+              className={inputClass}
+              required
+              type="number"
+              min={1}
+              max={10}
+              value={form.seatsPerRole}
+              onChange={update("seatsPerRole")}
+            />
+          </Field>
+        </div>
         <Field label="PROJECT TITLE">
           <input
             className={inputClass}
@@ -363,14 +482,22 @@ function ProjectForm({ onClose, onCreated }) {
         </Field>
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="BUILD STAGE">
-            <select className={inputClass} value={form.stage} onChange={update("stage")}>
+            <select
+              className={inputClass}
+              value={form.stage}
+              onChange={update("stage")}
+            >
               <option>Idea</option>
               <option>Building</option>
               <option>Launched</option>
             </select>
           </Field>
           <Field label="TIME COMMITMENT">
-            <select className={inputClass} value={form.commitment} onChange={update("commitment")}>
+            <select
+              className={inputClass}
+              value={form.commitment}
+              onChange={update("commitment")}
+            >
               <option>Flexible</option>
               <option>5 hrs/week</option>
               <option>10 hrs/week</option>
@@ -391,7 +518,10 @@ function ProjectForm({ onClose, onCreated }) {
             {error}
           </p>
         )}
-        <button className="btn-primary w-full py-2.5 text-xs font-bold" type="submit">
+        <button
+          className="btn-primary w-full py-2.5 text-xs font-bold"
+          type="submit"
+        >
           Publish Project to Registry
         </button>
       </form>
@@ -410,20 +540,33 @@ function ApplyModal({ project, onClose, onApplied }) {
       await axios.post(
         `${BASE_URL}/projects/${project._id}/apply`,
         { message, role },
-        { withCredentials: true }
+        { withCredentials: true },
       );
       onApplied();
     } catch (err) {
-      setError(err?.response?.data?.message || "Unable to send your application.");
+      setError(
+        err?.response?.data?.message || "Unable to send your application.",
+      );
     }
   };
 
   return (
     <Modal title={`Apply to ${project.title}`} onClose={onClose}>
       <form className="space-y-4" onSubmit={submit}>
-        <Field label="ROLE"><select className={inputClass} value={role} onChange={e => setRole(e.target.value)}>{project.rolesNeeded.map(r => <option key={r}>{r}</option>)}</select></Field>
+        <Field label="ROLE">
+          <select
+            className={inputClass}
+            value={role}
+            onChange={(e) => setRole(e.target.value)}
+          >
+            {project.rolesNeeded.map((r) => (
+              <option key={r}>{r}</option>
+            ))}
+          </select>
+        </Field>
         <p className="text-xs text-[#8B91A7]">
-          State your technical domain background and how you can contribute to this project.
+          State your technical domain background and how you can contribute to
+          this project.
         </p>
         <textarea
           className={`${inputClass} min-h-28`}
@@ -437,7 +580,10 @@ function ApplyModal({ project, onClose, onApplied }) {
             {error}
           </p>
         )}
-        <button className="btn-primary w-full py-2.5 text-xs font-bold" type="submit">
+        <button
+          className="btn-primary w-full py-2.5 text-xs font-bold"
+          type="submit"
+        >
           Submit Application
         </button>
       </form>
@@ -448,18 +594,31 @@ function ApplyModal({ project, onClose, onApplied }) {
 function ApplicationsModal({ project, onClose }) {
   const [applications, setApplications] = useState([]);
   const [error, setError] = useState("");
-  const [trial, setTrial] = useState({ participant: '', deliverable: '', dueAt: '' });
-  const invite = async event => {
+  const [trial, setTrial] = useState({
+    participant: "",
+    deliverable: "",
+    dueAt: "",
+  });
+  const invite = async (event) => {
     event.preventDefault();
-    try { await axios.post(`${BASE_URL}/projects/${project._id}/trials`, trial, { withCredentials: true }); setTrial({ participant: '', deliverable: '', dueAt: '' }); }
-    catch(e) { setError(e.response?.data?.message || 'Unable to invite applicant'); }
+    try {
+      await axios.post(`${BASE_URL}/projects/${project._id}/trials`, trial, {
+        withCredentials: true,
+      });
+      setTrial({ participant: "", deliverable: "", dueAt: "" });
+    } catch (e) {
+      setError(e.response?.data?.message || "Unable to invite applicant");
+    }
   };
 
   const load = useCallback(async () => {
     try {
-      const response = await axios.get(`${BASE_URL}/projects/${project._id}/applications`, {
-        withCredentials: true,
-      });
+      const response = await axios.get(
+        `${BASE_URL}/projects/${project._id}/applications`,
+        {
+          withCredentials: true,
+        },
+      );
       setApplications(response.data.data);
     } catch (err) {
       setError(err?.response?.data?.message || "Unable to load applications.");
@@ -470,12 +629,18 @@ function ApplicationsModal({ project, onClose }) {
     let ignore = false;
     const fetchApps = async () => {
       try {
-        const response = await axios.get(`${BASE_URL}/projects/${project._id}/applications`, {
-          withCredentials: true,
-        });
+        const response = await axios.get(
+          `${BASE_URL}/projects/${project._id}/applications`,
+          {
+            withCredentials: true,
+          },
+        );
         if (!ignore) setApplications(response.data.data);
       } catch (err) {
-        if (!ignore) setError(err?.response?.data?.message || "Unable to load applications.");
+        if (!ignore)
+          setError(
+            err?.response?.data?.message || "Unable to load applications.",
+          );
       }
     };
     fetchApps();
@@ -489,7 +654,7 @@ function ApplicationsModal({ project, onClose }) {
       await axios.patch(
         `${BASE_URL}/projects/${project._id}/applications/${applicationId}`,
         { status },
-        { withCredentials: true }
+        { withCredentials: true },
       );
       load();
     } catch {
@@ -499,14 +664,65 @@ function ApplicationsModal({ project, onClose }) {
 
   return (
     <Modal title={`Applicants · ${project.title}`} onClose={onClose}>
-      <form onSubmit={invite} className="mb-4 space-y-2 border border-[#1E2442] p-3 rounded-xl"><h3 className="font-bold">Invite an applicant to a short trial</h3><label className="block">Applicant<select required className={inputClass} value={trial.participant} onChange={e => setTrial({ ...trial, participant: e.target.value })}><option value="">Choose pending applicant</option>{applications.filter(a => a.status === 'pending').map(a => <option key={a._id} value={a.user?._id}>{a.user?.firstName} · {a.role || project.rolesNeeded[0]}</option>)}</select></label><label className="block">Small deliverable<input required minLength={5} maxLength={1000} className={inputClass} value={trial.deliverable} onChange={e => setTrial({ ...trial, deliverable: e.target.value })} /></label><label className="block">Deadline within 14 days<input required type="date" className={inputClass} value={trial.dueAt} onChange={e => setTrial({ ...trial, dueAt: e.target.value })} /></label><button className="btn-secondary p-2">Send trial invitation</button></form>
+      <form
+        onSubmit={invite}
+        className="mb-4 space-y-2 border border-[#1E2442] p-3 rounded-xl"
+      >
+        <h3 className="font-bold">Invite an applicant to a short trial</h3>
+        <label className="block">
+          Applicant
+          <select
+            required
+            className={inputClass}
+            value={trial.participant}
+            onChange={(e) =>
+              setTrial({ ...trial, participant: e.target.value })
+            }
+          >
+            <option value="">Choose pending applicant</option>
+            {applications
+              .filter((a) => a.status === "pending")
+              .map((a) => (
+                <option key={a._id} value={a.user?._id}>
+                  {a.user?.firstName} · {a.role || project.rolesNeeded[0]}
+                </option>
+              ))}
+          </select>
+        </label>
+        <label className="block">
+          Small deliverable
+          <input
+            required
+            minLength={5}
+            maxLength={1000}
+            className={inputClass}
+            value={trial.deliverable}
+            onChange={(e) =>
+              setTrial({ ...trial, deliverable: e.target.value })
+            }
+          />
+        </label>
+        <label className="block">
+          Deadline within 14 days
+          <input
+            required
+            type="date"
+            className={inputClass}
+            value={trial.dueAt}
+            onChange={(e) => setTrial({ ...trial, dueAt: e.target.value })}
+          />
+        </label>
+        <button className="btn-secondary p-2">Send trial invitation</button>
+      </form>
       {error && (
         <p className="mb-4 rounded-xl border border-[#F43F5E]/30 bg-[#F43F5E]/10 p-3 text-xs text-[#F43F5E]">
           {error}
         </p>
       )}
       {applications.length === 0 ? (
-        <p className="text-xs text-[#515870] text-center py-6">No applications received yet.</p>
+        <p className="text-xs text-[#515870] text-center py-6">
+          No applications received yet.
+        </p>
       ) : (
         <div className="space-y-3">
           {applications.map((application) => (
@@ -517,7 +733,10 @@ function ApplicationsModal({ project, onClose }) {
               <div className="flex items-center gap-3">
                 <img
                   className="h-9 w-9 rounded-xl border border-[#1E2442] object-cover bg-[#0D1020]"
-                  src={application.user?.photoUrl || "https://placehold.co/80x80/11152A/8B91A7?text=DEV"}
+                  src={
+                    application.user?.photoUrl ||
+                    "https://placehold.co/80x80/11152A/8B91A7?text=DEV"
+                  }
                   alt=""
                 />
                 <div>
@@ -533,8 +752,8 @@ function ApplicationsModal({ project, onClose }) {
                     application.status === "accepted"
                       ? "text-[#10B981] border-[#10B981]/30 bg-[#10B981]/10"
                       : application.status === "rejected"
-                      ? "text-[#F43F5E] border-[#F43F5E]/30 bg-[#F43F5E]/10"
-                      : "text-[#3B82F6] border-[#3B82F6]/30 bg-[#3B82F6]/10"
+                        ? "text-[#F43F5E] border-[#F43F5E]/30 bg-[#F43F5E]/10"
+                        : "text-[#3B82F6] border-[#3B82F6]/30 bg-[#3B82F6]/10"
                   }`}
                 >
                   {application.status}
