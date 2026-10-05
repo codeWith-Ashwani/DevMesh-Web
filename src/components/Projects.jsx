@@ -135,6 +135,7 @@ function Projects() {
               currentUser={currentUser}
               onApply={setApplyingTo}
               onReview={setReviewing}
+              onWithdraw={async project => { try { await axios.delete(`${BASE_URL}/projects/${project._id}/application`, { withCredentials: true }); loadProjects(); } catch(e) { setError(e.response?.data?.message || 'Unable to withdraw'); } }}
             />
           ))}
         </div>
@@ -172,7 +173,7 @@ function Projects() {
   );
 }
 
-function ProjectCard({ project, currentUser, onApply, onReview }) {
+function ProjectCard({ project, currentUser, onApply, onReview, onWithdraw }) {
   const isCreator = project.creator?._id === currentUser?._id;
 
   const stageMeta = {
@@ -207,6 +208,7 @@ function ProjectCard({ project, currentUser, onApply, onReview }) {
         {/* Actual first deliverable; stage is not a completion percentage. */}
         <p className="mt-4 text-xs text-[#8B91A7]">First deliverable: {project.firstDeliverable || 'To be agreed by the team'} · {project.durationWeeks || 4} weeks</p>
         {project.isTeamMember && <Link className="block mt-3 text-blue-400 text-sm" to={`/projects/${project._id}/workspace`}>Open team workspace →</Link>}
+        {project.applicationStatus === 'pending' && <button className="block mt-2 text-sm text-[#8B91A7]" onClick={() => onWithdraw(project)}>Withdraw application</button>}
         {/* Stage indicator */}
         <div className="mt-4 space-y-1.5">
           <div className="flex items-center justify-between text-[10px] font-medium text-[#8B91A7]">

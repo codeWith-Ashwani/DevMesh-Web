@@ -66,11 +66,12 @@ function ChatSession() {
     return () => { alive = false; };
   }, [userId, conversationId, user?._id]);
   useEffect(() => {
-    if (!activeId || !user?._id) return;
+    if (!user?._id) return;
     let alive = true;
     const client = io(BASE_URL, { withCredentials: true, transports: ['websocket'], reconnection: true });
     socket.current = client;
     const load = async () => {
+      if (!activeId) return;
       try {
         let after = latestMessage.current;
         let more;
@@ -90,7 +91,10 @@ function ChatSession() {
     client.on('connect', () => { setConnected(true); setError(''); load(); });
     client.on('disconnect', () => setConnected(false));
     client.on('connect_error', () => { setConnected(false); setError('Connection unavailable. Reconnecting; sign in again if your session expired.'); });
-    client.on('message:new', message => { if (message.conversation === activeId) { setMessages(current => merge(current, [message])); if (!latestMessage.current || latestMessage.current < message._id) latestMessage.current = message._id; } });
+    client.on('message:new', message => {
+      setConversations(current => current.map(c => c._id === message.conversation ? { ...c, lastMessage: message, unreadCount: c._id === activeId ? 0 : (c.unreadCount || 0) + (message.sender === user._id ? 0 : 1) } : c));
+      if (message.conversation === activeId) { setMessages(current => merge(current, [message])); if (!latestMessage.current || latestMessage.current < message._id) latestMessage.current = message._id; }
+    });
     client.on('conversation:typing', event => {
       if (event.conversationId !== activeId) return;
       setTyping(event.userId); clearTimeout(typingTimer.current);
@@ -102,9 +106,15 @@ function ChatSession() {
   }, [activeId, user?._id]);
   useEffect(() => {
     const last = messages.at(-1);
-    bottom.current?.scrollIntoView({ behavior: 'smooth' });
+    const stream = bottom.current?.parentElement;
+    stream?.scrollTo({ top: stream.scrollHeight, behavior: 'smooth' });
     if (connected && last && document.visibilityState === 'visible') socket.current?.emit('conversation:read', { conversationId: activeId, messageId: last._id }, () => {});
   }, [messages, activeId, connected]);
+  useEffect(() => {
+    const mark = () => { const last = messages.at(-1); if (document.visibilityState === 'visible' && last && socket.current?.connected) socket.current.emit('conversation:read', { conversationId: activeId, messageId: last._id }, () => {}); };
+    document.addEventListener('visibilitychange', mark);
+    return () => document.removeEventListener('visibilitychange', mark);
+  }, [messages, activeId]);
   const send = event => {
     event.preventDefault();
     if (!text.trim() || sending || !socket.current?.connected) return;
@@ -144,7 +154,7 @@ function ChatSession() {
     {active?.kind === 'group' && <details className="p-3 mb-3 border border-[#1E2442] rounded-xl"><summary>Group members</summary><ul>{active.members.map(m => <li key={m._id} className="flex justify-between py-2">{m.firstName} {m.lastName}{active.owner === user?._id && m._id !== user?._id && <button className="text-red-300" onClick={() => manageMember('remove', m._id)}>Remove</button>}</li>)}</ul>{active.owner === user?._id ? <div className="flex gap-2"><select aria-label="Collaborator to add" className="bg-[#11152A] p-2" value={memberToAdd} onChange={e => setMemberToAdd(e.target.value)}><option value="">Choose connection</option>{connections.filter(c => !active.members.some(m => m._id === c._id)).map(c => <option key={c._id} value={c._id}>{c.firstName} {c.lastName}</option>)}</select><button disabled={!memberToAdd} onClick={() => manageMember('add', memberToAdd)}>Add member</button></div> : <button onClick={async () => { try { await axios.patch(`${BASE_URL}/conversations/${activeId}/members`, { action: 'remove', userId: user._id }, options); navigate('/messages'); } catch(e) { setError(e.response?.data?.message || 'Unable to leave group'); } }}>Leave group</button>}</details>}
     {moreConversations && <button className="btn-secondary p-2 mb-3" onClick={moreChats}>Load more conversations</button>}
     <div className="grid md:grid-cols-[260px_1fr] border border-[#1E2442] rounded-2xl overflow-hidden bg-[#080A14]">
-      <aside className="p-3 border-r border-[#1E2442] max-h-96 md:max-h-[70vh] overflow-y-auto"><h2 className="font-bold mb-2">Conversations</h2>{conversations.map(c => <Link key={c._id} to={`/messages/${c._id}`} className={`block p-3 rounded-xl mb-1 ${activeId === c._id ? 'bg-[#151A32]' : ''}`}>{title(c, user?._id)}<small className="block text-[#8B91A7]">{c.kind}</small></Link>)}<h2 className="font-bold mt-5 mb-2">Start a personal chat</h2>{connections.map(peer => <Link key={peer._id} className="block p-2" to={`/chat/${peer._id}`}>{peer.firstName} {peer.lastName}</Link>)}</aside>
+      <aside className="p-3 border-r border-[#1E2442] max-h-96 md:max-h-[70vh] overflow-y-auto"><h2 className="font-bold mb-2">Conversations</h2>{conversations.map(c => <Link key={c._id} to={`/messages/${c._id}`} className={`block p-3 rounded-xl mb-1 ${activeId === c._id ? 'bg-[#151A32]' : ''}`}>{title(c, user?._id)}{c.unreadCount > 0 && <span className="ml-2 text-blue-400">({c.unreadCount} unread)</span>}<small className="block text-[#8B91A7]">{c.kind}</small></Link>)}<h2 className="font-bold mt-5 mb-2">Start a personal chat</h2>{connections.map(peer => <Link key={peer._id} className="block p-2" to={`/chat/${peer._id}`}>{peer.firstName} {peer.lastName}</Link>)}</aside>
       <section className="flex flex-col h-[70vh] min-w-0"><header className="p-4 border-b border-[#1E2442]"><h2 className="font-bold">{active ? title(active, user?._id) : 'Choose a conversation'}</h2><small className="text-[#8B91A7]">{activeId ? connected ? 'Connected' : 'Reconnecting…' : 'Select a teammate or create a group'}{active?.kind !== 'direct' && active?.members?.length ? ` · ${active.members.length} members` : ''}</small></header>
       <div className="flex-1 overflow-y-auto p-4 space-y-3" role="log" aria-label="Messages">{hasMore && <button className="btn-secondary p-2" onClick={older}>Load earlier messages</button>}{messages.map(message => <div key={message._id} className={`flex flex-col ${message.sender === user?._id ? 'items-end' : 'items-start'}`}><small className="text-[#8B91A7]">{active?.members?.find(m => m._id === message.sender)?.firstName || 'Developer'}</small><p className={`max-w-[85%] p-3 rounded-xl whitespace-pre-wrap break-words ${message.sender === user?._id ? 'bg-blue-600' : 'bg-[#11152A]'}`}>{message.text}</p><small className="text-[#8B91A7]">{new Date(message.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}{message.sender === user?._id && Object.entries(readers).some(([id, last]) => id !== user?._id && last >= message._id) ? ' · Read' : ''}</small></div>)}<div ref={bottom} /></div>
       {typing && <p className="px-4 text-xs text-[#8B91A7]">{active?.members?.find(m => m._id === typing)?.firstName || 'A collaborator'} is typing…</p>}
@@ -152,3 +162,4 @@ function ChatSession() {
     </div>
   </div>;
 }
+
