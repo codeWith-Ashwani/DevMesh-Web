@@ -1,4 +1,5 @@
-import React, { useEffect } from "react";
+import Avatar from "./ui/Avatar";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { BASE_URL } from "../utils/constants";
@@ -8,23 +9,52 @@ import { IconCheck, IconX, IconRequests } from "./ui/Icons";
 function Requests() {
   const requests = useSelector((store) => store.requests);
   const dispatch = useDispatch();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(null);
 
   useEffect(() => {
     axios
       .get(`${BASE_URL}/user/requests/received`, { withCredentials: true })
       .then((res) => dispatch(addRequests(res.data.data)))
-      .catch(console.error);
+      .catch(() =>
+        setError("Requests could not load. Please refresh and try again."),
+      )
+      .finally(() => setLoading(false));
   }, [dispatch]);
 
   const review = async (status, id) => {
+    setBusy(id);
+    setError("");
     try {
-      await axios.post(`${BASE_URL}/request/review/${status}/${id}`, {}, { withCredentials: true });
+      await axios.post(
+        `${BASE_URL}/request/review/${status}/${id}`,
+        {},
+        { withCredentials: true },
+      );
       dispatch(removeRequests(id));
     } catch (err) {
-      console.error(err);
+      setError(
+        err.response?.data?.message ||
+          "Could not review this request. Try again.",
+      );
+    } finally {
+      setBusy(null);
     }
   };
 
+  if (loading)
+    return (
+      <p role="status" className="page-wrap text-sm text-[#9AADAA]">
+        Loading requests…
+      </p>
+    );
+  if (!requests.length && error)
+    return (
+      <p role="alert" className="page-wrap text-sm text-rose-300">
+        {error}
+      </p>
+    );
   if (!requests.length) {
     return (
       <Empty
@@ -41,35 +71,38 @@ function Requests() {
         title="Incoming Requests"
         subtitle="Review and manage collaboration connection requests from peer developers"
       />
+      {error && (
+        <p role="alert" className="text-sm text-rose-300">
+          {error}
+        </p>
+      )}
 
       <div className="space-y-4">
         {requests.map(({ _id, fromUserId: user }) => (
           <article
             key={_id}
-            className="fintech-card flex flex-col gap-4 rounded-2xl border border-[#1E2442] p-5 sm:flex-row sm:items-center sm:justify-between shadow-xl transition-all hover:border-[#2A335C]"
+            className="fintech-card flex flex-col gap-4 rounded-2xl border border-[#26383D] p-5 sm:flex-row sm:items-center sm:justify-between shadow-xl transition-all hover:border-[#416067]"
           >
             <div className="flex items-start gap-4">
-              <img
-                className="h-12 w-12 rounded-xl border border-[#1E2442] object-cover bg-[#080A14] shrink-0"
-                src={user.photoUrl || "https://placehold.co/80x80/11152A/8B91A7?text=DEV"}
-                alt={`${user.firstName}'s profile`}
-              />
+              <Avatar user={user} className="h-10 w-10 shrink-0" />
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  <h2 className="text-sm font-bold text-[#F5F7FF]">
+                  <h2 className="text-sm font-bold text-[#EDF4F2]">
                     {user.firstName} {user.lastName}
                   </h2>
-                  <span className="text-xs font-semibold text-[#3B82F6]">
+                  <span className="text-xs font-semibold text-[#B7ED82]">
                     @{user.firstName?.toLowerCase()}
                   </span>
                 </div>
 
-                <p className="text-[11px] text-[#8B91A7] mt-0.5">
-                  {user.age && user.gender ? `${user.age} yrs · ${user.gender}` : "Developer"}
+                <p className="text-[11px] text-[#9AADAA] mt-0.5">
+                  {user.age && user.gender
+                    ? `${user.age} yrs · ${user.gender}`
+                    : "Developer"}
                   {user.lookingFor ? ` · Seeking ${user.lookingFor}` : ""}
                 </p>
 
-                <p className="mt-1 text-xs text-[#8B91A7] line-clamp-2">
+                <p className="mt-1 text-xs text-[#9AADAA] line-clamp-2">
                   {user.about || "Developer requesting to connect with you."}
                 </p>
 
@@ -85,10 +118,11 @@ function Requests() {
               </div>
             </div>
 
-            <div className="flex items-center gap-2 sm:self-center shrink-0 pt-3 sm:pt-0 border-t sm:border-t-0 border-[#1E2442]">
+            <div className="flex items-center gap-2 sm:self-center shrink-0 pt-3 sm:pt-0 border-t sm:border-t-0 border-[#26383D]">
               <button
-                className="flex items-center justify-center gap-1.5 rounded-xl border border-[#1E2442] bg-[#11152A] px-3.5 py-2 text-xs font-semibold text-[#8B91A7] hover:border-[#F43F5E]/40 hover:bg-[#F43F5E]/10 hover:text-[#F43F5E] transition-all"
+                className="flex items-center justify-center gap-1.5 rounded-xl border border-[#26383D] bg-[#142024] px-3.5 py-2 text-xs font-semibold text-[#9AADAA] hover:border-[#F43F5E]/40 hover:bg-[#F43F5E]/10 hover:text-[#F43F5E] transition-all"
                 onClick={() => review("rejected", _id)}
+                disabled={busy === _id}
               >
                 <IconX className="h-3.5 w-3.5" />
                 <span>Decline</span>
@@ -96,6 +130,7 @@ function Requests() {
               <button
                 className="btn-primary flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-semibold"
                 onClick={() => review("accepted", _id)}
+                disabled={busy === _id}
               >
                 <IconCheck className="h-3.5 w-3.5" />
                 <span>Accept</span>
@@ -109,27 +144,30 @@ function Requests() {
 }
 
 export const PageTitle = ({ eyebrow, title, subtitle }) => (
-  <header className="mb-6 border-b border-[#1E2442] pb-5">
+  <header className="mb-6 border-b border-[#26383D] pb-5">
     <div className="flex items-center gap-2 mb-1.5">
       <span className="status-dot-blue" />
-      <p className="text-xs uppercase font-bold tracking-wider text-[#3B82F6]">{eyebrow}</p>
+      <p className="text-xs uppercase font-bold tracking-wider text-[#B7ED82]">
+        {eyebrow}
+      </p>
     </div>
-    <h1 className="text-2xl font-extrabold tracking-tight text-[#F5F7FF] sm:text-3xl">{title}</h1>
-    {subtitle && <p className="mt-1 text-xs sm:text-sm text-[#8B91A7]">{subtitle}</p>}
+    <h1 className="text-2xl font-extrabold tracking-tight text-[#EDF4F2] sm:text-3xl">
+      {title}
+    </h1>
+    {subtitle && (
+      <p className="mt-1 text-xs sm:text-sm text-[#9AADAA]">{subtitle}</p>
+    )}
   </header>
 );
 
 export const Empty = ({ title, text }) => (
   <div className="mx-auto max-w-md px-4 py-20 text-center">
-    <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-[#1E2442] bg-[#0D1020] text-[#8B91A7] shadow-xl mb-4">
-      <IconRequests className="h-6 w-6 text-[#3B82F6]" />
+    <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-[#26383D] bg-[#10191C] text-[#9AADAA] shadow-xl mb-4">
+      <IconRequests className="h-6 w-6 text-[#B7ED82]" />
     </div>
-    <h2 className="text-base font-bold text-[#F5F7FF]">{title}</h2>
-    <p className="mt-1.5 text-xs text-[#8B91A7] leading-relaxed">{text}</p>
+    <h2 className="text-base font-bold text-[#EDF4F2]">{title}</h2>
+    <p className="mt-1.5 text-xs text-[#9AADAA] leading-relaxed">{text}</p>
   </div>
 );
 
 export default Requests;
-
-
-

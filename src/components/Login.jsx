@@ -1,211 +1,232 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { BASE_URL } from "../utils/constants";
 import { addUser } from "../utils/userSlice";
-
-function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [isLoginForm, setIsLoginForm] = useState(true);
+import GuideAvatar from "./ui/GuideAvatar";
+import { IconCheck } from "./ui/Icons";
+export default function Login() {
+  const [form, setForm] = useState({
+    email: "",
+    password: "",
+    firstName: "",
+    lastName: "",
+  });
+  const [isLogin, setIsLogin] = useState(true);
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
-  const submit = async (e) => {
-    e?.preventDefault();
+  const submit = async (event) => {
+    event.preventDefault();
     setError("");
     setLoading(true);
     try {
       const response = await axios.post(
-        `${BASE_URL}/${isLoginForm ? "login" : "signup"}`,
-        isLoginForm ? { email, password } : { firstName, lastName, email, password },
-        { withCredentials: true }
+        BASE_URL + "/" + (isLogin ? "login" : "signup"),
+        isLogin ? { email: form.email, password: form.password } : form,
+        { withCredentials: true },
       );
-      dispatch(addUser(isLoginForm ? response.data : response.data.data));
-      navigate(isLoginForm ? "/" : "/profile");
-    } catch (err) {
+      dispatch(addUser(isLogin ? response.data : response.data.data));
+      navigate(isLogin ? "/" : "/profile");
+    } catch (error) {
       setError(
-        err?.response?.data?.message ||
-          err?.response?.data ||
-          "Authentication failed. Please verify your credentials."
+        typeof error.response?.data?.message === "string"
+          ? error.response.data.message
+          : "Could not sign in. Check your details and try again.",
       );
     } finally {
       setLoading(false);
     }
   };
-
-  const inputClass =
-    "w-full rounded-xl border border-[#1E2442] bg-[#11152A] px-4 py-2.5 text-xs text-[#F5F7FF] placeholder-[#515870] outline-none hover:border-[#2A335C] focus:border-[#3B82F6] transition-colors";
-
+  const change = (field) => (event) =>
+    setForm({ ...form, [field]: event.target.value });
+  const fieldClass =
+    "mt-2 w-full rounded-lg border border-[#31474E] bg-[#142024] px-4 py-3 text-sm";
   return (
-    <div className="mx-auto grid w-full max-w-5xl items-center gap-12 px-4 py-12 md:grid-cols-2 md:py-20">
-      {/* Left Manifesto / Product Intro */}
-      <section className="order-2 md:order-1 space-y-6">
-        <div className="flex items-center gap-2 text-xs text-[#3B82F6] font-semibold">
-          <span className="status-dot-blue" />
-          <span className="tracking-wider uppercase">DevMesh Platform</span>
-        </div>
-
-        <h1 className="text-3xl font-extrabold tracking-tight text-[#F5F7FF] sm:text-4xl md:text-5xl leading-tight">
-          The Developer <br />
-          <span className="bg-gradient-to-r from-blue-400 via-indigo-300 to-cyan-300 bg-clip-text text-transparent">
-            Network
-          </span>
-        </h1>
-
-        <p className="max-w-md text-xs sm:text-sm leading-relaxed text-[#8B91A7]">
-          Discover peer engineers, form distributed project squads, and build next-generation applications through a high-performance developer workspace.
-        </p>
-
-        {/* Feature bullets */}
-        <div className="space-y-3 text-xs text-[#8B91A7]">
-          <div className="flex items-center gap-3 rounded-2xl border border-[#1E2442] bg-[#0D1020] p-3.5 shadow-md">
-            <span className="flex h-5 w-5 items-center justify-center rounded-lg bg-blue-500/10 text-[#3B82F6] font-bold">✓</span>
-            <span className="text-[#F5F7FF] font-medium">Developer identity &amp; verified tech stack graphs</span>
+    <div className="w-full max-w-6xl mx-auto px-5 sm:px-10 py-10 md:py-16">
+      <div className="flex items-center gap-3 mb-10 md:mb-14">
+        <span className="brand-mark">{"<>"}</span>
+        <span className="text-xl font-semibold tracking-tight">
+          DevMesh<span className="text-[#B7ED82]">.</span>
+        </span>
+        <span className="hidden sm:block ml-4 eyebrow">
+          a space for developers
+        </span>
+      </div>
+      <div className="grid lg:grid-cols-[1.2fr_1fr] gap-10 lg:gap-20 items-center">
+        <section>
+          <p className="eyebrow text-[#B7ED82] mb-5">
+            // good things are built together
+          </p>
+          <h1 className="text-4xl sm:text-5xl lg:text-[56px] leading-[1.08] font-semibold tracking-[-.05em]">
+            You bring the idea.
+            <br />
+            <span className="text-[#B7ED82]">Find your people.</span>
+          </h1>
+          <p className="text-sm sm:text-base text-[#9AADAA] leading-7 mt-6 max-w-md">
+            A workspace for developers who want to turn side projects into
+            shipped work. Meet a teammate, try a small task, and build something
+            that matters.
+          </p>
+          <div className="mt-8 space-y-3">
+            {[
+              "Match by skills, role, and time to commit",
+              "Start small with a collaboration trial",
+              "Ship milestones and show your contribution",
+            ].map((text) => (
+              <p
+                key={text}
+                className="flex items-center gap-3 text-sm text-[#ADC0BB]"
+              >
+                <IconCheck className="h-4 w-4 text-[#B7ED82] shrink-0" />
+                {text}
+              </p>
+            ))}
           </div>
-          <div className="flex items-center gap-3 rounded-2xl border border-[#1E2442] bg-[#0D1020] p-3.5 shadow-md">
-            <span className="flex h-5 w-5 items-center justify-center rounded-lg bg-emerald-500/10 text-[#10B981] font-bold">✓</span>
-            <span className="text-[#F5F7FF] font-medium">Project initiative matching &amp; milestone tracking</span>
-          </div>
-          <div className="flex items-center gap-3 rounded-2xl border border-[#1E2442] bg-[#0D1020] p-3.5 shadow-md">
-            <span className="flex h-5 w-5 items-center justify-center rounded-lg bg-cyan-500/10 text-cyan-400 font-bold">✓</span>
-            <span className="text-[#F5F7FF] font-medium">Direct peer messaging &amp; dynamic network mesh</span>
-          </div>
-        </div>
-      </section>
-
-      {/* Right Auth Card */}
-      <section className="order-1 md:order-2 fintech-card rounded-3xl border border-[#1E2442] p-6 shadow-2xl sm:p-8">
-        {/* Switch tabs */}
-        <div className="flex border-b border-[#1E2442] mb-6">
-          <button
-            onClick={() => {
-              setIsLoginForm(true);
-              setError("");
-            }}
-            className={`flex-1 pb-3 text-xs font-bold transition-all text-center ${
-              isLoginForm
-                ? "border-b-2 border-[#3B82F6] text-[#3B82F6]"
-                : "text-[#8B91A7] hover:text-[#F5F7FF]"
-            }`}
-          >
-            Sign In
-          </button>
-          <button
-            onClick={() => {
-              setIsLoginForm(false);
-              setError("");
-            }}
-            className={`flex-1 pb-3 text-xs font-bold transition-all text-center ${
-              !isLoginForm
-                ? "border-b-2 border-[#3B82F6] text-[#3B82F6]"
-                : "text-[#8B91A7] hover:text-[#F5F7FF]"
-            }`}
-          >
-            Create Account
-          </button>
-        </div>
-
-        <form onSubmit={submit} className="space-y-4">
-          {!isLoginForm && (
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div>
-                <label className="block text-xs font-semibold text-[#8B91A7] mb-1">
-                  First Name
-                </label>
-                <input
-                  className={inputClass}
-                  placeholder="Ashwani"
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-[#8B91A7] mb-1">
-                  Last Name
-                </label>
-                <input
-                  className={inputClass}
-                  placeholder="Singh"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                  required
-                />
-              </div>
+          <div className="hidden sm:flex items-center gap-4 mt-10 border-t border-[#26383D] pt-6">
+            <GuideAvatar className="h-20 w-20 shrink-0" />
+            <div>
+              <p className="text-sm font-medium">A little help from Patch.</p>
+              <p className="text-xs text-[#9AADAA] mt-1 leading-5 max-w-xs">
+                Your tiny workspace companion will help you find your way
+                around.
+              </p>
             </div>
-          )}
-
-          <div>
-            <label className="block text-xs font-semibold text-[#8B91A7] mb-1">
-              Email Address
-            </label>
-            <input
-              type="email"
-              className={inputClass}
-              placeholder="developer@mesh.org"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
           </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-[#8B91A7] mb-1">
-              Password
-            </label>
-            <input
-              type="password"
-              className={inputClass}
-              placeholder="••••••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+        </section>
+        <section className="workbench-card rounded-2xl p-6 sm:p-8">
+          <div className="flex gap-2 bg-[#0A1012] rounded-lg p-1 mb-7">
+            {[
+              [true, "Sign in"],
+              [false, "Create account"],
+            ].map(([value, label]) => (
+              <button
+                key={label}
+                disabled={loading}
+                aria-pressed={isLogin === value}
+                className={
+                  "flex-1 py-2.5 rounded-md text-sm " +
+                  (isLogin === value
+                    ? "bg-[#1B2B30] text-[#EDF4F2]"
+                    : "text-[#9AADAA]")
+                }
+                onClick={() => {
+                  setIsLogin(value);
+                  setError("");
+                }}
+              >
+                {label}
+              </button>
+            ))}
           </div>
-
-          {error && (
-            <div className="rounded-xl border border-[#F43F5E]/30 bg-[#F43F5E]/10 p-3.5 text-xs text-[#F43F5E]">
-              {error}
+          <h2 className="text-2xl font-medium tracking-tight">
+            {isLogin ? "Welcome back, builder." : "Make yourself at home."}
+          </h2>
+          <p className="text-xs text-[#9AADAA] mt-2 mb-6">
+            {isLogin
+              ? "Your next project is waiting."
+              : "Start with your profile. Find your first collaborator."}
+          </p>
+          <form onSubmit={submit} className="space-y-5">
+            {!isLogin && (
+              <div className="grid grid-cols-2 gap-3">
+                <label className="text-xs text-[#9AADAA]">
+                  First name
+                  <input
+                    className={fieldClass}
+                    autoComplete="given-name"
+                    maxLength={50}
+                    value={form.firstName}
+                    onChange={change("firstName")}
+                    required
+                  />
+                </label>
+                <label className="text-xs text-[#9AADAA]">
+                  Last name
+                  <input
+                    className={fieldClass}
+                    autoComplete="family-name"
+                    maxLength={50}
+                    value={form.lastName}
+                    onChange={change("lastName")}
+                    required
+                  />
+                </label>
+              </div>
+            )}
+            <label className="block text-xs text-[#9AADAA]">
+              Email address
+              <input
+                type="email"
+                className={fieldClass}
+                autoComplete="email"
+                placeholder="you@example.com"
+                value={form.email}
+                onChange={change("email")}
+                required
+              />
+            </label>
+            <div>
+              <div className="flex justify-between items-center">
+                <label
+                  htmlFor="auth-password"
+                  className="text-xs text-[#9AADAA]"
+                >
+                  Password
+                </label>
+                <button
+                  type="button"
+                  aria-pressed={showPassword}
+                  className="text-xs text-[#B7ED82]"
+                  onClick={() => setShowPassword((value) => !value)}
+                >
+                  {showPassword ? "Hide password" : "Show password"}
+                </button>
+              </div>
+              <input
+                id="auth-password"
+                type={showPassword ? "text" : "password"}
+                autoComplete={isLogin ? "current-password" : "new-password"}
+                className={fieldClass}
+                value={form.password}
+                onChange={change("password")}
+                required
+              />
+              {!isLogin && (
+                <p className="text-[11px] text-[#9AADAA] leading-5 mt-2">
+                  Use a strong password with uppercase and lowercase letters, a
+                  number, and a symbol.
+                </p>
+              )}
             </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="btn-primary w-full py-2.5 text-xs font-bold disabled:opacity-50"
-          >
-            {loading
-              ? "Signing in..."
-              : isLoginForm
-              ? "Sign In"
-              : "Create Account"}
-          </button>
-        </form>
-
-        <div className="mt-6 pt-4 border-t border-[#1E2442] text-center">
-          <button
-            className="text-xs font-medium text-[#8B91A7] hover:text-[#3B82F6] transition-colors"
-            onClick={() => {
-              setIsLoginForm(!isLoginForm);
-              setError("");
-            }}
-          >
-            {isLoginForm ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
-          </button>
-        </div>
-      </section>
+            {error && (
+              <p
+                role="alert"
+                className="rounded-lg border border-rose-400/30 bg-rose-400/5 p-3 text-sm text-rose-300"
+              >
+                {error}
+              </p>
+            )}
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn-primary w-full py-3 text-sm"
+            >
+              {loading
+                ? "Please wait…"
+                : isLogin
+                  ? "Enter your workspace →"
+                  : "Create your workspace →"}
+            </button>
+          </form>
+          <p className="text-xs text-center text-[#718986] mt-6 font-mono">
+            less solo building. more shared momentum.
+          </p>
+        </section>
+      </div>
     </div>
   );
 }
-
-export default Login;
-
-
-

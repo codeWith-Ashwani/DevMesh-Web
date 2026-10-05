@@ -1,3 +1,4 @@
+import Avatar from "./ui/Avatar";
 import React, { useEffect, useState, useMemo, useCallback } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
@@ -13,7 +14,7 @@ import {
   IconMessages,
   IconProjects,
   IconRotateCcw,
-  IconSparkles
+  IconSparkles,
 } from "./ui/Icons";
 
 export default function Connections() {
@@ -22,7 +23,6 @@ export default function Connections() {
   const rawConnections = useSelector((store) => store.connections);
   const connections = useMemo(() => rawConnections || [], [rawConnections]);
 
-
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -30,7 +30,7 @@ export default function Connections() {
   // Graph and Filter State
   const [activeFilter, setActiveFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [viewMode, setViewMode] = useState("graph"); // "graph" | "grid"
+  const [viewMode, setViewMode] = useState("grid"); // "graph" | "grid"
   const [selectedNode, setSelectedNode] = useState(null);
 
   // Fetch real connections & real projects
@@ -251,15 +251,15 @@ export default function Connections() {
       {/* Top Header */}
       <PageTitle
         eyebrow="Network"
-        title="Developer Mesh &amp; Skill Graph"
-        subtitle="Explore interactive relationships across peer developers, technology stacks, and collaboration projects"
+        title="Your people, one place."
+        subtitle="Reach out to a teammate, or explore the skills and projects that connect you."
       />
 
       {/* Loading State */}
       {loading && (
-        <div className="flex h-96 flex-col items-center justify-center rounded-2xl border border-[#1E2442] bg-[#0D1020]">
-          <div className="flex items-center gap-3 text-xs text-[#3B82F6] font-medium">
-            <span className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-[#3B82F6] border-t-transparent" />
+        <div className="flex h-96 flex-col items-center justify-center rounded-2xl border border-[#26383D] bg-[#10191C]">
+          <div className="flex items-center gap-3 text-xs text-[#B7ED82] font-medium">
+            <span className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-[#B7ED82] border-t-transparent" />
             <span>Loading network topology...</span>
           </div>
         </div>
@@ -267,9 +267,9 @@ export default function Connections() {
 
       {/* Error State */}
       {!loading && error && (
-        <div className="flex h-96 flex-col items-center justify-center rounded-2xl border border-[#F43F5E]/30 bg-[#0D1020] p-6 text-center">
+        <div className="flex h-96 flex-col items-center justify-center rounded-2xl border border-[#F43F5E]/30 bg-[#10191C] p-6 text-center">
           <p className="text-sm font-semibold text-[#F43F5E] mb-2">{error}</p>
-          <p className="text-xs text-[#8B91A7] mb-4">
+          <p className="text-xs text-[#9AADAA] mb-4">
             Unable to sync peer links with the server.
           </p>
           <button
@@ -284,21 +284,30 @@ export default function Connections() {
 
       {/* Empty State */}
       {!loading && !error && nodes.length <= 1 && (
-        <div className="flex flex-col items-center justify-center rounded-3xl border border-[#1E2442] bg-[#0D1020] p-12 text-center shadow-xl">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-[#3B82F6]/30 bg-[#3B82F6]/10 text-[#3B82F6] mb-4 shadow-lg shadow-blue-500/10">
+        <div className="flex flex-col items-center justify-center rounded-3xl border border-[#26383D] bg-[#10191C] p-12 text-center shadow-xl">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-[#B7ED82]/30 bg-[#B7ED82]/10 text-[#B7ED82] mb-4 shadow-lg shadow-blue-500/10">
             <IconNetwork className="h-7 w-7" />
           </div>
-          <h3 className="text-lg font-bold text-[#F5F7FF]">Your mesh is still forming.</h3>
-          <p className="mt-1.5 max-w-md text-xs sm:text-sm leading-relaxed text-[#8B91A7]">
-            Connect with developers in the discovery feed or collaborate on projects to expand your interactive topology graph.
+          <h3 className="text-lg font-bold text-[#EDF4F2]">
+            Your mesh is still forming.
+          </h3>
+          <p className="mt-1.5 max-w-md text-xs sm:text-sm leading-relaxed text-[#9AADAA]">
+            Connect with developers in the discovery feed or collaborate on
+            projects to expand your interactive topology graph.
           </p>
           <div className="mt-6 flex flex-wrap items-center gap-3 text-xs font-semibold">
-            <Link to="/feed" className="btn-primary px-4 py-2 flex items-center gap-1.5">
+            <Link
+              to="/feed"
+              className="btn-primary px-4 py-2 flex items-center gap-1.5"
+            >
               <IconSparkles className="h-3.5 w-3.5" />
               <span>Explore Developers</span>
             </Link>
-            <Link to="/projects" className="btn-secondary px-4 py-2 flex items-center gap-1.5">
-              <IconProjects className="h-3.5 w-3.5 text-[#3B82F6]" />
+            <Link
+              to="/projects"
+              className="btn-secondary px-4 py-2 flex items-center gap-1.5"
+            >
+              <IconProjects className="h-3.5 w-3.5 text-[#B7ED82]" />
               <span>Browse Projects</span>
             </Link>
           </div>
@@ -347,39 +356,40 @@ export default function Connections() {
                 {filteredGridConnections.map((user) => (
                   <article
                     key={user._id}
-                    className="fintech-card flex flex-col justify-between rounded-2xl border border-[#1E2442] p-5 shadow-xl hover:border-[#2A335C] transition-all"
+                    className="fintech-card flex flex-col justify-between rounded-2xl border border-[#26383D] p-5 shadow-xl hover:border-[#416067] transition-all"
                   >
                     <div>
                       <div className="flex items-start gap-3.5">
                         <div className="relative shrink-0">
-                          <img
-                            className="h-12 w-12 rounded-xl border border-[#1E2442] object-cover bg-[#0D1020]"
-                            src={user.photoUrl || "https://placehold.co/80x80/11152A/8B91A7?text=DEV"}
-                            alt=""
-                          />
-                          <span className="absolute -bottom-0.5 -right-0.5 status-dot-active border border-[#0D1020]" />
+                          <Avatar user={user} className="h-10 w-10 shrink-0" />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <h3 className="truncate text-sm font-bold text-[#F5F7FF]">
+                          <h3 className="truncate text-sm font-bold text-[#EDF4F2]">
                             {user.firstName} {user.lastName}
                           </h3>
-                          <p className="text-xs text-[#3B82F6] font-semibold">
+                          <p className="text-xs text-[#B7ED82] font-semibold">
                             @{user.firstName?.toLowerCase()}
                           </p>
-                          <p className="text-[11px] text-[#8B91A7]">
-                            {user.age && user.gender ? `${user.age}y · ${user.gender}` : "Developer"}
+                          <p className="text-[11px] text-[#9AADAA]">
+                            {user.age && user.gender
+                              ? `${user.age}y · ${user.gender}`
+                              : "Developer"}
                           </p>
                         </div>
                       </div>
 
-                      <p className="mt-3 text-xs leading-relaxed text-[#8B91A7] line-clamp-2">
-                        {user.about || "Developer actively contributing and building in the network."}
+                      <p className="mt-3 text-xs leading-relaxed text-[#9AADAA] line-clamp-2">
+                        {user.about ||
+                          "Developer actively contributing and building in the network."}
                       </p>
 
                       {user.skills?.length > 0 && (
                         <div className="mt-3 flex flex-wrap gap-1.5">
                           {user.skills.map((skill) => (
-                            <span key={skill} className="skill-pill text-[10px]">
+                            <span
+                              key={skill}
+                              className="skill-pill text-[10px]"
+                            >
                               {skill}
                             </span>
                           ))}
@@ -387,7 +397,7 @@ export default function Connections() {
                       )}
                     </div>
 
-                    <div className="mt-4 pt-3.5 border-t border-[#1E2442] flex items-center justify-between">
+                    <div className="mt-4 pt-3.5 border-t border-[#26383D] flex items-center justify-between">
                       <span className="text-xs text-[#10B981] font-semibold flex items-center gap-1.5">
                         <span className="status-dot-active" />
                         Connected
@@ -412,5 +422,3 @@ export default function Connections() {
     </div>
   );
 }
-
-

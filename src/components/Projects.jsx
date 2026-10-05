@@ -3,6 +3,8 @@ import axios from "axios";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { BASE_URL } from "../utils/constants";
+import Avatar from "./ui/Avatar";
+import AccessibleModal from "./ui/Modal";
 import {
   IconProjects,
   IconPlus,
@@ -14,7 +16,7 @@ import {
 } from "./ui/Icons";
 
 const inputClass =
-  "mt-1 w-full rounded-xl border border-[#1E2442] bg-[#11152A] px-3.5 py-2.5 text-xs text-[#F5F7FF] placeholder-[#515870] outline-none hover:border-[#2A335C] focus:border-[#3B82F6] transition-colors";
+  "mt-1 w-full rounded-xl border border-[#26383D] bg-[#142024] px-3.5 py-2.5 text-xs text-[#EDF4F2] placeholder-[#718986] outline-none hover:border-[#416067] focus:border-[#B7ED82] transition-colors";
 
 const splitValues = (value) =>
   value
@@ -31,13 +33,33 @@ function Projects() {
   const [reviewing, setReviewing] = useState(null);
   const [error, setError] = useState("");
   const [filterStage, setFilterStage] = useState("All");
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
 
-  const loadProjects = useCallback(async () => {
+  const loadProjects = useCallback(async (nextPage = 1, append = false) => {
+    setLoadingMore(true);
     try {
-      const response = await axios.get(`${BASE_URL}/projects`, {
-        withCredentials: true,
-      });
-      setProjects(response.data.data);
+      const response = await axios.get(
+        `${BASE_URL}/projects?page=${nextPage}&limit=12`,
+        {
+          withCredentials: true,
+        },
+      );
+      setProjects((previous) =>
+        append
+          ? [
+              ...new Map(
+                [...previous, ...response.data.data].map((project) => [
+                  project._id,
+                  project,
+                ]),
+              ).values(),
+            ]
+          : response.data.data,
+      );
+      setPage(nextPage);
+      setHasMore(response.data.data.length === 12);
       setError("");
     } catch (err) {
       setError(
@@ -45,6 +67,7 @@ function Projects() {
       );
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
   }, []);
 
@@ -59,10 +82,10 @@ function Projects() {
   if (loading) {
     return (
       <div className="flex h-[60vh] flex-col items-center justify-center gap-3">
-        <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[#1E2442] bg-[#0D1020] shadow-xl">
-          <span className="h-5 w-5 rounded-full border-2 border-[#3B82F6] border-t-transparent animate-spin" />
+        <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[#26383D] bg-[#10191C] shadow-xl">
+          <span className="h-5 w-5 rounded-full border-2 border-[#B7ED82] border-t-transparent animate-spin" />
         </div>
-        <p className="text-xs font-medium text-[#8B91A7]">
+        <p className="text-xs font-medium text-[#9AADAA]">
           Loading collaboration projects...
         </p>
       </div>
@@ -72,20 +95,19 @@ function Projects() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-6">
       {/* Header */}
-      <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-[#1E2442] pb-6">
+      <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-[#26383D] pb-6">
         <div>
           <div className="flex items-center gap-2 mb-1.5">
             <span className="status-dot-blue" />
-            <p className="text-xs uppercase font-bold tracking-wider text-[#3B82F6]">
-              Collaborations &amp; Initiatives
+            <p className="text-xs uppercase font-bold tracking-wider text-[#B7ED82]">
+              // build something together
             </p>
           </div>
-          <h1 className="text-2xl font-extrabold tracking-tight text-[#F5F7FF] sm:text-3xl">
-            Engineering Projects
+          <h1 className="text-2xl font-extrabold tracking-tight text-[#EDF4F2] sm:text-3xl">
+            Find a problem worth solving.
           </h1>
-          <p className="mt-1 text-xs sm:text-sm text-[#8B91A7]">
-            Assemble cross-functional teams, contribute to open initiatives, and
-            build production apps.
+          <p className="mt-1 text-xs sm:text-sm text-[#9AADAA]">
+            Small teams. Clear deliverables. Projects you can actually ship.
           </p>
         </div>
 
@@ -99,8 +121,8 @@ function Projects() {
       </header>
 
       {/* Stage filter pills */}
-      <div className="flex items-center gap-2">
-        <span className="text-xs font-medium text-[#8B91A7] mr-1">
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-xs font-medium text-[#9AADAA] mr-1">
           Filter Stage:
         </span>
         {["All", "Idea", "Building", "Launched"].map((stage) => (
@@ -126,20 +148,20 @@ function Projects() {
 
       {/* Project Cards Grid */}
       {filteredProjects.length === 0 ? (
-        <div className="fintech-card rounded-2xl border border-[#1E2442] p-12 text-center shadow-sm">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl border border-[#1E2442] bg-[#11152A] text-[#8B91A7] mb-3">
+        <div className="fintech-card rounded-2xl border border-[#26383D] p-12 text-center shadow-sm">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl border border-[#26383D] bg-[#142024] text-[#9AADAA] mb-3">
             <IconProjects className="h-6 w-6" />
           </div>
-          <h2 className="text-base font-bold text-[#F5F7FF]">
+          <h2 className="text-base font-bold text-[#EDF4F2]">
             No projects found
           </h2>
-          <p className="mt-1 text-xs text-[#8B91A7]">
-            Be the first to initialize an engineering initiative and recruit
-            collaborators.
+          <p className="mt-1 text-xs text-[#9AADAA]">
+            Start with a problem, a small first deliverable, and the teammates
+            you need.
           </p>
         </div>
       ) : (
-        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-5 md:grid-cols-2 2xl:grid-cols-3">
           {filteredProjects.map((project) => (
             <ProjectCard
               key={project._id}
@@ -160,6 +182,21 @@ function Projects() {
               }}
             />
           ))}
+        </div>
+      )}
+
+      {hasMore && (
+        <div className="text-center mt-6">
+          <button
+            className="btn-secondary px-5 py-3 text-sm"
+            disabled={loadingMore}
+            onClick={() => loadProjects(page + 1, true)}
+          >
+            {loadingMore ? "Loading…" : "Load more projects"}
+          </button>
+          <p className="text-xs text-[#718986] mt-3">
+            Stage filters apply to projects loaded so far.
+          </p>
         </div>
       )}
 
@@ -200,30 +237,22 @@ function ProjectCard({ project, currentUser, onApply, onReview, onWithdraw }) {
 
   const stageMeta = {
     Idea: {
-      progress: 25,
-      color: "from-sky-500 to-cyan-400",
       badge: "border-sky-500/30 bg-sky-500/10 text-sky-400",
     },
     Building: {
-      progress: 65,
-      color: "from-blue-600 to-indigo-500",
       badge: "border-blue-500/30 bg-blue-500/10 text-blue-400",
     },
     Launched: {
-      progress: 100,
-      color: "from-emerald-500 to-teal-400",
       badge: "border-emerald-500/30 bg-emerald-500/10 text-emerald-400",
     },
   };
 
   const meta = stageMeta[project.stage] || {
-    progress: 40,
-    color: "from-blue-600 to-cyan-400",
-    badge: "border-[#1E2442] bg-[#11152A] text-[#8B91A7]",
+    badge: "border-[#26383D] bg-[#142024] text-[#9AADAA]",
   };
 
   return (
-    <article className="fintech-card flex flex-col justify-between rounded-2xl border border-[#1E2442] p-5 shadow-xl hover:border-[#2A335C] transition-all">
+    <article className="fintech-card flex flex-col justify-between rounded-2xl border border-[#26383D] p-5 shadow-xl hover:border-[#416067] transition-all">
       <div>
         {/* Stage & Commitment */}
         <div className="flex items-center justify-between gap-2">
@@ -232,23 +261,23 @@ function ProjectCard({ project, currentUser, onApply, onReview, onWithdraw }) {
           >
             {project.stage}
           </span>
-          <span className="text-[11px] text-[#8B91A7] font-medium">
+          <span className="text-[11px] text-[#9AADAA] font-medium">
             {project.commitment}
           </span>
         </div>
 
         {/* Title */}
-        <h2 className="mt-3 text-base font-bold text-[#F5F7FF] tracking-tight">
+        <h2 className="mt-3 text-base font-bold text-[#EDF4F2] tracking-tight">
           {project.title}
         </h2>
 
         {/* Description */}
-        <p className="mt-2 text-xs leading-relaxed text-[#8B91A7] line-clamp-3">
+        <p className="mt-2 text-xs leading-relaxed text-[#9AADAA] line-clamp-3">
           {project.description}
         </p>
 
         {/* Actual first deliverable; stage is not a completion percentage. */}
-        <p className="mt-4 text-xs text-[#8B91A7]">
+        <p className="mt-4 text-xs text-[#9AADAA]">
           First deliverable:{" "}
           {project.firstDeliverable || "To be agreed by the team"} ·{" "}
           {project.durationWeeks || 4} weeks
@@ -263,27 +292,12 @@ function ProjectCard({ project, currentUser, onApply, onReview, onWithdraw }) {
         )}
         {project.applicationStatus === "pending" && (
           <button
-            className="block mt-2 text-sm text-[#8B91A7]"
+            className="block mt-2 text-sm text-[#9AADAA]"
             onClick={() => onWithdraw(project)}
           >
             Withdraw application
           </button>
         )}
-        {/* Stage indicator */}
-        <div className="mt-4 space-y-1.5">
-          <div className="flex items-center justify-between text-[10px] font-medium text-[#8B91A7]">
-            <span>Project stage</span>
-            <span className="font-mono text-[#F5F7FF] font-bold">
-              {project.stage}
-            </span>
-          </div>
-          <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#11152A] border border-[#1E2442]">
-            <div
-              className={`h-full rounded-full bg-gradient-to-r ${meta.color}`}
-              style={{ width: `${meta.progress}%` }}
-            />
-          </div>
-        </div>
 
         {/* Stack tags */}
         <div className="mt-4 flex flex-wrap gap-1.5">
@@ -296,11 +310,11 @@ function ProjectCard({ project, currentUser, onApply, onReview, onWithdraw }) {
 
         {/* Roles needed */}
         {project.rolesNeeded?.length > 0 && (
-          <div className="mt-4 border-t border-[#1E2442] pt-3">
-            <p className="text-[10px] uppercase font-semibold tracking-wider text-[#515870]">
+          <div className="mt-4 border-t border-[#26383D] pt-3">
+            <p className="text-[10px] uppercase font-semibold tracking-wider text-[#718986]">
               Roles required
             </p>
-            <p className="mt-0.5 text-xs text-[#F5F7FF] font-medium">
+            <p className="mt-0.5 text-xs text-[#EDF4F2] font-medium">
               {(project.roleOpenings || [])
                 .map((o) => `${o.title}: ${o.seats - o.filled} open`)
                 .join(" · ") || project.rolesNeeded.join(" · ")}
@@ -310,16 +324,9 @@ function ProjectCard({ project, currentUser, onApply, onReview, onWithdraw }) {
       </div>
 
       {/* Creator & Action bottom bar */}
-      <div className="mt-5 flex items-center justify-between gap-3 border-t border-[#1E2442] pt-3.5">
-        <div className="flex items-center gap-2.5 text-xs text-[#8B91A7] min-w-0">
-          <img
-            className="h-6 w-6 rounded-lg border border-[#1E2442] object-cover bg-[#0D1020] shrink-0"
-            src={
-              project.creator?.photoUrl ||
-              "https://placehold.co/80x80/11152A/8B91A7?text=DEV"
-            }
-            alt=""
-          />
+      <div className="mt-5 flex items-center justify-between gap-3 border-t border-[#26383D] pt-3.5">
+        <div className="flex items-center gap-2.5 text-xs text-[#9AADAA] min-w-0">
+          <Avatar user={project.creator} className="h-7 w-7 shrink-0" />
           <span className="truncate font-medium">
             {project.creator?.firstName} {project.creator?.lastName}
           </span>
@@ -327,7 +334,7 @@ function ProjectCard({ project, currentUser, onApply, onReview, onWithdraw }) {
 
         {isCreator ? (
           <button
-            className="btn-secondary px-3 py-1.5 text-xs font-semibold text-[#3B82F6]"
+            className="btn-secondary px-3 py-1.5 text-xs font-semibold text-[#B7ED82]"
             onClick={() => onReview(project)}
           >
             Applicants ({project.applicationsCount || 0})
@@ -337,7 +344,7 @@ function ProjectCard({ project, currentUser, onApply, onReview, onWithdraw }) {
             disabled={project.hasApplied}
             className={`px-3.5 py-1.5 text-xs font-semibold rounded-xl transition-all ${
               project.hasApplied
-                ? "bg-[#11152A] text-[#515870] border border-[#1E2442] cursor-not-allowed"
+                ? "bg-[#142024] text-[#718986] border border-[#26383D] cursor-not-allowed"
                 : "btn-primary"
             }`}
             onClick={() => onApply(project)}
@@ -365,9 +372,13 @@ function ProjectForm({ onClose, onCreated }) {
     goal: "Ship a portfolio project",
   });
   const [error, setError] = useState("");
+  const [publishing, setPublishing] = useState(false);
 
   const submit = async (event) => {
     event.preventDefault();
+    if (publishing) return;
+    setPublishing(true);
+    setError("");
     try {
       await axios.post(
         `${BASE_URL}/projects`,
@@ -386,6 +397,8 @@ function ProjectForm({ onClose, onCreated }) {
       onCreated();
     } catch (err) {
       setError(err?.response?.data?.message || "Unable to post your project.");
+    } finally {
+      setPublishing(false);
     }
   };
 
@@ -393,9 +406,9 @@ function ProjectForm({ onClose, onCreated }) {
     setForm({ ...form, [field]: event.target.value });
 
   return (
-    <Modal title="Initialize Collaboration Project" onClose={onClose}>
+    <Modal title="Start a project" onClose={onClose}>
       <form className="space-y-4" onSubmit={submit}>
-        <Field label="FIRST DELIVERABLE">
+        <Field label="First deliverable">
           <input
             className={inputClass}
             maxLength={500}
@@ -444,7 +457,7 @@ function ProjectForm({ onClose, onCreated }) {
             />
           </Field>
         </div>
-        <Field label="PROJECT TITLE">
+        <Field label="Project title">
           <input
             className={inputClass}
             value={form.title}
@@ -453,7 +466,7 @@ function ProjectForm({ onClose, onCreated }) {
             required
           />
         </Field>
-        <Field label="TECHNICAL SPECIFICATION & OVERVIEW">
+        <Field label="What are you building?">
           <textarea
             className={`${inputClass} min-h-28`}
             value={form.description}
@@ -462,7 +475,7 @@ function ProjectForm({ onClose, onCreated }) {
             required
           />
         </Field>
-        <Field label="TECH STACK (COMMA SEPARATED)">
+        <Field label="Tech stack, separated by commas">
           <input
             className={inputClass}
             value={form.techStack}
@@ -471,7 +484,7 @@ function ProjectForm({ onClose, onCreated }) {
             required
           />
         </Field>
-        <Field label="ROLES SOUGHT (COMMA SEPARATED)">
+        <Field label="Roles needed, separated by commas">
           <input
             className={inputClass}
             value={form.rolesNeeded}
@@ -521,8 +534,9 @@ function ProjectForm({ onClose, onCreated }) {
         <button
           className="btn-primary w-full py-2.5 text-xs font-bold"
           type="submit"
+          disabled={publishing}
         >
-          Publish Project to Registry
+          {publishing ? "Publishing…" : "Publish project"}
         </button>
       </form>
     </Modal>
@@ -564,7 +578,7 @@ function ApplyModal({ project, onClose, onApplied }) {
             ))}
           </select>
         </Field>
-        <p className="text-xs text-[#8B91A7]">
+        <p className="text-xs text-[#9AADAA]">
           State your technical domain background and how you can contribute to
           this project.
         </p>
@@ -666,7 +680,7 @@ function ApplicationsModal({ project, onClose }) {
     <Modal title={`Applicants · ${project.title}`} onClose={onClose}>
       <form
         onSubmit={invite}
-        className="mb-4 space-y-2 border border-[#1E2442] p-3 rounded-xl"
+        className="mb-4 space-y-2 border border-[#26383D] p-3 rounded-xl"
       >
         <h3 className="font-bold">Invite an applicant to a short trial</h3>
         <label className="block">
@@ -720,7 +734,7 @@ function ApplicationsModal({ project, onClose }) {
         </p>
       )}
       {applications.length === 0 ? (
-        <p className="text-xs text-[#515870] text-center py-6">
+        <p className="text-xs text-[#718986] text-center py-6">
           No applications received yet.
         </p>
       ) : (
@@ -728,22 +742,18 @@ function ApplicationsModal({ project, onClose }) {
           {applications.map((application) => (
             <div
               key={application._id}
-              className="rounded-xl border border-[#1E2442] bg-[#11152A] p-4"
+              className="rounded-xl border border-[#26383D] bg-[#142024] p-4"
             >
               <div className="flex items-center gap-3">
-                <img
-                  className="h-9 w-9 rounded-xl border border-[#1E2442] object-cover bg-[#0D1020]"
-                  src={
-                    application.user?.photoUrl ||
-                    "https://placehold.co/80x80/11152A/8B91A7?text=DEV"
-                  }
-                  alt=""
+                <Avatar
+                  user={application.user}
+                  className="h-10 w-10 shrink-0"
                 />
                 <div>
-                  <p className="text-xs font-bold text-[#F5F7FF]">
+                  <p className="text-xs font-bold text-[#EDF4F2]">
                     {application.user?.firstName} {application.user?.lastName}
                   </p>
-                  <p className="text-[11px] text-[#8B91A7]">
+                  <p className="text-[11px] text-[#9AADAA]">
                     {application.user?.skills?.join(" · ")}
                   </p>
                 </div>
@@ -753,14 +763,14 @@ function ApplicationsModal({ project, onClose }) {
                       ? "text-[#10B981] border-[#10B981]/30 bg-[#10B981]/10"
                       : application.status === "rejected"
                         ? "text-[#F43F5E] border-[#F43F5E]/30 bg-[#F43F5E]/10"
-                        : "text-[#3B82F6] border-[#3B82F6]/30 bg-[#3B82F6]/10"
+                        : "text-[#B7ED82] border-[#B7ED82]/30 bg-[#B7ED82]/10"
                   }`}
                 >
                   {application.status}
                 </span>
               </div>
               {application.message && (
-                <p className="mt-3 rounded-lg border border-[#1E2442] bg-[#0D1020] p-2.5 text-xs text-[#8B91A7]">
+                <p className="mt-3 rounded-lg border border-[#26383D] bg-[#10191C] p-2.5 text-xs text-[#9AADAA]">
                   {application.message}
                 </p>
               )}
@@ -789,28 +799,27 @@ function ApplicationsModal({ project, onClose }) {
 }
 
 function Modal({ title, children, onClose }) {
+  const close = useCallback(() => onClose(), [onClose]);
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-      <section className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-3xl border border-[#1E2442] bg-[#0D1020] p-6 shadow-2xl">
-        <div className="mb-5 flex items-center justify-between border-b border-[#1E2442] pb-3">
-          <h2 className="text-base font-bold text-[#F5F7FF]">{title}</h2>
-          <button
-            className="flex h-7 w-7 items-center justify-center rounded-xl border border-[#1E2442] text-[#8B91A7] hover:border-[#2A335C] hover:text-[#F5F7FF]"
-            onClick={onClose}
-            aria-label="Close"
-          >
-            <IconX className="h-4 w-4" />
-          </button>
-        </div>
-        {children}
-      </section>
-    </div>
+    <AccessibleModal label={title} onClose={close} className="p-6">
+      <div className="mb-5 flex items-center justify-between border-b border-[#26383D] pb-3">
+        <h2 className="text-base font-bold text-[#EDF4F2]">{title}</h2>
+        <button
+          className="flex h-7 w-7 items-center justify-center rounded-xl border border-[#26383D] text-[#9AADAA] hover:border-[#416067] hover:text-[#EDF4F2]"
+          onClick={onClose}
+          aria-label="Close"
+        >
+          <IconX className="h-4 w-4" />
+        </button>
+      </div>
+      {children}
+    </AccessibleModal>
   );
 }
 
 function Field({ label, children }) {
   return (
-    <label className="block text-[11px] font-semibold uppercase tracking-wider text-[#8B91A7]">
+    <label className="block text-[11px] font-semibold uppercase tracking-wider text-[#9AADAA]">
       {label}
       {children}
     </label>

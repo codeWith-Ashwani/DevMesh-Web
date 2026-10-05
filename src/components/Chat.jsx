@@ -4,6 +4,7 @@ import { io } from "socket.io-client";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { BASE_URL } from "../utils/constants";
+import Avatar from "./ui/Avatar";
 const options = { withCredentials: true };
 const merge = (a, b) =>
   [...new Map([...a, ...b].map((m) => [m._id, m])).values()].sort((x, y) =>
@@ -347,11 +348,12 @@ function ChatSession() {
     }
   };
   return (
-    <div className="mx-auto max-w-7xl p-4 text-[#F5F7FF]">
+    <div className="page-wrap text-[#EDF4F2]">
       <header className="flex justify-between items-center mb-4">
         <div>
-          <h1 className="text-2xl font-bold">Messages</h1>
-          <p className="text-sm text-[#8B91A7]">
+          <p className="eyebrow mb-3">// your team's conversation space</p>
+          <h1 className="page-title">Messages</h1>
+          <p className="text-sm text-[#9AADAA]">
             Personal conversations and collaboration groups
           </p>
         </div>
@@ -370,7 +372,7 @@ function ChatSession() {
       {groupOpen && (
         <form
           onSubmit={create}
-          className="p-4 mb-4 border border-[#1E2442] rounded-xl space-y-3"
+          className="p-4 mb-4 border border-[#26383D] rounded-xl space-y-3"
         >
           <label className="block">
             Group name
@@ -379,7 +381,7 @@ function ChatSession() {
               maxLength={80}
               value={groupName}
               onChange={(e) => setGroupName(e.target.value)}
-              className="block bg-[#11152A] p-2 rounded w-full"
+              className="block bg-[#142024] p-2 rounded w-full"
             />
           </label>
           <fieldset>
@@ -409,7 +411,7 @@ function ChatSession() {
         </form>
       )}
       {active?.kind === "group" && (
-        <details className="p-3 mb-3 border border-[#1E2442] rounded-xl">
+        <details className="p-3 mb-3 border border-[#26383D] rounded-xl">
           <summary>Group members</summary>
           <ul>
             {active.members.map((m) => (
@@ -430,7 +432,7 @@ function ChatSession() {
             <div className="flex gap-2">
               <select
                 aria-label="Collaborator to add"
-                className="bg-[#11152A] p-2"
+                className="bg-[#142024] p-2"
                 value={memberToAdd}
                 onChange={(e) => setMemberToAdd(e.target.value)}
               >
@@ -477,14 +479,16 @@ function ChatSession() {
           Load more conversations
         </button>
       )}
-      <div className="grid md:grid-cols-[260px_1fr] border border-[#1E2442] rounded-2xl overflow-hidden bg-[#080A14]">
-        <aside className="p-3 border-r border-[#1E2442] max-h-96 md:max-h-[70vh] overflow-y-auto">
+      <div className="grid md:grid-cols-[260px_1fr] border border-[#26383D] rounded-2xl overflow-hidden bg-[#0A1012]">
+        <aside
+          className={`${activeId ? "hidden md:block" : ""} p-3 border-r border-[#26383D] md:max-h-[70vh] overflow-y-auto bg-[#10191C]`}
+        >
           <h2 className="font-bold mb-2">Conversations</h2>
           {conversations.map((c) => (
             <Link
               key={c._id}
               to={`/messages/${c._id}`}
-              className={`block p-3 rounded-xl mb-1 ${activeId === c._id ? "bg-[#151A32]" : ""}`}
+              className={`block p-3 rounded-lg mb-1 text-sm border ${activeId === c._id ? "bg-[#1B2B30] border-[#416067]" : "border-transparent hover:bg-[#142024]"}`}
             >
               {title(c, user?._id)}
               {c.unreadCount > 0 && (
@@ -492,22 +496,35 @@ function ChatSession() {
                   ({c.unreadCount} unread)
                 </span>
               )}
-              <small className="block text-[#8B91A7]">{c.kind}</small>
+              <small className="block text-[#9AADAA]">{c.kind}</small>
             </Link>
           ))}
           <h2 className="font-bold mt-5 mb-2">Start a personal chat</h2>
           {connections.map((peer) => (
-            <Link key={peer._id} className="block p-2" to={`/chat/${peer._id}`}>
+            <Link
+              key={peer._id}
+              className="flex gap-3 items-center p-2 text-sm rounded-lg hover:bg-[#142024]"
+              to={`/chat/${peer._id}`}
+            >
+              <Avatar user={peer} className="h-8 w-8 shrink-0" />
               {peer.firstName} {peer.lastName}
             </Link>
           ))}
         </aside>
-        <section className="flex flex-col h-[70vh] min-w-0">
-          <header className="p-4 border-b border-[#1E2442]">
+        <section
+          className={`${activeId ? "flex" : "hidden md:flex"} flex-col h-[60dvh] min-h-[300px] md:h-[70vh] min-w-0`}
+        >
+          <header className="p-4 border-b border-[#26383D]">
+            <Link
+              to="/messages"
+              className="md:hidden block text-xs text-[#B7ED82] mb-3"
+            >
+              ← All conversations
+            </Link>
             <h2 className="font-bold">
               {active ? title(active, user?._id) : "Choose a conversation"}
             </h2>
-            <small className="text-[#8B91A7]">
+            <small className="text-[#9AADAA]">
               {activeId
                 ? connected
                   ? "Connected"
@@ -533,16 +550,16 @@ function ChatSession() {
                 key={message._id}
                 className={`flex flex-col ${message.sender === user?._id ? "items-end" : "items-start"}`}
               >
-                <small className="text-[#8B91A7]">
+                <small className="text-[#9AADAA]">
                   {active?.members?.find((m) => m._id === message.sender)
                     ?.firstName || "Developer"}
                 </small>
                 <p
-                  className={`max-w-[85%] p-3 rounded-xl whitespace-pre-wrap break-words ${message.sender === user?._id ? "bg-blue-600" : "bg-[#11152A]"}`}
+                  className={`max-w-[85%] p-3 rounded-xl text-sm leading-6 whitespace-pre-wrap break-words ${message.sender === user?._id ? "bg-[#B7ED82] text-[#14200E] rounded-br-sm" : "bg-[#1B2B30] rounded-bl-sm"}`}
                 >
                   {message.text}
                 </p>
-                <small className="text-[#8B91A7]">
+                <small className="text-[#9AADAA]">
                   {new Date(message.createdAt).toLocaleTimeString([], {
                     hour: "2-digit",
                     minute: "2-digit",
@@ -559,7 +576,7 @@ function ChatSession() {
             <div ref={bottom} />
           </div>
           {typing && (
-            <p className="px-4 text-xs text-[#8B91A7]">
+            <p className="px-4 text-xs text-[#9AADAA]">
               {active?.members?.find((m) => m._id === typing)?.firstName ||
                 "A collaborator"}{" "}
               is typing…
@@ -567,7 +584,7 @@ function ChatSession() {
           )}
           <form
             onSubmit={send}
-            className="flex gap-2 p-4 border-t border-[#1E2442]"
+            className="flex gap-2 p-4 border-t border-[#26383D]"
           >
             <input
               aria-label="Message"
@@ -588,7 +605,7 @@ function ChatSession() {
                   );
                 }
               }}
-              className="flex-1 min-w-0 p-3 bg-[#11152A] rounded-xl"
+              className="flex-1 min-w-0 p-3 bg-[#142024] rounded-xl"
               placeholder="Write a message"
             />
             <button

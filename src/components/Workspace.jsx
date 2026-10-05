@@ -3,9 +3,10 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import { BASE_URL } from "../utils/constants";
+import Avatar from "./ui/Avatar";
 const options = { withCredentials: true };
 const input =
-  "block w-full bg-[#11152A] border border-[#1E2442] rounded-xl p-2 mt-1";
+  "block w-full bg-[#142024] border border-[#26383D] rounded-xl p-2 mt-1";
 export default function Workspace() {
   const { projectId } = useParams();
   const navigate = useNavigate();
@@ -130,12 +131,12 @@ export default function Workspace() {
     </div>
   );
   return (
-    <div className="max-w-6xl mx-auto p-6 text-[#F5F7FF] space-y-6">
-      <header className="flex flex-wrap justify-between gap-3">
+    <div className="page-wrap text-[#EDF4F2] space-y-6">
+      <header className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="text-blue-400">Team workspace</p>
-          <h1 className="text-3xl font-bold">{data.project.title}</h1>
-          <p className="text-[#8B91A7] mt-2">
+          <p className="eyebrow mb-3">// team workspace</p>
+          <h1 className="page-title">{data.project.title}</h1>
+          <p className="text-[#9AADAA] mt-2">
             First deliverable:{" "}
             {data.project.firstDeliverable ||
               "Agree on your first milestone together"}
@@ -145,20 +146,41 @@ export default function Workspace() {
           Open team group chat
         </button>
       </header>
-      {membershipControls}
+      <details className="text-sm text-[#9AADAA]">
+        <summary>Manage team membership</summary>
+        <div className="mt-3">{membershipControls}</div>
+      </details>
       {error && (
         <p role="alert" className="bg-red-950 text-red-200 p-3 rounded-xl">
           {error}
         </p>
       )}
-      <section className="border border-[#1E2442] rounded-xl p-4">
-        <h2 className="text-xl font-bold">Your team</h2>
-        <p>
-          {data.members
-            .map((m) => `${m.firstName} ${m.lastName || ""}`)
-            .join(" · ")}
-        </p>
-        <p className="text-sm text-[#8B91A7]">
+      <section className="workbench-card rounded-2xl p-6">
+        <h2 className="text-lg font-semibold">Your team</h2>
+        <div className="flex flex-wrap gap-4 my-5">
+          {data.members.map((member) => (
+            <div className="flex items-center gap-3" key={member._id}>
+              <Avatar user={member} className="h-9 w-9" />
+              <span className="text-sm">
+                {member.firstName} {member.lastName}
+              </span>
+            </div>
+          ))}
+        </div>
+        <div
+          role="progressbar"
+          aria-label="Completed milestones"
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={data.progress}
+          className="rounded-full h-1.5 overflow-hidden bg-[#26383D] mb-3"
+        >
+          <div
+            className="bg-[#B7ED82] h-full"
+            style={{ width: data.progress + "%" }}
+          />
+        </div>
+        <p className="text-xs text-[#9AADAA]">
           {data.progress}% complete across {data.totalMilestones} milestones.
           Code and issue tracking stay in GitHub.
         </p>
@@ -181,11 +203,11 @@ export default function Workspace() {
           {data.milestones.map((m) => (
             <article
               key={m._id}
-              className="border border-[#1E2442] rounded-xl p-4 space-y-2"
+              className="border border-[#26383D] rounded-xl p-4 space-y-2"
             >
               <h3 className="font-bold">{m.title}</h3>
               <p>{m.definitionOfDone}</p>
-              <p className="text-sm text-[#8B91A7]">
+              <p className="text-sm text-[#9AADAA]">
                 {data.members.find((p) => p._id === m.assignee)?.firstName ||
                   "Former team member"}{" "}
                 · {m.status} · Due {new Date(m.dueAt).toLocaleDateString()}
@@ -260,7 +282,7 @@ export default function Workspace() {
               });
             });
           }}
-          className="border border-[#1E2442] rounded-xl p-4 space-y-3"
+          className="border border-[#26383D] rounded-xl p-4 space-y-3"
         >
           <h2 className="text-xl font-bold">Plan the next milestone</h2>
           <label className="block">
@@ -328,7 +350,7 @@ export default function Workspace() {
       )}
       <section className="grid md:grid-cols-2 gap-4">
         <form
-          className="border border-[#1E2442] rounded-xl p-4 space-y-3"
+          className="border border-[#26383D] rounded-xl p-4 space-y-3"
           onSubmit={(e) => {
             e.preventDefault();
             perform(async () => {
@@ -369,7 +391,7 @@ export default function Workspace() {
           {data.checkIns.map((c) => (
             <article
               key={c._id}
-              className="border border-[#1E2442] p-3 rounded-xl"
+              className="border border-[#26383D] p-3 rounded-xl"
             >
               <p className="font-bold">
                 {c.user?.firstName} ·{" "}
@@ -383,7 +405,7 @@ export default function Workspace() {
         </div>
       </section>
       {owner && (
-        <section className="border border-[#1E2442] rounded-xl p-4">
+        <section className="border border-[#26383D] rounded-xl p-4">
           <h2 className="text-xl font-bold">Find compatible collaborators</h2>
           <button
             disabled={busy}
@@ -401,7 +423,7 @@ export default function Workspace() {
       )}
       {owner && (
         <form
-          className="border border-[#1E2442] rounded-xl p-4 space-y-3"
+          className="border border-[#26383D] rounded-xl p-4 space-y-3"
           onSubmit={(e) => {
             e.preventDefault();
             perform(() =>
@@ -414,7 +436,7 @@ export default function Workspace() {
           }}
         >
           <h2 className="text-xl font-bold">Publish your shipped outcome</h2>
-          <p className="text-sm text-[#8B91A7]">
+          <p className="text-sm text-[#9AADAA]">
             Share what you built and a demo. Publishing marks the project as
             launched.
           </p>

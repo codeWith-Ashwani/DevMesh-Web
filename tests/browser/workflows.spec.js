@@ -61,6 +61,26 @@ test("personal and group messages reach another browser immediately", async ({
       path: testInfo.outputPath("group-chat.png"),
       fullPage: true,
     });
+    await pa.setViewportSize({ width: 390, height: 844 });
+    await expect(
+      pa.getByRole("textbox", { name: "Message", exact: true }),
+    ).toBeVisible();
+    await expect(
+      pa.getByRole("heading", { name: "Conversations", exact: true }),
+    ).not.toBeVisible();
+    expect(
+      await pa.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBeTruthy();
+    await pa.screenshot({
+      path: testInfo.outputPath("mobile-group-chat.png"),
+      fullPage: true,
+    });
+    await pa.getByRole("link", { name: "All conversations" }).click();
+    await expect(
+      pa.getByRole("heading", { name: "Conversations", exact: true }),
+    ).toBeVisible();
   } finally {
     await a.close();
     await b.close();
@@ -82,20 +102,25 @@ test("availability and project team workspace work in the browser", async ({
   await page.goto("/projects");
   await page.getByRole("button", { name: "New Project" }).click();
   await page
-    .getByLabel("PROJECT TITLE", { exact: true })
+    .getByLabel("Project title", { exact: true })
     .fill("Browser collaboration project");
   await page
-    .getByLabel("TECHNICAL SPECIFICATION & OVERVIEW")
+    .getByLabel("What are you building?")
     .fill(
       "A small team project with a clear deliverable and contribution evidence.",
     );
-  await page.getByLabel("TECH STACK (COMMA SEPARATED)").fill("React");
-  await page.getByLabel("ROLES SOUGHT (COMMA SEPARATED)").fill("Frontend");
-  await page.getByLabel("FIRST DELIVERABLE").fill("A working signup page");
-  await page
-    .getByRole("button", { name: "Publish Project to Registry" })
-    .click();
-  await page.getByRole("link", { name: "Open team workspace" }).click();
+  await page.getByLabel("Tech stack, separated by commas").fill("React");
+  await page.getByLabel("Roles needed, separated by commas").fill("Frontend");
+  await page.getByLabel("First deliverable").fill("A working signup page");
+  await page.getByRole("button", { name: "Publish project" }).click();
+  const projectCard = page.getByRole("article").filter({
+    has: page.getByRole("heading", {
+      name: "Browser collaboration project",
+      exact: true,
+    }),
+  });
+  await expect(projectCard).toBeVisible();
+  await projectCard.getByRole("link", { name: "Open team workspace" }).click();
   await expect(
     page.getByRole("heading", { name: "Browser collaboration project" }),
   ).toBeVisible();

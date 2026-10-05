@@ -8,10 +8,10 @@ import { PageTitle } from "./Requests";
 import { IconCheck, IconCode } from "./ui/Icons";
 
 const inputClass =
-  "mt-1.5 w-full rounded-xl border border-[#1E2442] bg-[#11152A] px-3.5 py-2.5 text-xs text-[#F5F7FF] placeholder-[#515870] outline-none hover:border-[#2A335C] focus:border-[#3B82F6] transition-colors";
+  "mt-1.5 w-full rounded-xl border border-[#26383D] bg-[#142024] px-3.5 py-2.5 text-xs text-[#EDF4F2] placeholder-[#718986] outline-none hover:border-[#416067] focus:border-[#B7ED82] transition-colors";
 
 const Field = ({ label, children }) => (
-  <label className="block text-xs font-semibold uppercase tracking-wider text-[#8B91A7]">
+  <label className="block text-xs font-semibold uppercase tracking-wider text-[#9AADAA]">
     {label}
     {children}
   </label>
@@ -41,38 +41,43 @@ function EditProfile({ user }) {
     setForm((current) => ({ ...current, [key]: value }));
 
   const saveProfile = async () => {
-  setSaving(true);
-  setError("");
-  try {
-    // Remove empty-string fields so enum validators don't reject them
-    const payload = Object.fromEntries(
-      Object.entries(form).filter(([, value]) => value !== "")
-    );
-    const res = await axios.patch(`${BASE_URL}/profile/edit`, payload, { withCredentials: true });
-    dispatch(addUser(res.data.data));
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
-  } catch (err) {
-    setError(err?.response?.data?.message || "Could not save profile changes. Please try again.");
-  } finally {
-    setSaving(false);
-  }
-};
+    setSaving(true);
+    setError("");
+    try {
+      // Remove empty-string fields so enum validators don't reject them
+      const payload = Object.fromEntries(
+        Object.entries(form).filter(([, value]) => value !== ""),
+      );
+      const res = await axios.patch(`${BASE_URL}/profile/edit`, payload, {
+        withCredentials: true,
+      });
+      dispatch(addUser(res.data.data));
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (err) {
+      setError(
+        err?.response?.data?.message ||
+          "Could not save profile changes. Please try again.",
+      );
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 space-y-6">
       <PageTitle
         eyebrow="Profile Settings"
-        title="Developer Identity & Profile"
-        subtitle="Manage your public developer profile, verified technical competencies, and external portfolio links."
+        title="Let your work introduce you."
+        subtitle="Share your skills, what you want to build, and a few links to your work."
       />
 
       <div className="grid items-start gap-8 lg:grid-cols-[1fr_24rem]">
         {/* Identity Config Form */}
-        <section className="fintech-card rounded-2xl border border-[#1E2442] p-6 sm:p-8 shadow-xl space-y-5">
-          <div className="flex items-center justify-between border-b border-[#1E2442] pb-4">
-            <h2 className="text-sm font-bold text-[#F5F7FF]">
-              Profile Configuration
+        <section className="fintech-card rounded-2xl border border-[#26383D] p-6 sm:p-8 shadow-xl space-y-5">
+          <div className="flex items-center justify-between border-b border-[#26383D] pb-4">
+            <h2 className="text-sm font-bold text-[#EDF4F2]">
+              Your developer profile
             </h2>
             <span className="skill-pill text-[10px]">EDITABLE</span>
           </div>
@@ -202,7 +207,7 @@ function EditProfile({ user }) {
             </p>
           )}
 
-          <div className="pt-3 border-t border-[#1E2442]">
+          <div className="pt-3 border-t border-[#26383D]">
             <button
               className="btn-primary flex items-center justify-center gap-2 px-6 py-2.5 text-xs font-semibold disabled:opacity-50"
               onClick={saveProfile}
@@ -217,7 +222,7 @@ function EditProfile({ user }) {
         {/* Live Profile Card Preview */}
         <aside className="lg:sticky lg:top-20 space-y-3">
           <div className="flex items-center justify-between px-1">
-            <span className="text-xs font-bold uppercase tracking-wider text-[#8B91A7]">
+            <span className="text-xs font-bold uppercase tracking-wider text-[#9AADAA]">
               Live Preview
             </span>
             <span className="skill-pill text-[10px]">SYNCED</span>
@@ -230,7 +235,7 @@ function EditProfile({ user }) {
       {/* Success Toast */}
       {saved && (
         <div className="fixed bottom-8 right-8 z-50 animate-in fade-in slide-in-from-bottom-5">
-          <div className="flex items-center gap-2 rounded-2xl border border-[#10B981]/40 bg-[#0D1020] px-4 py-3 text-xs font-medium text-[#10B981] shadow-2xl shadow-emerald-500/10">
+          <div className="flex items-center gap-2 rounded-2xl border border-[#10B981]/40 bg-[#10191C] px-4 py-3 text-xs font-medium text-[#10B981] shadow-2xl shadow-emerald-500/10">
             <IconCheck className="h-4 w-4" />
             <span>Profile successfully updated.</span>
           </div>
