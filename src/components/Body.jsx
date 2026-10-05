@@ -9,6 +9,7 @@ import { BASE_URL } from "../utils/constants";
 import { useDispatch, useSelector } from "react-redux";
 import { addUser } from "../utils/userSlice";
 import { addRequests } from "../utils/requestsSlice";
+import ChatConnectionProvider from "./ChatConnectionProvider";
 
 function Body() {
   const dispatch = useDispatch();
@@ -119,6 +120,7 @@ function Body() {
     );
 
   return (
+    <ChatConnectionProvider key={userData._id}>
     <div className="flex min-h-screen bg-[#0B1020] ambient-glow-bg text-[#EEF4FF]">
       <a className="skip-link" href="#main-content">
         Skip to content
@@ -163,6 +165,7 @@ function Body() {
         onClose={() => setIsCommandPaletteOpen(false)}
       />
     </div>
+    </ChatConnectionProvider>
   );
 }
 

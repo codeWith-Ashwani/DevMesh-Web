@@ -1,11 +1,12 @@
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import axios from "axios";
-import { io } from "socket.io-client";
+import { ChatConnection } from "../utils/chatConnection";
+import { isLegacyEmptyCollection } from "../utils/workbench";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { BASE_URL } from "../utils/constants";
 import Avatar from "./ui/Avatar";
-const options = { withCredentials: true };
+const options = { withCredentials: true, timeout: 15000 };
 const merge = (a, b) =>
   [...new Map([...a, ...b].map((m) => [m._id, m])).values()].sort((x, y) =>
     x._id.localeCompare(y._id),
@@ -25,6 +26,8 @@ function ChatSession() {
   const { userId, conversationId } = useParams();
   const navigate = useNavigate();
   const user = useSelector((s) => s.user);
+  const { client, status, error: connectionError, reconnect } = useContext(ChatConnection);
+  const connected = status === 'connected';
   const [conversations, setConversations] = useState([]);
   const [listCursor, setListCursor] = useState(null);
   const [moreConversations, setMoreConversations] = useState(false);
@@ -33,7 +36,11 @@ function ChatSession() {
   const [activeId, setActiveId] = useState(conversationId || null);
   const [text, setText] = useState("");
   const [error, setError] = useState("");
-  const [connected, setConnected] = useState(false);
+  const [loadAttempt, setLoadAttempt] = useState(0);
+  const [inboxLoading, setInboxLoading] = useState(true);
+  const [peopleLoading, setPeopleLoading] = useState(true);
+  const [historyLoading, setHistoryLoading] = useState(Boolean(userId || conversationId));
+  const [creating, setCreating] = useState(false);
   const [sending, setSending] = useState(false);
   const [hasMore, setHasMore] = useState(false);
   const [cursor, setCursor] = useState(null);
@@ -43,13 +50,15 @@ function ChatSession() {
   const [memberToAdd, setMemberToAdd] = useState("");
   const [typing, setTyping] = useState("");
   const [readers, setReaders] = useState({});
-  const socket = useRef(null);
+  const conversationRef = useRef(conversations);
   const retry = useRef(null);
   const typingTimer = useRef(null);
   const lastTyping = useRef(0);
   const latestMessage = useRef(null);
   const bottom = useRef(null);
+  const lastScrolled = useRef(null);
   const active = conversations.find((c) => c._id === activeId);
+  useEffect(() => { conversationRef.current = conversations; }, [conversations]);
   useEffect(() => {
     if (!user?._id) return;
     let alive = true;
@@ -60,13 +69,15 @@ function ChatSession() {
         }
       })
       .catch((e) => {
-        if (alive)
-          setError(e.response?.data?.message || "Unable to load collaborators");
-      });
+        if (!alive) return;
+        if (isLegacyEmptyCollection(e, 'connections')) setConnections([]);
+        else setError(e.response?.data?.message || "Unable to load collaborators");
+      })
+      .finally(() => { if (alive) setPeopleLoading(false); });
     return () => {
       alive = false;
     };
-  }, [user?._id]);
+  }, [user?._id, loadAttempt]);
   useEffect(() => {
     if (!user?._id) return;
     let alive = true;
@@ -82,7 +93,8 @@ function ChatSession() {
       })
       .catch((e) => {
         if (alive) setError(e.response?.data?.message || "Unable to load conversations");
-      });
+      })
+      .finally(() => { if (alive) setInboxLoading(false); });
     const resolve = async () => {
       try {
         const id = userId
@@ -97,7 +109,6 @@ function ChatSession() {
         if (!alive) return;
         setMessages([]);
         setReaders({});
-        setError("");
         retry.current = null;
         latestMessage.current = null;
         setActiveId(id || null);
@@ -116,16 +127,33 @@ function ChatSession() {
     return () => {
       alive = false;
     };
-  }, [userId, conversationId, user?._id]);
+  }, [userId, conversationId, user?._id, loadAttempt]);
   useEffect(() => {
-    if (!user?._id || (userId && !activeId)) return;
+    if (!user?._id || !client || (userId && !activeId)) return;
     let alive = true;
-    const client = io(BASE_URL, {
-      withCredentials: true,
-      transports: ["websocket"],
-      reconnection: true,
-    });
-    socket.current = client;
+    const pendingRooms = new Map();
+    const seenMessages = new Set();
+    const refreshRoom = (id) => {
+      if (pendingRooms.has(id)) return;
+      const request = axios.get(`${BASE_URL}/conversations/${id}`, options)
+        .then(response => {
+          if (!alive) return;
+          const detail = response.data.data;
+          setConversations(current => {
+            const previous = current.find(c => c._id === id);
+            const updated = { unreadCount: 0, ...previous, ...detail };
+            return previous ? current.map(c => c._id === id ? updated : c) : [updated, ...current];
+          });
+        })
+        .catch(e => {
+          if (!alive) return;
+          if ([403, 404].includes(e.response?.status))
+            setConversations(current => current.filter(c => c._id !== id));
+          else setError(e.response?.data?.message || 'Unable to update conversation');
+        })
+        .finally(() => pendingRooms.delete(id));
+      pendingRooms.set(id, request);
+    };
     let synchronization = null;
     let resync = false;
     const synchronize = async () => {
@@ -140,6 +168,7 @@ function ChatSession() {
           );
           if (!alive) return;
           setMessages((current) => merge(current, result.data.data));
+          setHistoryLoading(false);
           if (!after) {
             setHasMore(result.data.hasMore);
             setCursor(result.data.before);
@@ -162,10 +191,12 @@ function ChatSession() {
             return next;
           });
       } catch (e) {
-        if (alive)
+        if (alive) {
+          setHistoryLoading(false);
           setError(
             e.response?.data?.message || "Unable to synchronize messages",
           );
+        }
       }
     };
     // Serialize replay. A socket connect during the first HTTP read queues a
@@ -183,21 +214,26 @@ function ChatSession() {
         }
       });
     };
-    client.on("connect", () => {
-      setConnected(true);
-      setError("");
+    const onConnect = () => {
       load();
-    });
-    client.on("disconnect", () => setConnected(false));
-    client.on("connect_error", () => {
-      setConnected(false);
-      setError(
-        "Connection unavailable. Reconnecting; sign in again if your session expired.",
-      );
-    });
-    client.on("message:new", (message) => {
+      // Recover groups/membership events missed while this socket was offline.
+      axios.get(`${BASE_URL}/conversations`, options).then(response => {
+        if (alive) {
+          setConversations(current => [...response.data.data, ...current.filter(c => c._id === activeId && !response.data.data.some(r => r._id === c._id))]);
+          setListCursor(response.data.before);
+          setMoreConversations(response.data.hasMore);
+        }
+      }).catch(() => {});
+    };
+    const onMessage = (message) => {
+      if (seenMessages.has(message._id)) return;
+      seenMessages.add(message._id);
+      if (seenMessages.size > 1000) seenMessages.delete(seenMessages.values().next().value);
+      if (!conversationRef.current.some(c => c._id === message.conversation)) refreshRoom(message.conversation);
       setConversations((current) =>
-        current.map((c) =>
+        (current.some(c => c._id === message.conversation) ? current : [...current, {
+          _id: message.conversation, name: 'New conversation', members: [],
+        }]).map((c) =>
           c._id === message.conversation
             ? {
                 ...c,
@@ -216,14 +252,14 @@ function ChatSession() {
         // Keep the replay cursor at the last HTTP sync. A newer live event must
         // not skip messages sent between that snapshot and the socket connect.
       }
-    });
-    client.on("conversation:typing", (event) => {
+    };
+    const onTyping = (event) => {
       if (event.conversationId !== activeId) return;
       setTyping(event.userId);
       clearTimeout(typingTimer.current);
       typingTimer.current = setTimeout(() => setTyping(""), 2500);
-    });
-    client.on("conversation:read", (event) => {
+    };
+    const onRead = (event) => {
       if (event.conversationId === activeId)
         setReaders((current) => ({
           ...current,
@@ -232,35 +268,53 @@ function ChatSession() {
               ? event.messageId
               : current[event.userId],
         }));
-    });
+    };
+    const onUpdated = event => refreshRoom(event.conversationId);
+    const onRemoved = event => {
+      setConversations(current => current.filter(c => c._id !== event.conversationId));
+      if (activeId === event.conversationId) navigate('/messages');
+    };
+    client.on('connect', onConnect);
+    client.on('message:new', onMessage);
+    client.on('conversation:typing', onTyping);
+    client.on('conversation:read', onRead);
+    client.on('conversation:updated', onUpdated);
+    client.on('conversation:removed', onRemoved);
     load();
     return () => {
       alive = false;
       clearTimeout(typingTimer.current);
-      client.disconnect();
-      socket.current = null;
+      client.off('connect', onConnect);
+      client.off('message:new', onMessage);
+      client.off('conversation:typing', onTyping);
+      client.off('conversation:read', onRead);
+      client.off('conversation:updated', onUpdated);
+      client.off('conversation:removed', onRemoved);
     };
-  }, [activeId, user?._id, userId]);
+  }, [activeId, user?._id, userId, client, navigate, loadAttempt]);
   useEffect(() => {
     const last = messages.at(-1);
     const stream = bottom.current?.parentElement;
-    stream?.scrollTo({ top: stream.scrollHeight, behavior: "smooth" });
+    if (last && last._id !== lastScrolled.current) {
+      stream?.scrollTo({ top: stream.scrollHeight, behavior: "smooth" });
+      lastScrolled.current = last._id;
+    }
     if (connected && last && document.visibilityState === "visible")
-      socket.current?.emit(
+      client?.emit(
         "conversation:read",
         { conversationId: activeId, messageId: last._id },
         () => {},
       );
-  }, [messages, activeId, connected]);
+  }, [messages, activeId, connected, client]);
   useEffect(() => {
     const mark = () => {
       const last = messages.at(-1);
       if (
         document.visibilityState === "visible" &&
         last &&
-        socket.current?.connected
+        client?.connected
       )
-        socket.current.emit(
+        client.emit(
           "conversation:read",
           { conversationId: activeId, messageId: last._id },
           () => {},
@@ -268,10 +322,10 @@ function ChatSession() {
     };
     document.addEventListener("visibilitychange", mark);
     return () => document.removeEventListener("visibilitychange", mark);
-  }, [messages, activeId]);
+  }, [messages, activeId, client]);
   const send = (event) => {
     event.preventDefault();
-    if (!text.trim() || sending || !socket.current?.connected) return;
+    if (!activeId || !active || !text.trim() || sending || !client?.connected) return;
     const payload =
       retry.current?.text === text.trim()
         ? retry.current
@@ -283,7 +337,7 @@ function ChatSession() {
     retry.current = payload;
     setSending(true);
     setError("");
-    socket.current
+    client
       .timeout(10000)
       .emit("message:send", payload, (timeout, result) => {
         setSending(false);
@@ -295,7 +349,7 @@ function ChatSession() {
           return;
         }
         setMessages((current) => merge(current, [result.data]));
-        setText("");
+        setText(current => current.trim() === payload.text ? '' : current);
         retry.current = null;
       });
   };
@@ -314,6 +368,8 @@ function ChatSession() {
   };
   const create = async (event) => {
     event.preventDefault();
+    if (creating) return;
+    setCreating(true);
     try {
       const response = await axios.post(
         `${BASE_URL}/conversations/group`,
@@ -326,6 +382,8 @@ function ChatSession() {
       navigate(`/messages/${response.data.data._id}`);
     } catch (e) {
       setError(e.response?.data?.message || "Unable to create group");
+    } finally {
+      setCreating(false);
     }
   };
   const manageMember = async (action, userId) => {
@@ -383,10 +441,23 @@ function ChatSession() {
           New group
         </button>
       </header>
+      {connectionError && (
+        <div role="alert" className="p-3 mb-3 bg-red-950 text-red-200 rounded-xl">
+          <p>{connectionError}</p>
+          {status === 'load_failed'
+            ? <button className="btn-secondary p-2 mt-2" onClick={() => window.location.reload()}>Reload page</button>
+            : <button className="btn-secondary p-2 mt-2" onClick={reconnect}>Reconnect</button>}
+          {status === 'unauthorized' && <Link to="/login" className="underline ml-3">Sign in again</Link>}
+        </div>
+      )}
       {error && (
-        <p role="alert" className="p-3 mb-3 bg-red-950 text-red-200 rounded-xl">
+        <div role="alert" className="p-3 mb-3 bg-red-950 text-red-200 rounded-xl">
           {error}
-        </p>
+          <button className="btn-secondary p-2 ml-3" onClick={() => {
+            setError(''); setInboxLoading(true); setPeopleLoading(true);
+            setHistoryLoading(Boolean(activeId)); setLoadAttempt(value => value + 1);
+          }}>Retry loading chat</button>
+        </div>
       )}
       {groupOpen && (
         <form
@@ -406,6 +477,8 @@ function ChatSession() {
           <fieldset>
             <legend>Choose connected collaborators</legend>
             <div className="flex flex-wrap gap-3">
+              {peopleLoading && <p role="status">Loading collaborators…</p>}
+              {!peopleLoading && !connections.length && <p>Accept a connection before inviting teammates. <Link className="underline" to="/feed">Find collaborators</Link></p>}
               {connections.map((peer) => (
                 <label key={peer._id}>
                   <input
@@ -424,8 +497,8 @@ function ChatSession() {
               ))}
             </div>
           </fieldset>
-          <button disabled={!selected.length} className="btn-primary p-2">
-            Create group
+          <button disabled={!selected.length || creating} className="btn-primary p-2">
+            {creating ? 'Creating group…' : 'Create group'}
           </button>
         </form>
       )}
@@ -503,6 +576,8 @@ function ChatSession() {
           className={`${activeId ? "hidden md:block" : ""} p-3 border-r border-[#293B5B] md:max-h-[70vh] overflow-y-auto bg-[#101A2E]`}
         >
           <h2 className="font-bold mb-2">Conversations</h2>
+          {inboxLoading && <p role="status" className="text-sm text-[#A5B4CE] p-2">Loading conversations…</p>}
+          {!inboxLoading && !conversations.length && <p className="text-sm text-[#A5B4CE] p-2">No conversations yet. Choose a connected teammate below or create a group.</p>}
           {conversations.map((c) => (
             <Link
               key={c._id}
@@ -519,6 +594,8 @@ function ChatSession() {
             </Link>
           ))}
           <h2 className="font-bold mt-5 mb-2">Start a personal chat</h2>
+          {peopleLoading && <p role="status" className="text-sm text-[#A5B4CE] p-2">Loading teammates…</p>}
+          {!peopleLoading && !connections.length && <Link to="/feed" className="block p-2 text-sm text-[#82B4FF] underline">Find collaborators to start chatting →</Link>}
           {connections.map((peer) => (
             <Link
               key={peer._id}
@@ -547,7 +624,7 @@ function ChatSession() {
               {activeId
                 ? connected
                   ? "Connected"
-                  : "Reconnecting…"
+                  : status === 'connecting' ? "Connecting…" : "Offline · use Reconnect above"
                 : "Select a teammate or create a group"}
               {active?.kind !== "direct" && active?.members?.length
                 ? ` · ${active.members.length} members`
@@ -559,6 +636,9 @@ function ChatSession() {
             role="log"
             aria-label="Messages"
           >
+            {!activeId && <p className="text-sm text-[#A5B4CE]">Choose a conversation or a teammate from the list to start chatting.</p>}
+            {activeId && historyLoading && <p role="status" className="text-sm text-[#A5B4CE]">Loading messages…</p>}
+            {activeId && !historyLoading && !messages.length && !error && <p className="text-sm text-[#A5B4CE]">No messages yet. Say hello to your teammates.</p>}
             {hasMore && (
               <button className="btn-secondary p-2" onClick={older}>
                 Load earlier messages
@@ -601,7 +681,7 @@ function ChatSession() {
               is typing…
             </p>
           )}
-          <form
+          {activeId && <form
             onSubmit={send}
             className="flex gap-2 p-4 border-t border-[#293B5B]"
           >
@@ -614,10 +694,10 @@ function ChatSession() {
                 setText(e.target.value);
                 if (
                   Date.now() - lastTyping.current > 1500 &&
-                  socket.current?.connected
+                  client?.connected
                 ) {
                   lastTyping.current = Date.now();
-                  socket.current.emit(
+                  client.emit(
                     "conversation:typing",
                     { conversationId: activeId },
                     () => {},
@@ -628,12 +708,12 @@ function ChatSession() {
               placeholder="Write a message"
             />
             <button
-              disabled={!connected || sending || !text.trim()}
+              disabled={!active || !connected || sending || !text.trim()}
               className="btn-primary p-3"
             >
               {sending ? "Sending…" : "Send"}
             </button>
-          </form>
+          </form>}
         </section>
       </div>
     </div>
