@@ -1,0 +1,34 @@
+name: Frontend verification
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: devTinderWeb
+      - uses: actions/checkout@v4
+        with:
+          repository: codeWith-Ashwani/DevMesh
+          path: DevTinder
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: devTinderWeb/package-lock.json
+      - run: npm ci
+        working-directory: DevTinder
+      - run: npm ci
+        working-directory: devTinderWeb
+      - run: npm run lint
+        working-directory: devTinderWeb
+      - run: npm run build
+        working-directory: devTinderWeb
+      - run: npm audit --omit=dev --audit-level=high
+        working-directory: devTinderWeb
+      - run: npx playwright install --with-deps chromium
+        working-directory: devTinderWeb
+      - run: npm run test:e2e
+        working-directory: devTinderWeb

@@ -1,250 +1,154 @@
-import React, { useEffect, useState, useRef } from "react";
-import axios from "axios";
-import { useLocation, useParams, Link } from "react-router-dom";
-import { useSelector } from "react-redux";
-import { BASE_URL } from "../utils/constants";
-import {
-  IconSend,
-  IconChevronLeft
-} from "./ui/Icons";
-
-function Chat() {
-  const { userId } = useParams();
-  const location = useLocation();
-  const currentUser = useSelector((store) => store.user);
-  const connections = useSelector((store) => store.connections) || [];
-
-  const [messages, setMessages] = useState([]);
-  const [text, setText] = useState("");
-  const [error, setError] = useState("");
-  const [sending, setSending] = useState(false);
-  const messagesEndRef = useRef(null);
-
-  const otherUser =
-    location.state?.user || connections?.find((u) => u._id === userId);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  useEffect(() => {
-    const loadMessages = async () => {
-      try {
-        const response = await axios.get(`${BASE_URL}/chat/${userId}`, {
-          withCredentials: true,
-        });
-        setMessages(response.data.data);
-        setError("");
-      } catch (err) {
-        setError(err?.response?.data?.message || "Unable to load chat messages.");
-      }
-    };
-
-    loadMessages();
-    const interval = setInterval(loadMessages, 3000);
-    return () => clearInterval(interval);
-  }, [userId]);
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  const sendMessage = async (event) => {
-    event.preventDefault();
-    if (!text.trim() || sending) return;
-    setSending(true);
-    try {
-      const response = await axios.post(
-        `${BASE_URL}/chat/${userId}`,
-        { text },
-        { withCredentials: true }
-      );
-      setMessages((current) => [...current, response.data.data]);
-      setText("");
-    } catch (err) {
-      setError(err?.response?.data?.message || "Unable to send message.");
-    } finally {
-      setSending(false);
-    }
-  };
-
-  return (
-    <div className="mx-auto flex h-[calc(100vh-4rem)] max-w-7xl flex-col p-3 sm:p-6">
-      <div className="flex flex-1 overflow-hidden rounded-2xl border border-[#1E2442] bg-[#0D1020] shadow-2xl">
-        {/* Left Sidebar: Connections List */}
-        <aside className="hidden w-72 border-r border-[#1E2442] bg-[#0D1020] md:flex md:flex-col">
-          <div className="flex h-14 items-center justify-between border-b border-[#1E2442] px-4">
-            <span className="text-xs font-bold text-[#8B91A7] uppercase tracking-wider">
-              Direct Messages
-            </span>
-            <span className="rounded-full bg-[#11152A] px-2 py-0.5 text-[10px] font-bold font-mono text-[#3B82F6]">
-              {connections.length}
-            </span>
-          </div>
-
-          <div className="flex-1 overflow-y-auto p-2.5 space-y-1.5">
-            {connections.length === 0 ? (
-              <p className="p-6 text-center text-xs text-[#515870]">
-                No connected developers yet.
-              </p>
-            ) : (
-              connections.map((peer) => {
-                const isCurrent = peer._id === userId;
-                return (
-                  <Link
-                    key={peer._id}
-                    to={`/chat/${peer._id}`}
-                    state={{ user: peer }}
-                    className={`flex items-center gap-3 rounded-xl p-2.5 transition-all ${
-                      isCurrent
-                        ? "bg-[#151A32] border border-[#232B4E] text-[#F5F7FF] shadow-sm"
-                        : "text-[#8B91A7] hover:bg-[#11152A] hover:text-[#F5F7FF] border border-transparent"
-                    }`}
-                  >
-                    <div className="relative shrink-0">
-                      <img
-                        className="h-9 w-9 rounded-xl border border-[#1E2442] object-cover bg-[#080A14]"
-                        src={peer.photoUrl || "https://placehold.co/80x80/11152A/8B91A7?text=DEV"}
-                        alt=""
-                      />
-                      <span className="absolute -bottom-0.5 -right-0.5 status-dot-active" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-xs font-bold">{peer.firstName} {peer.lastName}</p>
-                      <p className="truncate text-[10px] text-[#8B91A7]">
-                        {peer.skills?.slice(0, 2).join(" · ") || "Developer"}
-                      </p>
-                    </div>
-                  </Link>
-                );
-              })
-            )}
-          </div>
-        </aside>
-
-        {/* Right Main Channel Workspace */}
-        <section className="flex flex-1 flex-col bg-[#080A14] min-w-0">
-          {/* Header */}
-          <header className="flex h-14 items-center justify-between border-b border-[#1E2442] bg-[#0D1020] px-4">
-            <div className="flex items-center gap-3">
-              <Link
-                to="/connections"
-                className="flex h-7 w-7 items-center justify-center rounded-lg border border-[#1E2442] text-[#8B91A7] hover:text-[#F5F7FF] md:hidden"
-              >
-                <IconChevronLeft className="h-4 w-4" />
-              </Link>
-
-              <div className="relative">
-                <img
-                  className="h-9 w-9 rounded-xl border border-[#1E2442] object-cover bg-[#080A14]"
-                  src={otherUser?.photoUrl || "https://placehold.co/80x80/11152A/8B91A7?text=DEV"}
-                  alt=""
-                />
-                <span className="absolute -bottom-0.5 -right-0.5 status-dot-active ring-2 ring-[#0D1020]" />
-              </div>
-
-              <div>
-                <h2 className="text-xs font-bold text-[#F5F7FF] sm:text-sm">
-                  {otherUser ? `${otherUser.firstName} ${otherUser.lastName}` : "Direct Message"}
-                </h2>
-                <div className="flex items-center gap-2 text-[10px] text-[#8B91A7]">
-                  <span>@{otherUser?.firstName?.toLowerCase() || "developer"}</span>
-                  <span>·</span>
-                  <span className="text-[#10B981] font-semibold">Active Mesh</span>
-                </div>
-              </div>
-            </div>
-
-            {otherUser?.skills && (
-              <div className="hidden lg:flex items-center gap-1.5">
-                {otherUser.skills.slice(0, 3).map((skill) => (
-                  <span key={skill} className="skill-pill text-[9px]">
-                    {skill}
-                  </span>
-                ))}
-              </div>
-            )}
-          </header>
-
-          {/* Messages Stream */}
-          <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-3.5">
-            {error && (
-              <div className="rounded-xl border border-[#F43F5E]/30 bg-[#F43F5E]/10 p-3.5 text-xs text-[#F43F5E]">
-                {error}
-              </div>
-            )}
-
-            {!error && messages.length === 0 && (
-              <div className="flex h-full flex-col items-center justify-center text-center p-6">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl border border-[#1E2442] bg-[#11152A] text-[#8B91A7] mb-3 shadow-lg">
-                  <IconSend className="h-5 w-5 text-[#3B82F6]" />
-                </div>
-                <h3 className="text-sm font-bold text-[#F5F7FF]">
-                  Start a conversation
-                </h3>
-                <p className="mt-1 max-w-sm text-xs text-[#8B91A7]">
-                  Say hello, discuss technical stacks, and coordinate collaboration on projects.
-                </p>
-              </div>
-            )}
-
-            {messages.map((message) => {
-              const isMine = message.fromUserId === currentUser?._id;
-              return (
-                <div
-                  key={message._id}
-                  className={`flex flex-col ${isMine ? "items-end" : "items-start"}`}
-                >
-                  <div
-                    className={`max-w-[85%] sm:max-w-[70%] rounded-2xl px-4 py-2.5 text-xs leading-relaxed shadow-md ${
-                      isMine
-                        ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white font-medium rounded-br-sm shadow-blue-500/10"
-                        : "bg-[#11152A] border border-[#1E2442] text-[#F5F7FF] rounded-bl-sm"
-                    }`}
-                  >
-                    <p className="break-words whitespace-pre-wrap">{message.text}</p>
-                  </div>
-                  <span
-                    className="mt-1 text-[10px] text-[#515870] font-mono px-1 font-medium"
-                  >
-                    {new Date(message.createdAt).toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </span>
-                </div>
-              );
-            })}
-            <div ref={messagesEndRef} />
-          </div>
-
-          {/* Input Bar */}
-          <form
-            onSubmit={sendMessage}
-            className="flex items-center gap-2.5 border-t border-[#1E2442] bg-[#0D1020] p-3 sm:p-4"
-          >
-            <div className="relative flex-1">
-              <input
-                className="w-full rounded-xl border border-[#1E2442] bg-[#11152A] px-4 py-2.5 text-xs text-[#F5F7FF] placeholder-[#515870] outline-none hover:border-[#2A335C] focus:border-[#3B82F6] transition-colors"
-                value={text}
-                maxLength="2000"
-                placeholder="Type a message... (Press Enter to send)"
-                onChange={(e) => setText(e.target.value)}
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={!text.trim() || sending}
-              className="btn-primary flex h-10 items-center justify-center gap-2 px-5 text-xs font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              <IconSend className="h-3.5 w-3.5" />
-              <span>Send</span>
-            </button>
-          </form>
-        </section>
-      </div>
-    </div>
-  );
+import { useEffect, useRef, useState } from 'react';
+import axios from 'axios';
+import { io } from 'socket.io-client';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { BASE_URL } from '../utils/constants';
+const options = { withCredentials: true };
+const merge = (a, b) => [...new Map([...a, ...b].map(m => [m._id, m])).values()].sort((x, y) => x._id.localeCompare(y._id));
+const title = (c, me) => c.name || c.members?.filter(m => m._id !== me).map(m => `${m.firstName} ${m.lastName || ''}`).join(', ') || 'Conversation';
+export default function Chat() {
+  const { userId, conversationId } = useParams();
+  return <ChatSession key={userId || conversationId || 'inbox'} />;
 }
-
-export default Chat;
+function ChatSession() {
+  const { userId, conversationId } = useParams();
+  const navigate = useNavigate();
+  const user = useSelector(s => s.user);
+  const [conversations, setConversations] = useState([]);
+  const [listCursor, setListCursor] = useState(null);
+  const [moreConversations, setMoreConversations] = useState(false);
+  const [connections, setConnections] = useState([]);
+  const [messages, setMessages] = useState([]);
+  const [activeId, setActiveId] = useState(null);
+  const [text, setText] = useState('');
+  const [error, setError] = useState('');
+  const [connected, setConnected] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
+  const [cursor, setCursor] = useState(null);
+  const [groupOpen, setGroupOpen] = useState(false);
+  const [groupName, setGroupName] = useState('');
+  const [selected, setSelected] = useState([]);
+  const [memberToAdd, setMemberToAdd] = useState('');
+  const [typing, setTyping] = useState('');
+  const [readers, setReaders] = useState({});
+  const socket = useRef(null);
+  const retry = useRef(null);
+  const typingTimer = useRef(null);
+  const lastTyping = useRef(0);
+  const latestMessage = useRef(null);
+  const bottom = useRef(null);
+  const active = conversations.find(c => c._id === activeId);
+  useEffect(() => {
+    if (!user?._id) return;
+    let alive = true;
+    Promise.all([axios.get(`${BASE_URL}/conversations`, options), axios.get(`${BASE_URL}/user/connections`, options)]).then(([a, b]) => {
+      if (alive) { setConversations(a.data.data); setListCursor(a.data.before); setMoreConversations(a.data.hasMore); setConnections(b.data.data || []); }
+    }).catch(e => { if (alive) setError(e.response?.data?.message || 'Unable to load conversations'); });
+    return () => { alive = false; };
+  }, [user?._id]);
+  useEffect(() => {
+    if (!user?._id) return;
+    let alive = true;
+    const resolve = async () => {
+      try {
+        const id = userId ? (await axios.post(`${BASE_URL}/conversations/direct`, { userId }, options)).data.data._id : conversationId;
+        if (!alive) return;
+        setMessages([]); setReaders({}); setError(''); retry.current = null; latestMessage.current = null;
+        setActiveId(id || null);
+        const response = await axios.get(`${BASE_URL}/conversations`, options);
+        const detail = id ? (await axios.get(`${BASE_URL}/conversations/${id}`, options)).data.data : null;
+        if (alive) { setConversations(detail ? [...response.data.data.filter(c => c._id !== id), detail] : response.data.data); setListCursor(response.data.before); setMoreConversations(response.data.hasMore); }
+      } catch (e) { if (alive) setError(e.response?.data?.message || 'Unable to open conversation'); }
+    };
+    resolve();
+    return () => { alive = false; };
+  }, [userId, conversationId, user?._id]);
+  useEffect(() => {
+    if (!activeId || !user?._id) return;
+    let alive = true;
+    const client = io(BASE_URL, { withCredentials: true, transports: ['websocket'], reconnection: true });
+    socket.current = client;
+    const load = async () => {
+      try {
+        let after = latestMessage.current;
+        let more;
+        do {
+          const result = await axios.get(`${BASE_URL}/conversations/${activeId}/messages`, { ...options, params: after ? { after, limit: 100 } : {} });
+          if (!alive) return;
+          setMessages(current => merge(current, result.data.data));
+          if (!after) { setHasMore(result.data.hasMore); setCursor(result.data.before); }
+          more = Boolean(after && result.data.hasMore);
+          after = result.data.after || after;
+          if (after) latestMessage.current = after;
+        } while (more && alive);
+        const receipts = await axios.get(`${BASE_URL}/conversations/${activeId}/receipts`, options);
+        if (alive) setReaders(Object.fromEntries(receipts.data.data.map(r => [r.user, r.message])));
+      } catch (e) { if (alive) setError(e.response?.data?.message || 'Unable to synchronize messages'); }
+    };
+    client.on('connect', () => { setConnected(true); setError(''); load(); });
+    client.on('disconnect', () => setConnected(false));
+    client.on('connect_error', () => { setConnected(false); setError('Connection unavailable. Reconnecting; sign in again if your session expired.'); });
+    client.on('message:new', message => { if (message.conversation === activeId) { setMessages(current => merge(current, [message])); if (!latestMessage.current || latestMessage.current < message._id) latestMessage.current = message._id; } });
+    client.on('conversation:typing', event => {
+      if (event.conversationId !== activeId) return;
+      setTyping(event.userId); clearTimeout(typingTimer.current);
+      typingTimer.current = setTimeout(() => setTyping(''), 2500);
+    });
+    client.on('conversation:read', event => { if (event.conversationId === activeId) setReaders(current => ({ ...current, [event.userId]: !current[event.userId] || current[event.userId] < event.messageId ? event.messageId : current[event.userId] })); });
+    load();
+    return () => { alive = false; clearTimeout(typingTimer.current); client.disconnect(); socket.current = null; };
+  }, [activeId, user?._id]);
+  useEffect(() => {
+    const last = messages.at(-1);
+    bottom.current?.scrollIntoView({ behavior: 'smooth' });
+    if (connected && last && document.visibilityState === 'visible') socket.current?.emit('conversation:read', { conversationId: activeId, messageId: last._id }, () => {});
+  }, [messages, activeId, connected]);
+  const send = event => {
+    event.preventDefault();
+    if (!text.trim() || sending || !socket.current?.connected) return;
+    const payload = retry.current?.text === text.trim() ? retry.current : { conversationId: activeId, text: text.trim(), clientId: crypto.randomUUID() };
+    retry.current = payload; setSending(true); setError('');
+    socket.current.timeout(10000).emit('message:send', payload, (timeout, result) => {
+      setSending(false);
+      if (timeout || !result?.ok) { setError(result?.message || 'Delivery not confirmed. Send again to retry safely.'); return; }
+      setMessages(current => merge(current, [result.data])); setText(''); retry.current = null;
+    });
+  };
+  const older = async () => {
+    try {
+      const response = await axios.get(`${BASE_URL}/conversations/${activeId}/messages`, { ...options, params: { before: cursor } });
+      setMessages(current => merge(response.data.data, current)); setHasMore(response.data.hasMore); setCursor(response.data.before);
+    } catch { setError('Unable to load earlier messages'); }
+  };
+  const create = async event => {
+    event.preventDefault();
+    try {
+      const response = await axios.post(`${BASE_URL}/conversations/group`, { name: groupName, members: selected }, options);
+      setGroupOpen(false); setGroupName(''); setSelected([]); navigate(`/messages/${response.data.data._id}`);
+    } catch (e) { setError(e.response?.data?.message || 'Unable to create group'); }
+  };
+  const manageMember = async (action, userId) => {
+    try { await axios.patch(`${BASE_URL}/conversations/${activeId}/members`, { action, userId }, options); const response = await axios.get(`${BASE_URL}/conversations/${activeId}`, options); setConversations(current => current.map(c => c._id === activeId ? response.data.data : c)); setMemberToAdd(''); }
+    catch(e) { setError(e.response?.data?.message || 'Unable to change group membership'); }
+  };
+  const moreChats = async () => {
+    try { const response = await axios.get(`${BASE_URL}/conversations`, { ...options, params: { before: listCursor } }); setConversations(current => [...new Map([...current, ...response.data.data].map(c => [c._id, c])).values()]); setListCursor(response.data.before); setMoreConversations(response.data.hasMore); }
+    catch { setError('Unable to load more conversations'); }
+  };
+  return <div className="mx-auto max-w-7xl p-4 text-[#F5F7FF]">
+    <header className="flex justify-between items-center mb-4"><div><h1 className="text-2xl font-bold">Messages</h1><p className="text-sm text-[#8B91A7]">Personal conversations and collaboration groups</p></div><button className="btn-primary p-2" onClick={() => setGroupOpen(v => !v)}>New group</button></header>
+    {error && <p role="alert" className="p-3 mb-3 bg-red-950 text-red-200 rounded-xl">{error}</p>}
+    {groupOpen && <form onSubmit={create} className="p-4 mb-4 border border-[#1E2442] rounded-xl space-y-3"><label className="block">Group name<input required maxLength={80} value={groupName} onChange={e => setGroupName(e.target.value)} className="block bg-[#11152A] p-2 rounded w-full" /></label><fieldset><legend>Choose connected collaborators</legend><div className="flex flex-wrap gap-3">{connections.map(peer => <label key={peer._id}><input type="checkbox" checked={selected.includes(peer._id)} onChange={e => setSelected(v => e.target.checked ? [...v, peer._id] : v.filter(id => id !== peer._id))} /> {peer.firstName} {peer.lastName}</label>)}</div></fieldset><button disabled={!selected.length} className="btn-primary p-2">Create group</button></form>}
+    {active?.kind === 'group' && <details className="p-3 mb-3 border border-[#1E2442] rounded-xl"><summary>Group members</summary><ul>{active.members.map(m => <li key={m._id} className="flex justify-between py-2">{m.firstName} {m.lastName}{active.owner === user?._id && m._id !== user?._id && <button className="text-red-300" onClick={() => manageMember('remove', m._id)}>Remove</button>}</li>)}</ul>{active.owner === user?._id ? <div className="flex gap-2"><select aria-label="Collaborator to add" className="bg-[#11152A] p-2" value={memberToAdd} onChange={e => setMemberToAdd(e.target.value)}><option value="">Choose connection</option>{connections.filter(c => !active.members.some(m => m._id === c._id)).map(c => <option key={c._id} value={c._id}>{c.firstName} {c.lastName}</option>)}</select><button disabled={!memberToAdd} onClick={() => manageMember('add', memberToAdd)}>Add member</button></div> : <button onClick={async () => { try { await axios.patch(`${BASE_URL}/conversations/${activeId}/members`, { action: 'remove', userId: user._id }, options); navigate('/messages'); } catch(e) { setError(e.response?.data?.message || 'Unable to leave group'); } }}>Leave group</button>}</details>}
+    {moreConversations && <button className="btn-secondary p-2 mb-3" onClick={moreChats}>Load more conversations</button>}
+    <div className="grid md:grid-cols-[260px_1fr] border border-[#1E2442] rounded-2xl overflow-hidden bg-[#080A14]">
+      <aside className="p-3 border-r border-[#1E2442] max-h-96 md:max-h-[70vh] overflow-y-auto"><h2 className="font-bold mb-2">Conversations</h2>{conversations.map(c => <Link key={c._id} to={`/messages/${c._id}`} className={`block p-3 rounded-xl mb-1 ${activeId === c._id ? 'bg-[#151A32]' : ''}`}>{title(c, user?._id)}<small className="block text-[#8B91A7]">{c.kind}</small></Link>)}<h2 className="font-bold mt-5 mb-2">Start a personal chat</h2>{connections.map(peer => <Link key={peer._id} className="block p-2" to={`/chat/${peer._id}`}>{peer.firstName} {peer.lastName}</Link>)}</aside>
+      <section className="flex flex-col h-[70vh] min-w-0"><header className="p-4 border-b border-[#1E2442]"><h2 className="font-bold">{active ? title(active, user?._id) : 'Choose a conversation'}</h2><small className="text-[#8B91A7]">{activeId ? connected ? 'Connected' : 'Reconnecting…' : 'Select a teammate or create a group'}{active?.kind !== 'direct' && active?.members?.length ? ` · ${active.members.length} members` : ''}</small></header>
+      <div className="flex-1 overflow-y-auto p-4 space-y-3" role="log" aria-label="Messages">{hasMore && <button className="btn-secondary p-2" onClick={older}>Load earlier messages</button>}{messages.map(message => <div key={message._id} className={`flex flex-col ${message.sender === user?._id ? 'items-end' : 'items-start'}`}><small className="text-[#8B91A7]">{active?.members?.find(m => m._id === message.sender)?.firstName || 'Developer'}</small><p className={`max-w-[85%] p-3 rounded-xl whitespace-pre-wrap break-words ${message.sender === user?._id ? 'bg-blue-600' : 'bg-[#11152A]'}`}>{message.text}</p><small className="text-[#8B91A7]">{new Date(message.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}{message.sender === user?._id && Object.entries(readers).some(([id, last]) => id !== user?._id && last >= message._id) ? ' · Read' : ''}</small></div>)}<div ref={bottom} /></div>
+      {typing && <p className="px-4 text-xs text-[#8B91A7]">{active?.members?.find(m => m._id === typing)?.firstName || 'A collaborator'} is typing…</p>}
+      <form onSubmit={send} className="flex gap-2 p-4 border-t border-[#1E2442]"><input aria-label="Message" disabled={!activeId} maxLength={2000} value={text} onChange={e => { setText(e.target.value); if (Date.now() - lastTyping.current > 1500 && socket.current?.connected) { lastTyping.current = Date.now(); socket.current.emit('conversation:typing', { conversationId: activeId }, () => {}); } }} className="flex-1 min-w-0 p-3 bg-[#11152A] rounded-xl" placeholder="Write a message" /><button disabled={!connected || sending || !text.trim()} className="btn-primary p-3">{sending ? 'Sending…' : 'Send'}</button></form></section>
+    </div>
+  </div>;
+}

@@ -46,7 +46,7 @@ function EditProfile({ user }) {
   try {
     // Remove empty-string fields so enum validators don't reject them
     const payload = Object.fromEntries(
-      Object.entries(form).filter(([_, value]) => value !== "")
+      Object.entries(form).filter(([, value]) => value !== "")
     );
     const res = await axios.patch(`${BASE_URL}/profile/edit`, payload, { withCredentials: true });
     dispatch(addUser(res.data.data));

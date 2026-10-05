@@ -45,6 +45,8 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
       badge: requests?.length > 0 ? requests.length : null 
     },
     { label: "Projects", icon: IconProjects, path: "/projects" },
+    { label: 'Find your team', icon: IconExplore, path: '/collaborate' },
+    { label: 'Messages', icon: IconNetwork, path: '/messages' },
     { label: "Profile", icon: IconSettings, path: "/profile" },
   ];
 
@@ -209,5 +211,4 @@ export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, set
     </>
   );
 }
-
 

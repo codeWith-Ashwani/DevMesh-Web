@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
+import { Link } from 'react-router-dom';
 import { BASE_URL } from "../utils/constants";
 import {
   IconProjects,
@@ -203,11 +204,14 @@ function ProjectCard({ project, currentUser, onApply, onReview }) {
           {project.description}
         </p>
 
-        {/* Visual Progress Bar */}
+        {/* Actual first deliverable; stage is not a completion percentage. */}
+        <p className="mt-4 text-xs text-[#8B91A7]">First deliverable: {project.firstDeliverable || 'To be agreed by the team'} · {project.durationWeeks || 4} weeks</p>
+        {project.isTeamMember && <Link className="block mt-3 text-blue-400 text-sm" to={`/projects/${project._id}/workspace`}>Open team workspace →</Link>}
+        {/* Stage indicator */}
         <div className="mt-4 space-y-1.5">
           <div className="flex items-center justify-between text-[10px] font-medium text-[#8B91A7]">
-            <span>Milestone Progress</span>
-            <span className="font-mono text-[#F5F7FF] font-bold">{meta.progress}%</span>
+            <span>Project stage</span>
+            <span className="font-mono text-[#F5F7FF] font-bold">{project.stage}</span>
           </div>
           <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#11152A] border border-[#1E2442]">
             <div
@@ -231,7 +235,7 @@ function ProjectCard({ project, currentUser, onApply, onReview }) {
           <div className="mt-4 border-t border-[#1E2442] pt-3">
             <p className="text-[10px] uppercase font-semibold tracking-wider text-[#515870]">Roles required</p>
             <p className="mt-0.5 text-xs text-[#F5F7FF] font-medium">
-              {project.rolesNeeded.join(" · ")}
+              {(project.roleOpenings || []).map(o => `${o.title}: ${o.seats - o.filled} open`).join(' · ') || project.rolesNeeded.join(' · ')}
             </p>
           </div>
         )}
@@ -284,6 +288,10 @@ function ProjectForm({ onClose, onCreated }) {
     stage: "Idea",
     commitment: "Flexible",
     githubUrl: "",
+    firstDeliverable: '',
+    durationWeeks: 4,
+    seatsPerRole: 1,
+    goal: 'Ship a portfolio project',
   });
   const [error, setError] = useState("");
 
@@ -296,6 +304,8 @@ function ProjectForm({ onClose, onCreated }) {
           ...form,
           techStack: splitValues(form.techStack),
           rolesNeeded: splitValues(form.rolesNeeded),
+          roleOpenings: splitValues(form.rolesNeeded).map(title => ({ title, seats: Number(form.seatsPerRole) })),
+          durationWeeks: Number(form.durationWeeks),
         },
         { withCredentials: true }
       );
@@ -310,6 +320,9 @@ function ProjectForm({ onClose, onCreated }) {
   return (
     <Modal title="Initialize Collaboration Project" onClose={onClose}>
       <form className="space-y-4" onSubmit={submit}>
+        <Field label="FIRST DELIVERABLE"><input className={inputClass} maxLength={500} value={form.firstDeliverable} onChange={update('firstDeliverable')} placeholder="A working login flow with tests" /></Field>
+        <Field label="COLLABORATION GOAL"><select className={inputClass} value={form.goal} onChange={update('goal')}>{['Learn together', 'Ship a portfolio project', 'Contribute to open source', 'Launch a product'].map(g => <option key={g}>{g}</option>)}</select></Field>
+        <div className="grid grid-cols-2 gap-4"><Field label="DURATION (WEEKS)"><input className={inputClass} required type="number" min={1} max={52} value={form.durationWeeks} onChange={update('durationWeeks')} /></Field><Field label="SEATS PER ROLE"><input className={inputClass} required type="number" min={1} max={10} value={form.seatsPerRole} onChange={update('seatsPerRole')} /></Field></div>
         <Field label="PROJECT TITLE">
           <input
             className={inputClass}
@@ -386,6 +399,7 @@ function ProjectForm({ onClose, onCreated }) {
 
 function ApplyModal({ project, onClose, onApplied }) {
   const [message, setMessage] = useState("");
+  const [role, setRole] = useState(project.rolesNeeded[0]);
   const [error, setError] = useState("");
 
   const submit = async (event) => {
@@ -393,7 +407,7 @@ function ApplyModal({ project, onClose, onApplied }) {
     try {
       await axios.post(
         `${BASE_URL}/projects/${project._id}/apply`,
-        { message },
+        { message, role },
         { withCredentials: true }
       );
       onApplied();
@@ -405,6 +419,7 @@ function ApplyModal({ project, onClose, onApplied }) {
   return (
     <Modal title={`Apply to ${project.title}`} onClose={onClose}>
       <form className="space-y-4" onSubmit={submit}>
+        <Field label="ROLE"><select className={inputClass} value={role} onChange={e => setRole(e.target.value)}>{project.rolesNeeded.map(r => <option key={r}>{r}</option>)}</select></Field>
         <p className="text-xs text-[#8B91A7]">
           State your technical domain background and how you can contribute to this project.
         </p>
@@ -431,6 +446,12 @@ function ApplyModal({ project, onClose, onApplied }) {
 function ApplicationsModal({ project, onClose }) {
   const [applications, setApplications] = useState([]);
   const [error, setError] = useState("");
+  const [trial, setTrial] = useState({ participant: '', deliverable: '', dueAt: '' });
+  const invite = async event => {
+    event.preventDefault();
+    try { await axios.post(`${BASE_URL}/projects/${project._id}/trials`, trial, { withCredentials: true }); setTrial({ participant: '', deliverable: '', dueAt: '' }); }
+    catch(e) { setError(e.response?.data?.message || 'Unable to invite applicant'); }
+  };
 
   const load = useCallback(async () => {
     try {
@@ -476,6 +497,7 @@ function ApplicationsModal({ project, onClose }) {
 
   return (
     <Modal title={`Applicants · ${project.title}`} onClose={onClose}>
+      <form onSubmit={invite} className="mb-4 space-y-2 border border-[#1E2442] p-3 rounded-xl"><h3 className="font-bold">Invite an applicant to a short trial</h3><label className="block">Applicant<select required className={inputClass} value={trial.participant} onChange={e => setTrial({ ...trial, participant: e.target.value })}><option value="">Choose pending applicant</option>{applications.filter(a => a.status === 'pending').map(a => <option key={a._id} value={a.user?._id}>{a.user?.firstName} · {a.role || project.rolesNeeded[0]}</option>)}</select></label><label className="block">Small deliverable<input required minLength={5} maxLength={1000} className={inputClass} value={trial.deliverable} onChange={e => setTrial({ ...trial, deliverable: e.target.value })} /></label><label className="block">Deadline within 14 days<input required type="date" className={inputClass} value={trial.dueAt} onChange={e => setTrial({ ...trial, dueAt: e.target.value })} /></label><button className="btn-secondary p-2">Send trial invitation</button></form>
       {error && (
         <p className="mb-4 rounded-xl border border-[#F43F5E]/30 bg-[#F43F5E]/10 p-3 text-xs text-[#F43F5E]">
           {error}
@@ -575,5 +597,3 @@ function Field({ label, children }) {
 }
 
 export default Projects;
-
-
