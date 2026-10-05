@@ -21,6 +21,8 @@ Deep navy surfaces, a soft blue accent and monospace metadata keep the interface
 
 Accounts with no connections or requests see normal empty states. The client supports the earlier API's explicit “No connections found” and “No pending connection requests found” 404 responses while servers update; unrelated 404 responses remain errors. Workspace failures identify the affected section and include optional request/status details, with a retry action. Unavailable services and malformed API responses leave other sections usable.
 
+Pages load their JavaScript on demand while navigation remains available. Dashboard and collaboration sections render independently, and connections do not wait for project graph data. Chat loads the inbox once and opens the active conversation independently. External web fonts enhance the page after initial rendering. For read-only public loading measurements, run `node scripts/measureLoading.mjs https://devmesh-ten.vercel.app/login`; see the backend [performance notes](https://github.com/codeWith-Ashwani/DevMesh/blob/main/PERFORMANCE.md) for inbox benchmarks and hosting limitations.
+
 Project stages are labels. Only the team workspace shows completion percentages, calculated from real milestones. The home screen shows teams from the latest 50 projects and the latest three conversations in the loaded inbox. Use the project directory and inbox to load earlier records. Filtering applies to loaded records. Guide preferences use localStorage with a session fallback; there is no AI service or message collection behind the companions.
 
 ## Run locally

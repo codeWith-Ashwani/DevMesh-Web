@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import Navbar from "./Navbar";
 import Sidebar from "./Sidebar";
 import CommandPalette from "./ui/CommandPalette";
@@ -86,7 +86,9 @@ function Body() {
     return (
       <div className="flex min-h-screen flex-col bg-[#0B1020] ambient-glow-bg text-[#EEF4FF]">
         <div className="flex-1 flex items-center justify-center">
-          <Outlet />
+          <Suspense fallback={<p role="status">Loading page…</p>}>
+            <Outlet />
+          </Suspense>
         </div>
         <Footer />
       </div>
@@ -141,7 +143,15 @@ function Body() {
           tabIndex={-1}
           className="flex-1 min-w-0 overflow-x-hidden fintech-grid-bg pb-24"
         >
-          <Outlet />
+          <Suspense
+            fallback={
+              <div className="page-wrap" role="status" aria-live="polite">
+                Loading page…
+              </div>
+            }
+          >
+            <Outlet />
+          </Suspense>
         </main>
 
         <Footer />

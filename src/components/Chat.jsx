@@ -30,7 +30,7 @@ function ChatSession() {
   const [moreConversations, setMoreConversations] = useState(false);
   const [connections, setConnections] = useState([]);
   const [messages, setMessages] = useState([]);
-  const [activeId, setActiveId] = useState(null);
+  const [activeId, setActiveId] = useState(conversationId || null);
   const [text, setText] = useState("");
   const [error, setError] = useState("");
   const [connected, setConnected] = useState(false);
@@ -53,21 +53,15 @@ function ChatSession() {
   useEffect(() => {
     if (!user?._id) return;
     let alive = true;
-    Promise.all([
-      axios.get(`${BASE_URL}/conversations`, options),
-      axios.get(`${BASE_URL}/user/connections`, options),
-    ])
-      .then(([a, b]) => {
+    axios.get(`${BASE_URL}/user/connections`, options)
+      .then((response) => {
         if (alive) {
-          setConversations(a.data.data);
-          setListCursor(a.data.before);
-          setMoreConversations(a.data.hasMore);
-          setConnections(b.data.data || []);
+          setConnections(response.data.data || []);
         }
       })
       .catch((e) => {
         if (alive)
-          setError(e.response?.data?.message || "Unable to load conversations");
+          setError(e.response?.data?.message || "Unable to load collaborators");
       });
     return () => {
       alive = false;
@@ -76,6 +70,19 @@ function ChatSession() {
   useEffect(() => {
     if (!user?._id) return;
     let alive = true;
+    // Fetch the inbox once, independently of direct-chat creation and detail.
+    axios.get(`${BASE_URL}/conversations`, options)
+      .then((response) => {
+        if (!alive) return;
+        setConversations((current) => [
+          ...new Map([...response.data.data, ...current].map(c => [c._id, c])).values(),
+        ]);
+        setListCursor(response.data.before);
+        setMoreConversations(response.data.hasMore);
+      })
+      .catch((e) => {
+        if (alive) setError(e.response?.data?.message || "Unable to load conversations");
+      });
     const resolve = async () => {
       try {
         const id = userId
@@ -94,20 +101,12 @@ function ChatSession() {
         retry.current = null;
         latestMessage.current = null;
         setActiveId(id || null);
-        const response = await axios.get(`${BASE_URL}/conversations`, options);
         const detail = id
           ? (await axios.get(`${BASE_URL}/conversations/${id}`, options)).data
               .data
           : null;
-        if (alive) {
-          setConversations(
-            detail
-              ? [...response.data.data.filter((c) => c._id !== id), detail]
-              : response.data.data,
-          );
-          setListCursor(response.data.before);
-          setMoreConversations(response.data.hasMore);
-        }
+        if (alive && detail)
+          setConversations(current => [...current.filter(c => c._id !== id), detail]);
       } catch (e) {
         if (alive)
           setError(e.response?.data?.message || "Unable to open conversation");
@@ -119,7 +118,7 @@ function ChatSession() {
     };
   }, [userId, conversationId, user?._id]);
   useEffect(() => {
-    if (!user?._id) return;
+    if (!user?._id || (userId && !activeId)) return;
     let alive = true;
     const client = io(BASE_URL, {
       withCredentials: true,
@@ -127,7 +126,9 @@ function ChatSession() {
       reconnection: true,
     });
     socket.current = client;
-    const load = async () => {
+    let synchronization = null;
+    let resync = false;
+    const synchronize = async () => {
       if (!activeId) return;
       try {
         let after = latestMessage.current;
@@ -145,24 +146,42 @@ function ChatSession() {
           }
           more = Boolean(after && result.data.hasMore);
           after = result.data.after || after;
-          if (after) latestMessage.current = after;
+          if (after && (!latestMessage.current || latestMessage.current < after))
+            latestMessage.current = after;
         } while (more && alive);
         const receipts = await axios.get(
           `${BASE_URL}/conversations/${activeId}/receipts`,
           options,
         );
         if (alive)
-          setReaders(
-            Object.fromEntries(
-              receipts.data.data.map((r) => [r.user, r.message]),
-            ),
-          );
+          setReaders(current => {
+            const next = { ...current };
+            for (const receipt of receipts.data.data)
+              if (!next[receipt.user] || next[receipt.user] < receipt.message)
+                next[receipt.user] = receipt.message;
+            return next;
+          });
       } catch (e) {
         if (alive)
           setError(
             e.response?.data?.message || "Unable to synchronize messages",
           );
       }
+    };
+    // Serialize replay. A socket connect during the first HTTP read queues a
+    // forward-cursor catch-up instead of downloading the same history twice.
+    const load = () => {
+      if (synchronization) {
+        resync = true;
+        return;
+      }
+      synchronization = synchronize().finally(() => {
+        synchronization = null;
+        if (resync && alive) {
+          resync = false;
+          load();
+        }
+      });
     };
     client.on("connect", () => {
       setConnected(true);
@@ -194,8 +213,8 @@ function ChatSession() {
       );
       if (message.conversation === activeId) {
         setMessages((current) => merge(current, [message]));
-        if (!latestMessage.current || latestMessage.current < message._id)
-          latestMessage.current = message._id;
+        // Keep the replay cursor at the last HTTP sync. A newer live event must
+        // not skip messages sent between that snapshot and the socket connect.
       }
     });
     client.on("conversation:typing", (event) => {
@@ -221,7 +240,7 @@ function ChatSession() {
       client.disconnect();
       socket.current = null;
     };
-  }, [activeId, user?._id]);
+  }, [activeId, user?._id, userId]);
   useEffect(() => {
     const last = messages.at(-1);
     const stream = bottom.current?.parentElement;

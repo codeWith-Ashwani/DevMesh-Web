@@ -20,7 +20,9 @@ export default function Dashboard() {
     if (!user) return;
     let alive = true;
     const controller = new AbortController();
-    loadWorkbench(controller.signal).then((result) => {
+    loadWorkbench(controller.signal, (result) => {
+      if (alive) setData(result);
+    }).then((result) => {
       if (!alive) return;
       setData(result);
       setRefreshing(false);
@@ -164,7 +166,7 @@ export default function Dashboard() {
               All projects →
             </Link>
           </div>
-          {!data ? (
+          {!data || data.pending.projects ? (
             <p role="status" className="text-sm text-[#A5B4CE] py-8">
               Loading your workbench…
             </p>
@@ -272,7 +274,7 @@ export default function Dashboard() {
             Inbox →
           </Link>
         </div>
-        {!data ? (
+        {!data || data.pending.conversations ? (
           <p className="text-sm text-[#A5B4CE]" role="status">
             Loading conversations…
           </p>

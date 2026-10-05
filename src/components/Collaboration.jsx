@@ -24,28 +24,20 @@ export default function Collaboration() {
   const [trialEvidence, setTrialEvidence] = useState({});
   useEffect(() => {
     let alive = true;
-    Promise.all([
-      axios.get(`${BASE_URL}/collaboration/profile`, options),
-      axios.get(`${BASE_URL}/collaboration/trials`, options),
-      axios.get(`${BASE_URL}/collaboration/showcase`, options),
-    ])
-      .then(([profile, trials, showcase]) => {
-        if (!alive) return;
-        if (profile.data.data) {
-          const p = profile.data.data;
-          setForm({ ...p, roles: p.roles.join(", ") });
-        }
-        setTrials(trials.data.data);
-        setShowcase(showcase.data.data);
-      })
-      .catch((e) => {
-        if (alive)
-          setError(
-            e.response?.data?.message || "Unable to load collaboration hub",
-          );
-      });
+    const controller = new AbortController();
+    const load = (path, apply) => {
+      axios.get(`${BASE_URL}/collaboration/${path}`, { ...options, signal: controller.signal })
+        .then(response => { if (alive) apply(response.data.data); })
+        .catch(e => {
+          if (alive) setError(e.response?.data?.message || "Unable to load collaboration hub");
+        });
+    };
+    load('profile', p => { if (p) setForm({ ...p, roles: p.roles.join(", ") }); });
+    load('trials', setTrials);
+    load('showcase', setShowcase);
     return () => {
       alive = false;
+      controller.abort();
     };
   }, []);
   const save = async (event) => {

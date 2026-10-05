@@ -1,10 +1,11 @@
 import Avatar from "./ui/Avatar";
-import React, { useEffect, useState, useMemo, useCallback } from "react";
+import React, { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { BASE_URL } from "../utils/constants";
 import { addConnections } from "../utils/connectionsSlice";
+import { isLegacyEmptyCollection } from "../utils/workbench";
 import { PageTitle } from "./Requests";
 import NetworkGraph from "./network/NetworkGraph";
 import NetworkFilters from "./network/NetworkFilters";
@@ -26,6 +27,7 @@ export default function Connections() {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const loadController = useRef(null);
 
   // Graph and Filter State
   const [activeFilter, setActiveFilter] = useState("all");
@@ -35,31 +37,28 @@ export default function Connections() {
 
   // Fetch real connections & real projects
   const fetchData = useCallback(async () => {
-    setLoading(true);
-    setError("");
-    try {
-      const [connRes, projRes] = await Promise.allSettled([
-        axios.get(`${BASE_URL}/user/connections`, { withCredentials: true }),
-        axios.get(`${BASE_URL}/projects`, { withCredentials: true }),
-      ]);
-
-      if (connRes.status === "fulfilled" && connRes.value?.data?.data) {
-        dispatch(addConnections(connRes.value.data.data));
-      }
-
-      if (projRes.status === "fulfilled" && projRes.value?.data?.data) {
-        setProjects(projRes.value.data.data);
-      }
-    } catch (err) {
-      console.error("Failed to load network topology data", err);
-      setError("Failed to establish link with developer mesh.");
-    } finally {
-      setLoading(false);
-    }
+    loadController.current?.abort();
+    const controller = new AbortController();
+    loadController.current = controller;
+    const options = { withCredentials: true, signal: controller.signal, timeout: 15000 };
+    const people = axios.get(`${BASE_URL}/user/connections`, options)
+      .then(response => { if (!controller.signal.aborted) dispatch(addConnections(response.data.data)); })
+      .catch(err => {
+        if (controller.signal.aborted) return;
+        if (isLegacyEmptyCollection(err, "connections")) dispatch(addConnections([]));
+        else setError("Connections could not load. Please try again.");
+      })
+      .finally(() => { if (!controller.signal.aborted) setLoading(false); });
+    // Project graph enrichment must not delay opening the connected people list.
+    const spaces = axios.get(`${BASE_URL}/projects`, options)
+      .then(response => { if (!controller.signal.aborted) setProjects(response.data.data); })
+      .catch(() => {});
+    await Promise.all([people, spaces]);
   }, [dispatch]);
 
   useEffect(() => {
     fetchData();
+    return () => loadController.current?.abort();
   }, [fetchData]);
 
   // Handle ESC key to deselect node
@@ -273,7 +272,11 @@ export default function Connections() {
             Unable to sync peer links with the server.
           </p>
           <button
-            onClick={fetchData}
+            onClick={() => {
+              setLoading(true);
+              setError("");
+              fetchData();
+            }}
             className="btn-primary flex items-center gap-1.5 px-4 py-2 text-xs font-semibold"
           >
             <IconRotateCcw className="h-3.5 w-3.5" />

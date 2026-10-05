@@ -41,8 +41,13 @@ function describeFailure(error, section) {
       "The server returned an unexpected response. Check that the frontend is connected to the DevMesh API.";
   return { ...section, status, message };
 }
-export async function loadWorkbench(signal) {
-  const results = await Promise.allSettled(
+export async function loadWorkbench(signal, onUpdate) {
+  const data = {
+    errors: {},
+    pending: Object.fromEntries(sections.map(section => [section.key, true])),
+    ...Object.fromEntries(sections.map(section => [section.key, null])),
+  };
+  await Promise.all(
     sections.map(async (section) => {
       try {
         const response = await axios.get(BASE_URL + section.path, {
@@ -61,24 +66,29 @@ export async function loadWorkbench(signal) {
           error.code = "INVALID_RESPONSE";
           throw error;
         }
-        return value;
+        data[section.key] = value;
       } catch (error) {
         // Compatibility with servers released before empty lists returned HTTP 200.
         if (
           section.key === "connections" &&
           isLegacyEmptyCollection(error, "connections")
-        )
-          return [];
-        throw error;
+        ) {
+          data[section.key] = [];
+        } else if (!signal?.aborted) {
+          data.errors[section.key] = describeFailure(error, section);
+        }
+      } finally {
+        data.pending[section.key] = false;
+        if (!signal?.aborted) {
+          // Publish each result immediately; a slow inbox must not block projects.
+          onUpdate?.({
+            ...data,
+            pending: { ...data.pending },
+            errors: Object.fromEntries(sections.filter(s => data.errors[s.key]).map(s => [s.key, data.errors[s.key]])),
+          });
+        }
       }
     }),
   );
-  const data = { errors: {} };
-  results.forEach((result, index) => {
-    const section = sections[index];
-    data[section.key] = result.status === "fulfilled" ? result.value : null;
-    if (result.status === "rejected")
-      data.errors[section.key] = describeFailure(result.reason, section);
-  });
   return data;
 }

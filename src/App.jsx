@@ -1,19 +1,18 @@
-import React from "react";
-import Navbar from "./components/Navbar";
+import { lazy } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Body from "./components/Body";
 import Login from "./components/Login";
-import Profile from "./components/Profile";
 import { Provider } from "react-redux";
 import appStore from "./utils/appStore";
-import Feed from "./components/Feed";
-import Requests from "./components/Requests";
-import Connections from "./components/Connections";
-import Chat from "./components/Chat";
-import Projects from "./components/Projects";
-import Collaboration from "./components/Collaboration";
-import Workspace from "./components/Workspace";
-import Dashboard from "./components/Dashboard";
+const Profile = lazy(() => import("./components/Profile"));
+const Feed = lazy(() => import("./components/Feed"));
+const Requests = lazy(() => import("./components/Requests"));
+const Connections = lazy(() => import("./components/Connections"));
+const Chat = lazy(() => import("./components/Chat"));
+const Projects = lazy(() => import("./components/Projects"));
+const Collaboration = lazy(() => import("./components/Collaboration"));
+const Workspace = lazy(() => import("./components/Workspace"));
+const Dashboard = lazy(() => import("./components/Dashboard"));
 
 function App() {
   return (

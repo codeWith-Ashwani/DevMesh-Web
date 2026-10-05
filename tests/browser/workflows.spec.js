@@ -23,12 +23,19 @@ test("personal and group messages reach another browser immediately", async ({
     ).json();
     const pa = await a.newPage(),
       pb = await b.newPage();
+    let inboxRequests = 0;
+    await pa.route(`${api}/conversations`, route => {
+      inboxRequests++;
+      return route.continue();
+    });
     await Promise.all([
       pa.goto(`/messages/${direct.data._id}`),
       pb.goto(`/messages/${direct.data._id}`),
     ]);
     await expect(pa.getByText(/^Connected(?: ·|$)/)).toBeVisible();
     await expect(pb.getByText(/^Connected(?: ·|$)/)).toBeVisible();
+    await expect(pa.getByRole('heading', { name: 'Bob Developer', exact: true })).toBeVisible();
+    expect(inboxRequests).toBe(1);
     await pa
       .getByRole("textbox", { name: "Message", exact: true })
       .fill("Personal message delivered live");
