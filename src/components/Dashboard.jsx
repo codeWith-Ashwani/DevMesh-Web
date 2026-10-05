@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { BASE_URL } from "../utils/constants";
+import { loadWorkbench } from "../utils/workbench";
 import GuideAvatar from "./ui/GuideAvatar";
 import {
   IconChevronRight,
@@ -16,34 +15,19 @@ export default function Dashboard() {
   const user = useSelector((store) => store.user);
   const [data, setData] = useState(null);
   const [retry, setRetry] = useState(0);
+  const [refreshing, setRefreshing] = useState(false);
   useEffect(() => {
     if (!user) return;
     let alive = true;
-    const endpoints = [
-      "/projects?limit=50",
-      "/conversations",
-      "/collaboration/profile",
-      "/user/connections",
-    ];
-    Promise.allSettled(
-      endpoints.map((path) =>
-        axios.get(BASE_URL + path, { withCredentials: true }),
-      ),
-    ).then((results) => {
+    const controller = new AbortController();
+    loadWorkbench(controller.signal).then((result) => {
       if (!alive) return;
-      const values = results.map((result) =>
-        result.status === "fulfilled" ? result.value.data.data : null,
-      );
-      setData({
-        projects: values[0],
-        conversations: values[1],
-        profile: values[2],
-        connections: values[3],
-        failed: results.some((result) => result.status === "rejected"),
-      });
+      setData(result);
+      setRefreshing(false);
     });
     return () => {
       alive = false;
+      controller.abort();
     };
   }, [user, retry]);
   const available =
@@ -77,29 +61,64 @@ export default function Dashboard() {
         <p className="eyebrow mb-3">// your developer workbench</p>
         <h1 className="page-title">
           Let’s build something, {user?.firstName || "developer"}
-          <span className="text-[#B7ED82]">.</span>
+          <span className="text-[#82B4FF]">.</span>
         </h1>
-        <p className="mt-3 text-sm text-[#9AADAA]">
+        <p className="mt-3 text-sm text-[#A5B4CE]">
           Your people, your projects, and your next small win.
         </p>
       </header>
-      {data?.failed && (
+      {data && Object.keys(data.errors).length > 0 && (
         <div
           role="alert"
           className="rounded-xl border border-amber-400/30 bg-amber-400/5 p-4 text-sm text-amber-200"
         >
-          Some workspace data could not load.{" "}
+          Could not load:{" "}
+          {Object.values(data.errors)
+            .map((error) => error.label)
+            .join(", ")}
+          .{" "}
           <button
             className="underline ml-2"
-            onClick={() => setRetry((value) => value + 1)}
+            disabled={refreshing}
+            onClick={() => {
+              setRefreshing(true);
+              setRetry((value) => value + 1);
+            }}
           >
-            Try again
+            {refreshing ? "Retrying…" : "Try again"}
           </button>
         </div>
       )}
+      {data &&
+        Object.values(data.errors).map((error) => (
+          <div
+            key={error.key}
+            className="rounded-xl border border-amber-400/20 p-4 text-sm"
+          >
+            <p>
+              <strong>{error.label}: </strong>
+              {error.message}
+            </p>
+            {error.status === 401 && (
+              <Link
+                to="/login"
+                className="text-[#82B4FF] underline mt-2 inline-block"
+              >
+                Sign in again
+              </Link>
+            )}
+            <details className="mt-2 text-xs text-[#A5B4CE]">
+              <summary>Request details</summary>
+              <p className="font-mono mt-2">
+                GET {error.path} ·{" "}
+                {error.status ? "HTTP " + error.status : "No valid response"}
+              </p>
+            </details>
+          </div>
+        ))}
       <section className="hero-workbench workbench-card rounded-2xl p-6 sm:p-8 flex items-center justify-between gap-6">
         <div className="relative z-10 max-w-xl">
-          <span className="inline-flex items-center gap-2 rounded-md border border-[#B7ED8233] bg-[#B7ED820A] px-2 py-1 text-[10px] font-mono text-[#B7ED82]">
+          <span className="inline-flex items-center gap-2 rounded-md border border-[#82B4FF33] bg-[#82B4FF0A] px-2 py-1 text-[10px] font-mono text-[#82B4FF]">
             <IconCode className="h-3 w-3" />
             built for the work between commits
           </span>
@@ -108,7 +127,7 @@ export default function Dashboard() {
             <br />
             with the right people.
           </h2>
-          <p className="text-sm leading-6 text-[#9AADAA] mt-3 max-w-md">
+          <p className="text-sm leading-6 text-[#A5B4CE] mt-3 max-w-md">
             Find teammates who fit your skills and schedule. Try a small task
             together, then turn momentum into something you can show.
           </p>
@@ -126,10 +145,10 @@ export default function Dashboard() {
         </div>
         <div className="hidden md:block relative z-10 shrink-0 pr-4 text-center">
           <GuideAvatar className="h-36 w-36 mx-auto" />
-          <p className="mt-3 font-mono text-xs text-[#B7ED82]">
+          <p className="mt-3 font-mono text-xs text-[#82B4FF]">
             hello, builder_
           </p>
-          <p className="text-[11px] text-[#9AADAA] mt-2">
+          <p className="text-[11px] text-[#A5B4CE] mt-2">
             A little help from Patch.
           </p>
         </div>
@@ -141,16 +160,16 @@ export default function Dashboard() {
               <p className="eyebrow mb-2">01 / pick up where you left off</p>
               <h2 className="text-lg font-semibold">Your project spaces</h2>
             </div>
-            <Link to="/projects" className="text-xs text-[#B7ED82] shrink-0">
+            <Link to="/projects" className="text-xs text-[#82B4FF] shrink-0">
               All projects →
             </Link>
           </div>
           {!data ? (
-            <p role="status" className="text-sm text-[#9AADAA] py-8">
+            <p role="status" className="text-sm text-[#A5B4CE] py-8">
               Loading your workbench…
             </p>
           ) : data.projects === null ? (
-            <p className="text-sm text-[#9AADAA] py-8">
+            <p className="text-sm text-[#A5B4CE] py-8">
               Project spaces are temporarily unavailable.
             </p>
           ) : myProjects.length ? (
@@ -159,21 +178,21 @@ export default function Dashboard() {
                 <Link
                   key={project._id}
                   to={"/projects/" + project._id + "/workspace"}
-                  className="block rounded-xl border border-[#26383D] bg-[#142024] p-4 hover:border-[#416067]"
+                  className="block rounded-xl border border-[#293B5B] bg-[#16233D] p-4 hover:border-[#4C6B94]"
                 >
                   <div className="flex justify-between items-start gap-3">
                     <span className="text-sm font-medium">{project.title}</span>
                     <span className="skill-pill shrink-0">{project.stage}</span>
                   </div>
-                  <p className="text-xs leading-5 text-[#9AADAA] mt-2 line-clamp-2">
+                  <p className="text-xs leading-5 text-[#A5B4CE] mt-2 line-clamp-2">
                     {project.firstDeliverable || project.description}
                   </p>
                   <div className="flex items-center justify-between mt-4">
-                    <span className="font-mono text-[10px] text-[#718986]">
+                    <span className="font-mono text-[10px] text-[#7B91B5]">
                       {project.teamSize} teammates · {project.durationWeeks}{" "}
                       weeks
                     </span>
-                    <span className="text-xs text-[#B7ED82]">
+                    <span className="text-xs text-[#82B4FF]">
                       Open workspace →
                     </span>
                   </div>
@@ -181,12 +200,12 @@ export default function Dashboard() {
               ))}
             </div>
           ) : (
-            <div className="rounded-xl border border-dashed border-[#31474E] p-6 sm:p-8 text-center">
-              <IconProjects className="h-7 w-7 mx-auto text-[#718986] mb-4" />
+            <div className="rounded-xl border border-dashed border-[#344D70] p-6 sm:p-8 text-center">
+              <IconProjects className="h-7 w-7 mx-auto text-[#7B91B5] mb-4" />
               <h3 className="text-sm font-medium">
                 Make room for your next idea.
               </h3>
-              <p className="text-xs text-[#9AADAA] leading-6 mt-2 max-w-xs mx-auto">
+              <p className="text-xs text-[#A5B4CE] leading-6 mt-2 max-w-xs mx-auto">
                 Join a project or start one. Your teams from the latest 50
                 projects appear here.
               </p>
@@ -199,7 +218,7 @@ export default function Dashboard() {
             </div>
           )}
           {myProjects.length > 0 && (
-            <p className="text-[10px] text-[#718986] mt-4">
+            <p className="text-[10px] text-[#7B91B5] mt-4">
               Teams from the latest 50 projects. Browse all projects for earlier
               work.
             </p>
@@ -214,25 +233,25 @@ export default function Dashboard() {
                 className={
                   "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border font-mono text-xs " +
                   (step.done
-                    ? "border-[#B7ED8240] text-[#B7ED82] bg-[#B7ED820A]"
-                    : "border-[#31474E] text-[#9AADAA]")
+                    ? "border-[#82B4FF40] text-[#82B4FF] bg-[#82B4FF0A]"
+                    : "border-[#344D70] text-[#A5B4CE]")
                 }
               >
                 {step.done ? <IconCheck /> : "0" + (index + 1)}
               </span>
               <span className="flex-1 min-w-0">
-                <span className="block text-sm group-hover:text-[#B7ED82]">
+                <span className="block text-sm group-hover:text-[#82B4FF]">
                   {step.title}
                   {step.done && <span className="sr-only"> · Complete</span>}
                 </span>
-                <span className="block mt-1 text-xs leading-5 text-[#9AADAA]">
+                <span className="block mt-1 text-xs leading-5 text-[#A5B4CE]">
                   {step.detail}
                 </span>
               </span>
-              <IconChevronRight className="h-4 w-4 text-[#718986]" />
+              <IconChevronRight className="h-4 w-4 text-[#7B91B5]" />
             </Link>
           ))}
-          <p className="text-xs leading-5 text-[#9AADAA] mt-2">
+          <p className="text-xs leading-5 text-[#A5B4CE] mt-2">
             {available
               ? "Available until " +
                 new Date(data.profile.availableUntil).toLocaleDateString() +
@@ -249,16 +268,16 @@ export default function Dashboard() {
             <p className="eyebrow mb-2">03 / keep the conversation going</p>
             <h2 className="text-lg font-semibold">Recent conversations</h2>
           </div>
-          <Link to="/messages" className="text-xs text-[#B7ED82]">
+          <Link to="/messages" className="text-xs text-[#82B4FF]">
             Inbox →
           </Link>
         </div>
         {!data ? (
-          <p className="text-sm text-[#9AADAA]" role="status">
+          <p className="text-sm text-[#A5B4CE]" role="status">
             Loading conversations…
           </p>
         ) : data.conversations === null ? (
-          <p className="text-sm text-[#9AADAA]">
+          <p className="text-sm text-[#A5B4CE]">
             Conversations are temporarily unavailable.
           </p>
         ) : data.conversations.length ? (
@@ -267,10 +286,10 @@ export default function Dashboard() {
               <Link
                 key={conversation._id}
                 to={"/messages/" + conversation._id}
-                className="border border-[#26383D] rounded-xl p-4 bg-[#142024] hover:border-[#416067]"
+                className="border border-[#293B5B] rounded-xl p-4 bg-[#16233D] hover:border-[#4C6B94]"
               >
                 <div className="flex gap-3 items-center">
-                  <IconMessages className="h-4 w-4 text-[#B7ED82] shrink-0" />
+                  <IconMessages className="h-4 w-4 text-[#82B4FF] shrink-0" />
                   <strong className="text-sm truncate">
                     {conversation.name ||
                       conversation.members
@@ -279,12 +298,12 @@ export default function Dashboard() {
                         .join(", ")}
                   </strong>
                   {conversation.unreadCount > 0 && (
-                    <span className="ml-auto text-xs text-[#B7ED82]">
+                    <span className="ml-auto text-xs text-[#82B4FF]">
                       {conversation.unreadCount}
                     </span>
                   )}
                 </div>
-                <p className="text-xs text-[#9AADAA] line-clamp-1 mt-3">
+                <p className="text-xs text-[#A5B4CE] line-clamp-1 mt-3">
                   {conversation.lastMessage?.text ||
                     "Say hello and share what you’re building."}
                 </p>
@@ -292,11 +311,11 @@ export default function Dashboard() {
             ))}
           </div>
         ) : (
-          <div className="flex gap-4 items-center p-4 rounded-xl bg-[#142024]">
-            <IconMessages className="h-6 w-6 text-[#718986] shrink-0" />
-            <p className="text-sm text-[#9AADAA]">
+          <div className="flex gap-4 items-center p-4 rounded-xl bg-[#16233D]">
+            <IconMessages className="h-6 w-6 text-[#7B91B5] shrink-0" />
+            <p className="text-sm text-[#A5B4CE]">
               No conversations yet.{" "}
-              <Link to="/connections" className="text-[#B7ED82]">
+              <Link to="/connections" className="text-[#82B4FF]">
                 Say hello to a connection →
               </Link>
             </p>

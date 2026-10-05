@@ -257,9 +257,9 @@ export default function Connections() {
 
       {/* Loading State */}
       {loading && (
-        <div className="flex h-96 flex-col items-center justify-center rounded-2xl border border-[#26383D] bg-[#10191C]">
-          <div className="flex items-center gap-3 text-xs text-[#B7ED82] font-medium">
-            <span className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-[#B7ED82] border-t-transparent" />
+        <div className="flex h-96 flex-col items-center justify-center rounded-2xl border border-[#293B5B] bg-[#101A2E]">
+          <div className="flex items-center gap-3 text-xs text-[#82B4FF] font-medium">
+            <span className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-[#82B4FF] border-t-transparent" />
             <span>Loading network topology...</span>
           </div>
         </div>
@@ -267,9 +267,9 @@ export default function Connections() {
 
       {/* Error State */}
       {!loading && error && (
-        <div className="flex h-96 flex-col items-center justify-center rounded-2xl border border-[#F43F5E]/30 bg-[#10191C] p-6 text-center">
+        <div className="flex h-96 flex-col items-center justify-center rounded-2xl border border-[#F43F5E]/30 bg-[#101A2E] p-6 text-center">
           <p className="text-sm font-semibold text-[#F43F5E] mb-2">{error}</p>
-          <p className="text-xs text-[#9AADAA] mb-4">
+          <p className="text-xs text-[#A5B4CE] mb-4">
             Unable to sync peer links with the server.
           </p>
           <button
@@ -284,14 +284,14 @@ export default function Connections() {
 
       {/* Empty State */}
       {!loading && !error && nodes.length <= 1 && (
-        <div className="flex flex-col items-center justify-center rounded-3xl border border-[#26383D] bg-[#10191C] p-12 text-center shadow-xl">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-[#B7ED82]/30 bg-[#B7ED82]/10 text-[#B7ED82] mb-4 shadow-lg shadow-blue-500/10">
+        <div className="flex flex-col items-center justify-center rounded-3xl border border-[#293B5B] bg-[#101A2E] p-12 text-center shadow-xl">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-[#82B4FF]/30 bg-[#82B4FF]/10 text-[#82B4FF] mb-4 shadow-lg shadow-blue-500/10">
             <IconNetwork className="h-7 w-7" />
           </div>
-          <h3 className="text-lg font-bold text-[#EDF4F2]">
+          <h3 className="text-lg font-bold text-[#EEF4FF]">
             Your mesh is still forming.
           </h3>
-          <p className="mt-1.5 max-w-md text-xs sm:text-sm leading-relaxed text-[#9AADAA]">
+          <p className="mt-1.5 max-w-md text-xs sm:text-sm leading-relaxed text-[#A5B4CE]">
             Connect with developers in the discovery feed or collaborate on
             projects to expand your interactive topology graph.
           </p>
@@ -307,7 +307,7 @@ export default function Connections() {
               to="/projects"
               className="btn-secondary px-4 py-2 flex items-center gap-1.5"
             >
-              <IconProjects className="h-3.5 w-3.5 text-[#B7ED82]" />
+              <IconProjects className="h-3.5 w-3.5 text-[#82B4FF]" />
               <span>Browse Projects</span>
             </Link>
           </div>
@@ -356,7 +356,7 @@ export default function Connections() {
                 {filteredGridConnections.map((user) => (
                   <article
                     key={user._id}
-                    className="fintech-card flex flex-col justify-between rounded-2xl border border-[#26383D] p-5 shadow-xl hover:border-[#416067] transition-all"
+                    className="fintech-card flex flex-col justify-between rounded-2xl border border-[#293B5B] p-5 shadow-xl hover:border-[#4C6B94] transition-all"
                   >
                     <div>
                       <div className="flex items-start gap-3.5">
@@ -364,13 +364,13 @@ export default function Connections() {
                           <Avatar user={user} className="h-10 w-10 shrink-0" />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <h3 className="truncate text-sm font-bold text-[#EDF4F2]">
+                          <h3 className="truncate text-sm font-bold text-[#EEF4FF]">
                             {user.firstName} {user.lastName}
                           </h3>
-                          <p className="text-xs text-[#B7ED82] font-semibold">
+                          <p className="text-xs text-[#82B4FF] font-semibold">
                             @{user.firstName?.toLowerCase()}
                           </p>
-                          <p className="text-[11px] text-[#9AADAA]">
+                          <p className="text-[11px] text-[#A5B4CE]">
                             {user.age && user.gender
                               ? `${user.age}y · ${user.gender}`
                               : "Developer"}
@@ -378,7 +378,7 @@ export default function Connections() {
                         </div>
                       </div>
 
-                      <p className="mt-3 text-xs leading-relaxed text-[#9AADAA] line-clamp-2">
+                      <p className="mt-3 text-xs leading-relaxed text-[#A5B4CE] line-clamp-2">
                         {user.about ||
                           "Developer actively contributing and building in the network."}
                       </p>
@@ -397,7 +397,7 @@ export default function Connections() {
                       )}
                     </div>
 
-                    <div className="mt-4 pt-3.5 border-t border-[#26383D] flex items-center justify-between">
+                    <div className="mt-4 pt-3.5 border-t border-[#293B5B] flex items-center justify-between">
                       <span className="text-xs text-[#10B981] font-semibold flex items-center gap-1.5">
                         <span className="status-dot-active" />
                         Connected

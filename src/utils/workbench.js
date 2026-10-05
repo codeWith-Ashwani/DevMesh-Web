@@ -1,0 +1,84 @@
+import axios from "axios";
+import { BASE_URL } from "./constants";
+
+const sections = [
+  { key: "projects", label: "Project spaces", path: "/projects?limit=50" },
+  { key: "conversations", label: "Conversations", path: "/conversations" },
+  { key: "profile", label: "Availability", path: "/collaboration/profile" },
+  { key: "connections", label: "Connections", path: "/user/connections" },
+];
+export function isLegacyEmptyCollection(error, collection) {
+  const expected =
+    collection === "connections"
+      ? "No connections found"
+      : "No pending connection requests found";
+  return (
+    error.response?.status === 404 && error.response?.data?.message === expected
+  );
+}
+function describeFailure(error, section) {
+  const status = error.response?.status;
+  let message = "The server could not load this section. Please try again.";
+  if (!error.response)
+    message =
+      "Could not reach the server. Check your connection and try again.";
+  if (error.code === "ECONNABORTED" || error.code === "ETIMEDOUT")
+    message =
+      "The server is taking too long to respond. It may still be starting up. Try again shortly.";
+  if (status === 401)
+    message = "Your session expired. Sign in again to load this section.";
+  if (status === 403) message = "Your account cannot access this section.";
+  if (status === 404)
+    message =
+      "This feature is missing from the connected backend. Update the backend to the latest DevMesh version.";
+  if (status === 429)
+    message = "Too many requests. Wait a moment before trying again.";
+  if (status === 503)
+    message =
+      "This service is temporarily unavailable. Please try again shortly.";
+  if (error.code === "INVALID_RESPONSE")
+    message =
+      "The server returned an unexpected response. Check that the frontend is connected to the DevMesh API.";
+  return { ...section, status, message };
+}
+export async function loadWorkbench(signal) {
+  const results = await Promise.allSettled(
+    sections.map(async (section) => {
+      try {
+        const response = await axios.get(BASE_URL + section.path, {
+          withCredentials: true,
+          timeout: 15000,
+          signal,
+        });
+        const value = response.data?.data;
+        const valid =
+          section.key === "profile"
+            ? value === null ||
+              (typeof value === "object" && value && !Array.isArray(value))
+            : Array.isArray(value);
+        if (!valid) {
+          const error = new Error("Unexpected API response");
+          error.code = "INVALID_RESPONSE";
+          throw error;
+        }
+        return value;
+      } catch (error) {
+        // Compatibility with servers released before empty lists returned HTTP 200.
+        if (
+          section.key === "connections" &&
+          isLegacyEmptyCollection(error, "connections")
+        )
+          return [];
+        throw error;
+      }
+    }),
+  );
+  const data = { errors: {} };
+  results.forEach((result, index) => {
+    const section = sections[index];
+    data[section.key] = result.status === "fulfilled" ? result.value : null;
+    if (result.status === "rejected")
+      data.errors[section.key] = describeFailure(result.reason, section);
+  });
+  return data;
+}

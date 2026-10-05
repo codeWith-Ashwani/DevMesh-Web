@@ -60,7 +60,7 @@ export default function NetworkNode({
           <circle
             r="28"
             fill="none"
-            stroke="#B7ED82"
+            stroke="#82B4FF"
             strokeWidth="2"
             strokeDasharray="4 2"
             className="animate-spin"
@@ -85,12 +85,12 @@ export default function NetworkNode({
           fill={`url(#${patternId})`}
           stroke={
             isSelected
-              ? "#B7ED82"
+              ? "#82B4FF"
               : isNeighbor
-                ? "#B7ED82"
+                ? "#82B4FF"
                 : isConnection
                   ? "#10B981"
-                  : "#26383D"
+                  : "#293B5B"
           }
           strokeWidth={isSelected ? 3 : isNeighbor ? 2 : 1.5}
         />
@@ -101,8 +101,8 @@ export default function NetworkNode({
             cx="15"
             cy="-15"
             r="5"
-            fill="#B7ED82"
-            stroke="#0A1012"
+            fill="#82B4FF"
+            stroke="#0B1020"
             strokeWidth="1.5"
           />
         ) : (
@@ -110,8 +110,8 @@ export default function NetworkNode({
             cx="15"
             cy="-15"
             r="4.5"
-            fill={isConnection ? "#10B981" : "#718986"}
-            stroke="#0A1012"
+            fill={isConnection ? "#10B981" : "#7B91B5"}
+            stroke="#0B1020"
             strokeWidth="1.5"
           />
         )}
@@ -120,7 +120,7 @@ export default function NetworkNode({
         <text
           y="34"
           textAnchor="middle"
-          fill={isSelected ? "#B7ED82" : isNeighbor ? "#EDF4F2" : "#9AADAA"}
+          fill={isSelected ? "#82B4FF" : isNeighbor ? "#EEF4FF" : "#A5B4CE"}
           fontSize="10"
           fontFamily="Inter, sans-serif"
           fontWeight={isSelected || isNeighbor ? "600" : "500"}
@@ -151,7 +151,7 @@ export default function NetworkNode({
           <polygon
             points="0,-26 26,0 0,26 -26,0"
             fill="none"
-            stroke="#B7ED82"
+            stroke="#82B4FF"
             strokeWidth="1.5"
             strokeDasharray="4 2"
           />
@@ -160,8 +160,8 @@ export default function NetworkNode({
         {/* Main Diamond */}
         <polygon
           points="0,-18 18,0 0,18 -18,0"
-          fill="#142024"
-          stroke={isSelected ? "#B7ED82" : isNeighbor ? "#B7ED82" : "#26383D"}
+          fill="#16233D"
+          stroke={isSelected ? "#82B4FF" : isNeighbor ? "#82B4FF" : "#293B5B"}
           strokeWidth={isSelected ? 2.5 : isNeighbor ? 2 : 1.5}
         />
 
@@ -169,7 +169,7 @@ export default function NetworkNode({
         <text
           y="3.5"
           textAnchor="middle"
-          fill={isSelected ? "#B7ED82" : "#B7ED82"}
+          fill={isSelected ? "#82B4FF" : "#82B4FF"}
           fontSize="9"
           fontFamily="JetBrains Mono, monospace"
           fontWeight="bold"
@@ -182,7 +182,7 @@ export default function NetworkNode({
         <text
           y="30"
           textAnchor="middle"
-          fill={isSelected ? "#B7ED82" : isNeighbor ? "#EDF4F2" : "#9AADAA"}
+          fill={isSelected ? "#82B4FF" : isNeighbor ? "#EEF4FF" : "#A5B4CE"}
           fontSize="9.5"
           fontFamily="JetBrains Mono, monospace"
           fontWeight={isSelected || isNeighbor ? "600" : "400"}
@@ -200,7 +200,7 @@ export default function NetworkNode({
       data?.stage === "Launched"
         ? "#10B981"
         : data?.stage === "Building"
-          ? "#B7ED82"
+          ? "#82B4FF"
           : "#06B6D4";
 
     return (
@@ -224,7 +224,7 @@ export default function NetworkNode({
             height="52"
             rx="14"
             fill="none"
-            stroke="#B7ED82"
+            stroke="#82B4FF"
             strokeWidth="1.5"
             strokeDasharray="4 2"
           />
@@ -237,8 +237,8 @@ export default function NetworkNode({
           width="38"
           height="38"
           rx="10"
-          fill="#142024"
-          stroke={isSelected ? "#B7ED82" : isNeighbor ? stageColor : "#26383D"}
+          fill="#16233D"
+          stroke={isSelected ? "#82B4FF" : isNeighbor ? stageColor : "#293B5B"}
           strokeWidth={isSelected ? 2.5 : isNeighbor ? 2 : 1.5}
         />
 
@@ -253,7 +253,7 @@ export default function NetworkNode({
         <text
           y="32"
           textAnchor="middle"
-          fill={isSelected ? "#B7ED82" : isNeighbor ? "#EDF4F2" : "#9AADAA"}
+          fill={isSelected ? "#82B4FF" : isNeighbor ? "#EEF4FF" : "#A5B4CE"}
           fontSize="9.5"
           fontFamily="Inter, sans-serif"
           fontWeight={isSelected || isNeighbor ? "600" : "500"}

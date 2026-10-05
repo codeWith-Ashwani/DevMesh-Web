@@ -48,10 +48,10 @@ export default function Navbar({ onOpenCommandPalette, onToggleMobileMenu }) {
           <IconMenu />
         </button>
         <div className="text-sm truncate">
-          <span className="hidden sm:inline text-[#718986] font-mono">
+          <span className="hidden sm:inline text-[#7B91B5] font-mono">
             workspace /{" "}
           </span>
-          <span className="text-[#EDF4F2]">
+          <span className="text-[#EEF4FF]">
             {pathname.includes("/workspace")
               ? "Team workspace"
               : names["/" + pathname.split("/")[1]] || "Messages"}
@@ -75,7 +75,7 @@ export default function Navbar({ onOpenCommandPalette, onToggleMobileMenu }) {
         >
           <IconBell />
           {requests?.length > 0 && (
-            <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-[#B7ED82]" />
+            <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-[#82B4FF]" />
           )}
         </Link>
         <DeveloperGuide />
@@ -95,7 +95,7 @@ export default function Navbar({ onOpenCommandPalette, onToggleMobileMenu }) {
       {error && (
         <div
           role="alert"
-          className="absolute top-full right-4 border border-rose-400 rounded-lg p-3 bg-[#10191C] text-sm"
+          className="absolute top-full right-4 border border-rose-400 rounded-lg p-3 bg-[#101A2E] text-sm"
         >
           {error}
         </div>

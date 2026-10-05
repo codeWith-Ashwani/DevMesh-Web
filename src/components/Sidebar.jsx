@@ -96,7 +96,7 @@ export default function Sidebar({
         aria-modal={isMobileOpen || undefined}
         className={`workspace-sidebar ${isCollapsed ? "lg:w-[76px]" : "lg:w-[248px]"} ${isMobileOpen ? "mobile-open" : ""}`}
       >
-        <div className="flex h-[72px] shrink-0 items-center justify-between gap-2 border-b border-[#26383D] px-4">
+        <div className="flex h-[72px] shrink-0 items-center justify-between gap-2 border-b border-[#293B5B] px-4">
           <Link
             to="/"
             onClick={() => setIsMobileOpen(false)}
@@ -107,7 +107,7 @@ export default function Sidebar({
             {expanded && (
               <span>
                 <strong className="block text-lg tracking-tight">
-                  DevMesh<span className="text-[#B7ED82]">.</span>
+                  DevMesh<span className="text-[#82B4FF]">.</span>
                 </strong>
                 <span className="eyebrow text-[9px]">
                   build better, together
@@ -169,13 +169,13 @@ export default function Sidebar({
           </Link>
         </nav>
         {expanded && (
-          <div className="mx-5 mb-5 text-[10px] leading-5 font-mono text-[#718986]">
+          <div className="mx-5 mb-5 text-[10px] leading-5 font-mono text-[#7B91B5]">
             // find your people.
             <br />
             // ship something useful.
           </div>
         )}
-        <div className="border-t border-[#26383D] p-3 flex items-center justify-between gap-2">
+        <div className="border-t border-[#293B5B] p-3 flex items-center justify-between gap-2">
           <Link
             to="/profile"
             onClick={() => setIsMobileOpen(false)}
@@ -188,7 +188,7 @@ export default function Sidebar({
                 <strong className="block truncate text-xs">
                   {user?.firstName || "Developer"} {user?.lastName}
                 </strong>
-                <span className="text-[11px] text-[#9AADAA]">
+                <span className="text-[11px] text-[#A5B4CE]">
                   Personal workspace
                 </span>
               </span>

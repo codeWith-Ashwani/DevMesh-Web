@@ -75,9 +75,9 @@ export default function Feed() {
       <header>
         <p className="eyebrow mb-3">// find your people</p>
         <h1 className="page-title">
-          Meet your next collaborator<span className="text-[#B7ED82]">.</span>
+          Meet your next collaborator<span className="text-[#82B4FF]">.</span>
         </h1>
-        <p className="text-sm text-[#9AADAA] mt-3 max-w-xl leading-6">
+        <p className="text-sm text-[#A5B4CE] mt-3 max-w-xl leading-6">
           Different skills. Shared curiosity. Discover developers to learn,
           experiment, and build with.
         </p>
@@ -88,9 +88,9 @@ export default function Feed() {
       >
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
-            <IconSearch className="absolute left-3.5 top-3.5 h-4 w-4 text-[#718986]" />
+            <IconSearch className="absolute left-3.5 top-3.5 h-4 w-4 text-[#7B91B5]" />
             <input
-              className="w-full rounded-lg border border-[#31474E] bg-[#142024] py-3 pl-10 pr-3 text-sm"
+              className="w-full rounded-lg border border-[#344D70] bg-[#16233D] py-3 pl-10 pr-3 text-sm"
               aria-label="Search developers"
               placeholder="Search name, bio, or tech stack…"
               value={search}
@@ -99,7 +99,7 @@ export default function Feed() {
           </div>
           <select
             aria-label="Collaboration goal"
-            className="rounded-lg border border-[#31474E] bg-[#142024] px-3 py-3 text-sm sm:max-w-[230px]"
+            className="rounded-lg border border-[#344D70] bg-[#16233D] px-3 py-3 text-sm sm:max-w-[230px]"
             value={goal}
             onChange={(event) => setGoal(event.target.value)}
           >
@@ -147,12 +147,12 @@ export default function Feed() {
       )}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-base font-medium">Developer directory</h2>
-        <span className="font-mono text-xs text-[#9AADAA]">
+        <span className="font-mono text-xs text-[#A5B4CE]">
           {visible.length} in this view{more ? " · more to discover" : ""}
         </span>
       </div>
       {busy && !feed ? (
-        <p role="status" className="text-sm text-[#9AADAA] py-12 text-center">
+        <p role="status" className="text-sm text-[#A5B4CE] py-12 text-center">
           Finding developers…
         </p>
       ) : visible.length ? (
@@ -164,11 +164,11 @@ export default function Feed() {
       ) : (
         !error && (
           <div className="workbench-card rounded-xl text-center p-10">
-            <IconSearch className="h-8 w-8 mx-auto text-[#718986] mb-4" />
+            <IconSearch className="h-8 w-8 mx-auto text-[#7B91B5] mb-4" />
             <h3 className="text-base font-medium">
               A different search might help.
             </h3>
-            <p className="text-sm text-[#9AADAA] mt-2">
+            <p className="text-sm text-[#A5B4CE] mt-2">
               Try another stack or clear your filters to discover more people.
             </p>
             <button
@@ -193,7 +193,7 @@ export default function Feed() {
           >
             {busy ? "Loading…" : "Discover more developers"}
           </button>
-          <p className="mt-3 text-xs text-[#718986]">
+          <p className="mt-3 text-xs text-[#7B91B5]">
             Filters apply to developers loaded so far.
           </p>
         </div>

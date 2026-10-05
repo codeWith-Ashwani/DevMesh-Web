@@ -5,7 +5,7 @@ import { useSelector } from "react-redux";
 import { BASE_URL } from "../utils/constants";
 const options = { withCredentials: true };
 const input =
-  "block w-full bg-[#142024] border border-[#26383D] rounded-xl p-3 mt-1";
+  "block w-full bg-[#16233D] border border-[#293B5B] rounded-xl p-3 mt-1";
 export default function Collaboration() {
   const navigate = useNavigate();
   const user = useSelector((s) => s.user);
@@ -109,13 +109,13 @@ export default function Collaboration() {
     }
   };
   return (
-    <div className="page-wrap text-[#EDF4F2] space-y-6">
+    <div className="page-wrap text-[#EEF4FF] space-y-6">
       <header>
         <p className="eyebrow mb-3">
           // from learning alone to shipping together
         </p>
         <h1 className="page-title">Find your team</h1>
-        <p className="text-[#9AADAA] mt-2">
+        <p className="text-[#A5B4CE] mt-2">
           Find people with compatible skills and commitments. Try a small
           milestone before committing to a bigger project.
         </p>
@@ -132,10 +132,10 @@ export default function Collaboration() {
       )}
       <form
         onSubmit={save}
-        className="border border-[#26383D] bg-[#10191C] rounded-2xl p-5 space-y-4"
+        className="border border-[#293B5B] bg-[#101A2E] rounded-2xl p-5 space-y-4"
       >
         <h2 className="text-xl font-bold">Your collaboration availability</h2>
-        <p className="text-sm text-[#9AADAA]">
+        <p className="text-sm text-[#A5B4CE]">
           Availability expires after 30 days. Update your{" "}
           <Link className="text-blue-400" to="/profile">
             profile skills
@@ -205,7 +205,7 @@ export default function Collaboration() {
       </form>
       <section>
         <h2 className="text-xl font-bold mb-3">Suggested projects</h2>
-        <p className="text-sm text-[#9AADAA] mb-3">
+        <p className="text-sm text-[#A5B4CE] mb-3">
           Scores describe compatibility, not developer ability. Suggestions rank
           the latest 50 opportunities.
         </p>
@@ -213,13 +213,13 @@ export default function Collaboration() {
           {recommendations.map((p) => (
             <article
               key={p._id}
-              className="border border-[#26383D] rounded-xl p-4"
+              className="border border-[#293B5B] rounded-xl p-4"
             >
               <h3 className="font-bold">
                 {p.title} <span className="text-blue-400">{p.score}% fit</span>
               </h3>
               <p>{p.firstDeliverable}</p>
-              <p className="text-sm text-[#9AADAA]">{p.reasons.join(" · ")}</p>
+              <p className="text-sm text-[#A5B4CE]">{p.reasons.join(" · ")}</p>
               <p className="text-sm my-2">
                 {p.rolesNeeded.join(", ")} · {p.commitment}
               </p>
@@ -232,7 +232,7 @@ export default function Collaboration() {
       </section>
       <section>
         <h2 className="text-xl font-bold mb-3">Your collaboration trials</h2>
-        <p className="text-sm text-[#9AADAA] mb-3">
+        <p className="text-sm text-[#A5B4CE] mb-3">
           A trial is voluntary and scoped. Both people decide whether to
           continue; team membership still requires project-owner acceptance.
         </p>
@@ -243,7 +243,7 @@ export default function Collaboration() {
           {trials.map((t) => (
             <article
               key={t._id}
-              className="border border-[#26383D] rounded-xl p-4 space-y-2"
+              className="border border-[#293B5B] rounded-xl p-4 space-y-2"
             >
               <h3 className="font-bold">
                 {t.project?.title || "Project no longer available"}
@@ -252,7 +252,7 @@ export default function Collaboration() {
               <p className="text-sm">
                 Due {new Date(t.dueAt).toLocaleDateString()} · {t.status}
               </p>
-              <p className="text-sm text-[#9AADAA]">
+              <p className="text-sm text-[#A5B4CE]">
                 Owner: {t.ownerDecision} · Collaborator: {t.participantDecision}
               </p>
               {t.status === "invited" && t.participant === user?._id && (
@@ -334,7 +334,7 @@ export default function Collaboration() {
           {showcase.map((p) => (
             <article
               key={p._id}
-              className="border border-[#26383D] p-4 rounded-xl"
+              className="border border-[#293B5B] p-4 rounded-xl"
             >
               <h3 className="font-bold">{p.title}</h3>
               <p className="my-2 whitespace-pre-wrap">{p.outcome}</p>

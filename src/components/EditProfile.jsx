@@ -8,10 +8,10 @@ import { PageTitle } from "./Requests";
 import { IconCheck, IconCode } from "./ui/Icons";
 
 const inputClass =
-  "mt-1.5 w-full rounded-xl border border-[#26383D] bg-[#142024] px-3.5 py-2.5 text-xs text-[#EDF4F2] placeholder-[#718986] outline-none hover:border-[#416067] focus:border-[#B7ED82] transition-colors";
+  "mt-1.5 w-full rounded-xl border border-[#293B5B] bg-[#16233D] px-3.5 py-2.5 text-xs text-[#EEF4FF] placeholder-[#7B91B5] outline-none hover:border-[#4C6B94] focus:border-[#82B4FF] transition-colors";
 
 const Field = ({ label, children }) => (
-  <label className="block text-xs font-semibold uppercase tracking-wider text-[#9AADAA]">
+  <label className="block text-xs font-semibold uppercase tracking-wider text-[#A5B4CE]">
     {label}
     {children}
   </label>
@@ -74,9 +74,9 @@ function EditProfile({ user }) {
 
       <div className="grid items-start gap-8 lg:grid-cols-[1fr_24rem]">
         {/* Identity Config Form */}
-        <section className="fintech-card rounded-2xl border border-[#26383D] p-6 sm:p-8 shadow-xl space-y-5">
-          <div className="flex items-center justify-between border-b border-[#26383D] pb-4">
-            <h2 className="text-sm font-bold text-[#EDF4F2]">
+        <section className="fintech-card rounded-2xl border border-[#293B5B] p-6 sm:p-8 shadow-xl space-y-5">
+          <div className="flex items-center justify-between border-b border-[#293B5B] pb-4">
+            <h2 className="text-sm font-bold text-[#EEF4FF]">
               Your developer profile
             </h2>
             <span className="skill-pill text-[10px]">EDITABLE</span>
@@ -207,7 +207,7 @@ function EditProfile({ user }) {
             </p>
           )}
 
-          <div className="pt-3 border-t border-[#26383D]">
+          <div className="pt-3 border-t border-[#293B5B]">
             <button
               className="btn-primary flex items-center justify-center gap-2 px-6 py-2.5 text-xs font-semibold disabled:opacity-50"
               onClick={saveProfile}
@@ -222,7 +222,7 @@ function EditProfile({ user }) {
         {/* Live Profile Card Preview */}
         <aside className="lg:sticky lg:top-20 space-y-3">
           <div className="flex items-center justify-between px-1">
-            <span className="text-xs font-bold uppercase tracking-wider text-[#9AADAA]">
+            <span className="text-xs font-bold uppercase tracking-wider text-[#A5B4CE]">
               Live Preview
             </span>
             <span className="skill-pill text-[10px]">SYNCED</span>
@@ -235,7 +235,7 @@ function EditProfile({ user }) {
       {/* Success Toast */}
       {saved && (
         <div className="fixed bottom-8 right-8 z-50 animate-in fade-in slide-in-from-bottom-5">
-          <div className="flex items-center gap-2 rounded-2xl border border-[#10B981]/40 bg-[#10191C] px-4 py-3 text-xs font-medium text-[#10B981] shadow-2xl shadow-emerald-500/10">
+          <div className="flex items-center gap-2 rounded-2xl border border-[#10B981]/40 bg-[#101A2E] px-4 py-3 text-xs font-medium text-[#10B981] shadow-2xl shadow-emerald-500/10">
             <IconCheck className="h-4 w-4" />
             <span>Profile successfully updated.</span>
           </div>

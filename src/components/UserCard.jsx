@@ -48,18 +48,18 @@ export default function UserCard({ user }) {
             <h3 className="text-base font-semibold truncate">
               {firstName} {lastName}
             </h3>
-            <p className="text-xs text-[#B7ED82] font-mono mt-1">
+            <p className="text-xs text-[#82B4FF] font-mono mt-1">
               @{firstName?.toLowerCase() || "developer"}
             </p>
           </div>
         </div>
         {lookingFor && (
-          <p className="mt-5 text-xs text-[#9AADAA]">
-            <span className="inline-block h-1.5 w-1.5 rounded-full bg-[#B7ED82] mr-2" />
+          <p className="mt-5 text-xs text-[#A5B4CE]">
+            <span className="inline-block h-1.5 w-1.5 rounded-full bg-[#82B4FF] mr-2" />
             Open to {lookingFor.toLowerCase()}
           </p>
         )}
-        <p className="text-sm text-[#9AADAA] leading-6 line-clamp-3 mt-4 min-h-[72px]">
+        <p className="text-sm text-[#A5B4CE] leading-6 line-clamp-3 mt-4 min-h-[72px]">
           {about || "A developer looking for people to build and learn with."}
         </p>
         <div className="mt-5 flex flex-wrap gap-2">
@@ -70,7 +70,7 @@ export default function UserCard({ user }) {
               </span>
             ))
           ) : (
-            <span className="text-xs text-[#718986]">No skills added yet.</span>
+            <span className="text-xs text-[#7B91B5]">No skills added yet.</span>
           )}
         </div>
         {(githubUrl || linkedInUrl || portfolioUrl) && (
@@ -87,7 +87,7 @@ export default function UserCard({ user }) {
                   href={url}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex gap-1 items-center text-xs text-[#9AADAA] hover:text-[#B7ED82]"
+                  className="inline-flex gap-1 items-center text-xs text-[#A5B4CE] hover:text-[#82B4FF]"
                 >
                   {label}
                   <IconExternalLink className="h-3 w-3" />
@@ -102,7 +102,7 @@ export default function UserCard({ user }) {
         </p>
       )}
       {_id && (
-        <div className="border-t border-[#26383D] px-6 py-4 flex gap-3">
+        <div className="border-t border-[#293B5B] px-6 py-4 flex gap-3">
           <button
             className="btn-primary flex-1 px-3 py-2.5 text-sm flex items-center justify-center gap-2"
             disabled={busy}
@@ -112,7 +112,7 @@ export default function UserCard({ user }) {
             {busy ? "Sending…" : "Connect"}
           </button>
           <button
-            className="btn-secondary px-4 py-2.5 text-sm text-[#9AADAA]"
+            className="btn-secondary px-4 py-2.5 text-sm text-[#A5B4CE]"
             disabled={busy}
             onClick={() => request("ignore")}
           >

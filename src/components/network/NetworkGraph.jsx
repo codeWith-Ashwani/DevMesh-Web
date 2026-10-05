@@ -242,7 +242,7 @@ export default function NetworkGraph({
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-[620px] rounded-2xl border border-[#26383D] bg-[#0A1012] overflow-hidden select-none shadow-2xl"
+      className="relative w-full h-[620px] rounded-2xl border border-[#293B5B] bg-[#0B1020] overflow-hidden select-none shadow-2xl"
       onWheel={handleWheel}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
@@ -261,7 +261,7 @@ export default function NetworkGraph({
             height="28"
             patternUnits="userSpaceOnUse"
           >
-            <circle cx="2" cy="2" r="1" fill="#26383D" opacity="0.6" />
+            <circle cx="2" cy="2" r="1" fill="#293B5B" opacity="0.6" />
           </pattern>
         </defs>
 
@@ -295,12 +295,12 @@ export default function NetworkGraph({
                 : 0.28;
 
               const strokeColor = isLinkActive
-                ? "#B7ED82"
+                ? "#82B4FF"
                 : link.type === "dev-dev"
                   ? "#10B981"
                   : link.type === "proj-skill"
                     ? "#8B5CF6"
-                    : "#26383D";
+                    : "#293B5B";
 
               return (
                 <line
@@ -363,7 +363,7 @@ export default function NetworkGraph({
       {/* Floating HUD Tooltip */}
       {hoveredNode && (
         <div
-          className="pointer-events-none absolute z-20 -translate-x-1/2 -translate-y-full rounded-xl border border-[#26383D] bg-[#10191C]/95 px-3.5 py-2.5 text-xs shadow-2xl backdrop-blur-md transition-all duration-75"
+          className="pointer-events-none absolute z-20 -translate-x-1/2 -translate-y-full rounded-xl border border-[#293B5B] bg-[#101A2E]/95 px-3.5 py-2.5 text-xs shadow-2xl backdrop-blur-md transition-all duration-75"
           style={{
             left: tooltipPos.x,
             top: tooltipPos.y - 12,
@@ -371,16 +371,16 @@ export default function NetworkGraph({
         >
           <div className="flex items-center gap-2 mb-0.5">
             <span className="status-dot-blue" />
-            <span className="font-bold text-[#EDF4F2]">
+            <span className="font-bold text-[#EEF4FF]">
               {hoveredNode.label}
             </span>
           </div>
-          <p className="text-[10px] text-[#9AADAA] uppercase font-semibold tracking-wider">
+          <p className="text-[10px] text-[#A5B4CE] uppercase font-semibold tracking-wider">
             {hoveredNode.type}
             {hoveredNode.isConnection && " · Direct Peer"}
           </p>
           {hoveredNode.data?.skills?.length > 0 && (
-            <p className="mt-1 text-[11px] text-[#9AADAA]">
+            <p className="mt-1 text-[11px] text-[#A5B4CE]">
               Stack: {hoveredNode.data.skills.slice(0, 3).join(", ")}
             </p>
           )}
@@ -388,25 +388,25 @@ export default function NetworkGraph({
       )}
 
       {/* Canvas Viewport Controls Overlay */}
-      <div className="absolute bottom-4 left-4 z-10 flex items-center gap-1.5 rounded-xl border border-[#26383D] bg-[#10191C]/90 p-1.5 backdrop-blur-md shadow-lg">
+      <div className="absolute bottom-4 left-4 z-10 flex items-center gap-1.5 rounded-xl border border-[#293B5B] bg-[#101A2E]/90 p-1.5 backdrop-blur-md shadow-lg">
         <button
           onClick={handleZoomIn}
-          className="flex h-7 w-7 items-center justify-center rounded-lg text-[#9AADAA] hover:bg-[#142024] hover:text-[#EDF4F2] transition-colors"
+          className="flex h-7 w-7 items-center justify-center rounded-lg text-[#A5B4CE] hover:bg-[#16233D] hover:text-[#EEF4FF] transition-colors"
           title="Zoom In"
         >
           <IconZoomIn className="h-3.5 w-3.5" />
         </button>
         <button
           onClick={handleZoomOut}
-          className="flex h-7 w-7 items-center justify-center rounded-lg text-[#9AADAA] hover:bg-[#142024] hover:text-[#EDF4F2] transition-colors"
+          className="flex h-7 w-7 items-center justify-center rounded-lg text-[#A5B4CE] hover:bg-[#16233D] hover:text-[#EEF4FF] transition-colors"
           title="Zoom Out"
         >
           <IconZoomOut className="h-3.5 w-3.5" />
         </button>
-        <div className="h-4 w-px bg-[#26383D]" />
+        <div className="h-4 w-px bg-[#293B5B]" />
         <button
           onClick={handleResetZoom}
-          className="flex h-7 w-7 items-center justify-center rounded-lg text-[#9AADAA] hover:bg-[#142024] hover:text-[#EDF4F2] transition-colors"
+          className="flex h-7 w-7 items-center justify-center rounded-lg text-[#A5B4CE] hover:bg-[#16233D] hover:text-[#EEF4FF] transition-colors"
           title="Reset Zoom & Center"
         >
           <IconRotateCcw className="h-3.5 w-3.5" />
@@ -414,9 +414,9 @@ export default function NetworkGraph({
       </div>
 
       {/* Real-Time Topology HUD indicator */}
-      <div className="absolute top-4 left-4 z-10 hidden sm:flex items-center gap-2 rounded-xl border border-[#26383D] bg-[#10191C]/90 px-3 py-1.5 text-xs text-[#9AADAA] backdrop-blur-md shadow-md">
+      <div className="absolute top-4 left-4 z-10 hidden sm:flex items-center gap-2 rounded-xl border border-[#293B5B] bg-[#101A2E]/90 px-3 py-1.5 text-xs text-[#A5B4CE] backdrop-blur-md shadow-md">
         <span className="status-dot-active" />
-        <span className="font-semibold text-[11px] text-[#EDF4F2]">
+        <span className="font-semibold text-[11px] text-[#EEF4FF]">
           Skills & connections
         </span>
       </div>

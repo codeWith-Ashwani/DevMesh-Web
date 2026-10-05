@@ -84,7 +84,7 @@ function Body() {
 
   if (isAuthPage) {
     return (
-      <div className="flex min-h-screen flex-col bg-[#0A1012] ambient-glow-bg text-[#EDF4F2]">
+      <div className="flex min-h-screen flex-col bg-[#0B1020] ambient-glow-bg text-[#EEF4FF]">
         <div className="flex-1 flex items-center justify-center">
           <Outlet />
         </div>
@@ -100,7 +100,7 @@ function Body() {
           <span className="brand-mark mb-5">{"<>"}</span>
           <p
             role={authError ? "alert" : "status"}
-            className="text-sm text-[#9AADAA]"
+            className="text-sm text-[#A5B4CE]"
           >
             {authError || "Opening your workspace…"}
           </p>
@@ -117,7 +117,7 @@ function Body() {
     );
 
   return (
-    <div className="flex min-h-screen bg-[#0A1012] ambient-glow-bg text-[#EDF4F2]">
+    <div className="flex min-h-screen bg-[#0B1020] ambient-glow-bg text-[#EEF4FF]">
       <a className="skip-link" href="#main-content">
         Skip to content
       </a>

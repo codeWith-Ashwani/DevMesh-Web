@@ -17,7 +17,9 @@ Find compatible collaborators, try a small milestone, form a team and ship a pro
 
 ## Interface
 
-Graphite surfaces, a soft green accent and monospace metadata keep the interface familiar to developers. Code and issue tracking stay in GitHub; DevMesh focuses on the people and coordination between commits. Home and developer discovery are separate screens. The network starts with a readable card view, with the graph available as an alternate view.
+Deep navy surfaces, a soft blue accent and monospace metadata keep the interface familiar to developers. Code and issue tracking stay in GitHub; DevMesh focuses on the people and coordination between commits. Home and developer discovery are separate screens. The network starts with a readable card view, with the graph available as an alternate view.
+
+Accounts with no connections or requests see normal empty states. The client supports the earlier API's explicit “No connections found” and “No pending connection requests found” 404 responses while servers update; unrelated 404 responses remain errors. Workspace failures identify the affected section and include optional request/status details, with a retry action. Unavailable services and malformed API responses leave other sections usable.
 
 Project stages are labels. Only the team workspace shows completion percentages, calculated from real milestones. The home screen shows teams from the latest 50 projects and the latest three conversations in the loaded inbox. Use the project directory and inbox to load earlier records. Filtering applies to loaded records. Guide preferences use localStorage with a session fallback; there is no AI service or message collection behind the companions.
 

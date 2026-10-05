@@ -2,7 +2,7 @@ export default function GuideAvatar({
   variant = "patch",
   className = "h-16 w-16",
 }) {
-  const color = variant === "pixel" ? "#C4B5FD" : "#B7ED82";
+  const color = variant === "pixel" ? "#C4B5FD" : "#82B4FF";
   return (
     <svg
       viewBox="0 0 96 96"
@@ -19,11 +19,11 @@ export default function GuideAvatar({
         width="56"
         height="46"
         rx={variant === "pixel" ? "18" : "12"}
-        fill="#1B2B30"
+        fill="#1D3050"
         stroke={color}
         strokeWidth="2.5"
       />
-      <rect x="27" y="32" width="42" height="26" rx="7" fill="#0A1012" />
+      <rect x="27" y="32" width="42" height="26" rx="7" fill="#0B1020" />
       {variant === "pixel" ? (
         <path
           d="m34 42 4-3 4 3m12 0 4-3 4 3"

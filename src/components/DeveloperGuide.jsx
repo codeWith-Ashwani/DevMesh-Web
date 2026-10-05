@@ -109,12 +109,12 @@ export default function DeveloperGuide() {
         <GuideAvatar variant={companion} className="h-8 w-8" />
         <span className="sr-only">
           <strong className="block text-sm">Meet {name}</strong>
-          <span className="text-xs text-[#9AADAA]">Workspace guide</span>
+          <span className="text-xs text-[#A5B4CE]">Workspace guide</span>
         </span>
       </button>
       {open && (
         <Modal label="Workspace guide" onClose={close} className="guide-panel">
-          <div className="flex items-center justify-between border-b border-[#26383D] px-5 py-3">
+          <div className="flex items-center justify-between border-b border-[#293B5B] px-5 py-3">
             <span className="eyebrow">// your workspace companion</span>
             <button
               className="icon-button"
@@ -129,7 +129,7 @@ export default function DeveloperGuide() {
               <GuideAvatar variant={companion} className="h-20 w-20 shrink-0" />
               <div>
                 <p className="text-lg font-semibold">Hey, I’m {name}.</p>
-                <p className="text-sm text-[#9AADAA]">
+                <p className="text-sm text-[#A5B4CE]">
                   A few pointers to help you ship.
                 </p>
               </div>
@@ -155,7 +155,7 @@ export default function DeveloperGuide() {
             <h2 className="text-xl font-semibold tracking-tight mb-3">
               {tip.title}
             </h2>
-            <p className="text-sm leading-7 text-[#9AADAA]">{tip.body}</p>
+            <p className="text-sm leading-7 text-[#A5B4CE]">{tip.body}</p>
             <Link
               className="btn-primary flex items-center justify-between px-4 py-3 mt-6"
               to={tip.path}
@@ -166,11 +166,11 @@ export default function DeveloperGuide() {
             </Link>
             {tour ? (
               <div className="flex justify-between gap-3 mt-4">
-                <button className="text-sm text-[#9AADAA]" onClick={close}>
+                <button className="text-sm text-[#A5B4CE]" onClick={close}>
                   End tour
                 </button>
                 <button
-                  className="text-sm text-[#B7ED82] font-medium"
+                  className="text-sm text-[#82B4FF] font-medium"
                   onClick={() => {
                     if (stepIndex >= steps.length - 1) close();
                     else navigate(steps[Math.max(stepIndex, 0) + 1].path);
@@ -192,7 +192,7 @@ export default function DeveloperGuide() {
                 Show me around
               </button>
             )}
-            <p className="text-xs text-[#718986] mt-5">
+            <p className="text-xs text-[#7B91B5] mt-5">
               Navigation tips, always here when you need them.
             </p>
           </div>

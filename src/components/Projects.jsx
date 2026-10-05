@@ -16,7 +16,7 @@ import {
 } from "./ui/Icons";
 
 const inputClass =
-  "mt-1 w-full rounded-xl border border-[#26383D] bg-[#142024] px-3.5 py-2.5 text-xs text-[#EDF4F2] placeholder-[#718986] outline-none hover:border-[#416067] focus:border-[#B7ED82] transition-colors";
+  "mt-1 w-full rounded-xl border border-[#293B5B] bg-[#16233D] px-3.5 py-2.5 text-xs text-[#EEF4FF] placeholder-[#7B91B5] outline-none hover:border-[#4C6B94] focus:border-[#82B4FF] transition-colors";
 
 const splitValues = (value) =>
   value
@@ -82,10 +82,10 @@ function Projects() {
   if (loading) {
     return (
       <div className="flex h-[60vh] flex-col items-center justify-center gap-3">
-        <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[#26383D] bg-[#10191C] shadow-xl">
-          <span className="h-5 w-5 rounded-full border-2 border-[#B7ED82] border-t-transparent animate-spin" />
+        <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[#293B5B] bg-[#101A2E] shadow-xl">
+          <span className="h-5 w-5 rounded-full border-2 border-[#82B4FF] border-t-transparent animate-spin" />
         </div>
-        <p className="text-xs font-medium text-[#9AADAA]">
+        <p className="text-xs font-medium text-[#A5B4CE]">
           Loading collaboration projects...
         </p>
       </div>
@@ -95,18 +95,18 @@ function Projects() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-6">
       {/* Header */}
-      <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-[#26383D] pb-6">
+      <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-[#293B5B] pb-6">
         <div>
           <div className="flex items-center gap-2 mb-1.5">
             <span className="status-dot-blue" />
-            <p className="text-xs uppercase font-bold tracking-wider text-[#B7ED82]">
+            <p className="text-xs uppercase font-bold tracking-wider text-[#82B4FF]">
               // build something together
             </p>
           </div>
-          <h1 className="text-2xl font-extrabold tracking-tight text-[#EDF4F2] sm:text-3xl">
+          <h1 className="text-2xl font-extrabold tracking-tight text-[#EEF4FF] sm:text-3xl">
             Find a problem worth solving.
           </h1>
-          <p className="mt-1 text-xs sm:text-sm text-[#9AADAA]">
+          <p className="mt-1 text-xs sm:text-sm text-[#A5B4CE]">
             Small teams. Clear deliverables. Projects you can actually ship.
           </p>
         </div>
@@ -122,7 +122,7 @@ function Projects() {
 
       {/* Stage filter pills */}
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-xs font-medium text-[#9AADAA] mr-1">
+        <span className="text-xs font-medium text-[#A5B4CE] mr-1">
           Filter Stage:
         </span>
         {["All", "Idea", "Building", "Launched"].map((stage) => (
@@ -148,14 +148,14 @@ function Projects() {
 
       {/* Project Cards Grid */}
       {filteredProjects.length === 0 ? (
-        <div className="fintech-card rounded-2xl border border-[#26383D] p-12 text-center shadow-sm">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl border border-[#26383D] bg-[#142024] text-[#9AADAA] mb-3">
+        <div className="fintech-card rounded-2xl border border-[#293B5B] p-12 text-center shadow-sm">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl border border-[#293B5B] bg-[#16233D] text-[#A5B4CE] mb-3">
             <IconProjects className="h-6 w-6" />
           </div>
-          <h2 className="text-base font-bold text-[#EDF4F2]">
+          <h2 className="text-base font-bold text-[#EEF4FF]">
             No projects found
           </h2>
-          <p className="mt-1 text-xs text-[#9AADAA]">
+          <p className="mt-1 text-xs text-[#A5B4CE]">
             Start with a problem, a small first deliverable, and the teammates
             you need.
           </p>
@@ -194,7 +194,7 @@ function Projects() {
           >
             {loadingMore ? "Loading…" : "Load more projects"}
           </button>
-          <p className="text-xs text-[#718986] mt-3">
+          <p className="text-xs text-[#7B91B5] mt-3">
             Stage filters apply to projects loaded so far.
           </p>
         </div>
@@ -248,11 +248,11 @@ function ProjectCard({ project, currentUser, onApply, onReview, onWithdraw }) {
   };
 
   const meta = stageMeta[project.stage] || {
-    badge: "border-[#26383D] bg-[#142024] text-[#9AADAA]",
+    badge: "border-[#293B5B] bg-[#16233D] text-[#A5B4CE]",
   };
 
   return (
-    <article className="fintech-card flex flex-col justify-between rounded-2xl border border-[#26383D] p-5 shadow-xl hover:border-[#416067] transition-all">
+    <article className="fintech-card flex flex-col justify-between rounded-2xl border border-[#293B5B] p-5 shadow-xl hover:border-[#4C6B94] transition-all">
       <div>
         {/* Stage & Commitment */}
         <div className="flex items-center justify-between gap-2">
@@ -261,23 +261,23 @@ function ProjectCard({ project, currentUser, onApply, onReview, onWithdraw }) {
           >
             {project.stage}
           </span>
-          <span className="text-[11px] text-[#9AADAA] font-medium">
+          <span className="text-[11px] text-[#A5B4CE] font-medium">
             {project.commitment}
           </span>
         </div>
 
         {/* Title */}
-        <h2 className="mt-3 text-base font-bold text-[#EDF4F2] tracking-tight">
+        <h2 className="mt-3 text-base font-bold text-[#EEF4FF] tracking-tight">
           {project.title}
         </h2>
 
         {/* Description */}
-        <p className="mt-2 text-xs leading-relaxed text-[#9AADAA] line-clamp-3">
+        <p className="mt-2 text-xs leading-relaxed text-[#A5B4CE] line-clamp-3">
           {project.description}
         </p>
 
         {/* Actual first deliverable; stage is not a completion percentage. */}
-        <p className="mt-4 text-xs text-[#9AADAA]">
+        <p className="mt-4 text-xs text-[#A5B4CE]">
           First deliverable:{" "}
           {project.firstDeliverable || "To be agreed by the team"} ·{" "}
           {project.durationWeeks || 4} weeks
@@ -292,7 +292,7 @@ function ProjectCard({ project, currentUser, onApply, onReview, onWithdraw }) {
         )}
         {project.applicationStatus === "pending" && (
           <button
-            className="block mt-2 text-sm text-[#9AADAA]"
+            className="block mt-2 text-sm text-[#A5B4CE]"
             onClick={() => onWithdraw(project)}
           >
             Withdraw application
@@ -310,11 +310,11 @@ function ProjectCard({ project, currentUser, onApply, onReview, onWithdraw }) {
 
         {/* Roles needed */}
         {project.rolesNeeded?.length > 0 && (
-          <div className="mt-4 border-t border-[#26383D] pt-3">
-            <p className="text-[10px] uppercase font-semibold tracking-wider text-[#718986]">
+          <div className="mt-4 border-t border-[#293B5B] pt-3">
+            <p className="text-[10px] uppercase font-semibold tracking-wider text-[#7B91B5]">
               Roles required
             </p>
-            <p className="mt-0.5 text-xs text-[#EDF4F2] font-medium">
+            <p className="mt-0.5 text-xs text-[#EEF4FF] font-medium">
               {(project.roleOpenings || [])
                 .map((o) => `${o.title}: ${o.seats - o.filled} open`)
                 .join(" · ") || project.rolesNeeded.join(" · ")}
@@ -324,8 +324,8 @@ function ProjectCard({ project, currentUser, onApply, onReview, onWithdraw }) {
       </div>
 
       {/* Creator & Action bottom bar */}
-      <div className="mt-5 flex items-center justify-between gap-3 border-t border-[#26383D] pt-3.5">
-        <div className="flex items-center gap-2.5 text-xs text-[#9AADAA] min-w-0">
+      <div className="mt-5 flex items-center justify-between gap-3 border-t border-[#293B5B] pt-3.5">
+        <div className="flex items-center gap-2.5 text-xs text-[#A5B4CE] min-w-0">
           <Avatar user={project.creator} className="h-7 w-7 shrink-0" />
           <span className="truncate font-medium">
             {project.creator?.firstName} {project.creator?.lastName}
@@ -334,7 +334,7 @@ function ProjectCard({ project, currentUser, onApply, onReview, onWithdraw }) {
 
         {isCreator ? (
           <button
-            className="btn-secondary px-3 py-1.5 text-xs font-semibold text-[#B7ED82]"
+            className="btn-secondary px-3 py-1.5 text-xs font-semibold text-[#82B4FF]"
             onClick={() => onReview(project)}
           >
             Applicants ({project.applicationsCount || 0})
@@ -344,7 +344,7 @@ function ProjectCard({ project, currentUser, onApply, onReview, onWithdraw }) {
             disabled={project.hasApplied}
             className={`px-3.5 py-1.5 text-xs font-semibold rounded-xl transition-all ${
               project.hasApplied
-                ? "bg-[#142024] text-[#718986] border border-[#26383D] cursor-not-allowed"
+                ? "bg-[#16233D] text-[#7B91B5] border border-[#293B5B] cursor-not-allowed"
                 : "btn-primary"
             }`}
             onClick={() => onApply(project)}
@@ -578,7 +578,7 @@ function ApplyModal({ project, onClose, onApplied }) {
             ))}
           </select>
         </Field>
-        <p className="text-xs text-[#9AADAA]">
+        <p className="text-xs text-[#A5B4CE]">
           State your technical domain background and how you can contribute to
           this project.
         </p>
@@ -680,7 +680,7 @@ function ApplicationsModal({ project, onClose }) {
     <Modal title={`Applicants · ${project.title}`} onClose={onClose}>
       <form
         onSubmit={invite}
-        className="mb-4 space-y-2 border border-[#26383D] p-3 rounded-xl"
+        className="mb-4 space-y-2 border border-[#293B5B] p-3 rounded-xl"
       >
         <h3 className="font-bold">Invite an applicant to a short trial</h3>
         <label className="block">
@@ -734,7 +734,7 @@ function ApplicationsModal({ project, onClose }) {
         </p>
       )}
       {applications.length === 0 ? (
-        <p className="text-xs text-[#718986] text-center py-6">
+        <p className="text-xs text-[#7B91B5] text-center py-6">
           No applications received yet.
         </p>
       ) : (
@@ -742,7 +742,7 @@ function ApplicationsModal({ project, onClose }) {
           {applications.map((application) => (
             <div
               key={application._id}
-              className="rounded-xl border border-[#26383D] bg-[#142024] p-4"
+              className="rounded-xl border border-[#293B5B] bg-[#16233D] p-4"
             >
               <div className="flex items-center gap-3">
                 <Avatar
@@ -750,10 +750,10 @@ function ApplicationsModal({ project, onClose }) {
                   className="h-10 w-10 shrink-0"
                 />
                 <div>
-                  <p className="text-xs font-bold text-[#EDF4F2]">
+                  <p className="text-xs font-bold text-[#EEF4FF]">
                     {application.user?.firstName} {application.user?.lastName}
                   </p>
-                  <p className="text-[11px] text-[#9AADAA]">
+                  <p className="text-[11px] text-[#A5B4CE]">
                     {application.user?.skills?.join(" · ")}
                   </p>
                 </div>
@@ -763,14 +763,14 @@ function ApplicationsModal({ project, onClose }) {
                       ? "text-[#10B981] border-[#10B981]/30 bg-[#10B981]/10"
                       : application.status === "rejected"
                         ? "text-[#F43F5E] border-[#F43F5E]/30 bg-[#F43F5E]/10"
-                        : "text-[#B7ED82] border-[#B7ED82]/30 bg-[#B7ED82]/10"
+                        : "text-[#82B4FF] border-[#82B4FF]/30 bg-[#82B4FF]/10"
                   }`}
                 >
                   {application.status}
                 </span>
               </div>
               {application.message && (
-                <p className="mt-3 rounded-lg border border-[#26383D] bg-[#10191C] p-2.5 text-xs text-[#9AADAA]">
+                <p className="mt-3 rounded-lg border border-[#293B5B] bg-[#101A2E] p-2.5 text-xs text-[#A5B4CE]">
                   {application.message}
                 </p>
               )}
@@ -802,10 +802,10 @@ function Modal({ title, children, onClose }) {
   const close = useCallback(() => onClose(), [onClose]);
   return (
     <AccessibleModal label={title} onClose={close} className="p-6">
-      <div className="mb-5 flex items-center justify-between border-b border-[#26383D] pb-3">
-        <h2 className="text-base font-bold text-[#EDF4F2]">{title}</h2>
+      <div className="mb-5 flex items-center justify-between border-b border-[#293B5B] pb-3">
+        <h2 className="text-base font-bold text-[#EEF4FF]">{title}</h2>
         <button
-          className="flex h-7 w-7 items-center justify-center rounded-xl border border-[#26383D] text-[#9AADAA] hover:border-[#416067] hover:text-[#EDF4F2]"
+          className="flex h-7 w-7 items-center justify-center rounded-xl border border-[#293B5B] text-[#A5B4CE] hover:border-[#4C6B94] hover:text-[#EEF4FF]"
           onClick={onClose}
           aria-label="Close"
         >
@@ -819,7 +819,7 @@ function Modal({ title, children, onClose }) {
 
 function Field({ label, children }) {
   return (
-    <label className="block text-[11px] font-semibold uppercase tracking-wider text-[#9AADAA]">
+    <label className="block text-[11px] font-semibold uppercase tracking-wider text-[#A5B4CE]">
       {label}
       {children}
     </label>

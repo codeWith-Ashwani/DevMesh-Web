@@ -44,13 +44,13 @@ export default function Login() {
   const change = (field) => (event) =>
     setForm({ ...form, [field]: event.target.value });
   const fieldClass =
-    "mt-2 w-full rounded-lg border border-[#31474E] bg-[#142024] px-4 py-3 text-sm";
+    "mt-2 w-full rounded-lg border border-[#344D70] bg-[#16233D] px-4 py-3 text-sm";
   return (
     <div className="w-full max-w-6xl mx-auto px-5 sm:px-10 py-10 md:py-16">
       <div className="flex items-center gap-3 mb-10 md:mb-14">
         <span className="brand-mark">{"<>"}</span>
         <span className="text-xl font-semibold tracking-tight">
-          DevMesh<span className="text-[#B7ED82]">.</span>
+          DevMesh<span className="text-[#82B4FF]">.</span>
         </span>
         <span className="hidden sm:block ml-4 eyebrow">
           a space for developers
@@ -58,15 +58,15 @@ export default function Login() {
       </div>
       <div className="grid lg:grid-cols-[1.2fr_1fr] gap-10 lg:gap-20 items-center">
         <section>
-          <p className="eyebrow text-[#B7ED82] mb-5">
+          <p className="eyebrow text-[#82B4FF] mb-5">
             // good things are built together
           </p>
           <h1 className="text-4xl sm:text-5xl lg:text-[56px] leading-[1.08] font-semibold tracking-[-.05em]">
             You bring the idea.
             <br />
-            <span className="text-[#B7ED82]">Find your people.</span>
+            <span className="text-[#82B4FF]">Find your people.</span>
           </h1>
-          <p className="text-sm sm:text-base text-[#9AADAA] leading-7 mt-6 max-w-md">
+          <p className="text-sm sm:text-base text-[#A5B4CE] leading-7 mt-6 max-w-md">
             A workspace for developers who want to turn side projects into
             shipped work. Meet a teammate, try a small task, and build something
             that matters.
@@ -79,18 +79,18 @@ export default function Login() {
             ].map((text) => (
               <p
                 key={text}
-                className="flex items-center gap-3 text-sm text-[#ADC0BB]"
+                className="flex items-center gap-3 text-sm text-[#B6C7E2]"
               >
-                <IconCheck className="h-4 w-4 text-[#B7ED82] shrink-0" />
+                <IconCheck className="h-4 w-4 text-[#82B4FF] shrink-0" />
                 {text}
               </p>
             ))}
           </div>
-          <div className="hidden sm:flex items-center gap-4 mt-10 border-t border-[#26383D] pt-6">
+          <div className="hidden sm:flex items-center gap-4 mt-10 border-t border-[#293B5B] pt-6">
             <GuideAvatar className="h-20 w-20 shrink-0" />
             <div>
               <p className="text-sm font-medium">A little help from Patch.</p>
-              <p className="text-xs text-[#9AADAA] mt-1 leading-5 max-w-xs">
+              <p className="text-xs text-[#A5B4CE] mt-1 leading-5 max-w-xs">
                 Your tiny workspace companion will help you find your way
                 around.
               </p>
@@ -98,7 +98,7 @@ export default function Login() {
           </div>
         </section>
         <section className="workbench-card rounded-2xl p-6 sm:p-8">
-          <div className="flex gap-2 bg-[#0A1012] rounded-lg p-1 mb-7">
+          <div className="flex gap-2 bg-[#0B1020] rounded-lg p-1 mb-7">
             {[
               [true, "Sign in"],
               [false, "Create account"],
@@ -110,8 +110,8 @@ export default function Login() {
                 className={
                   "flex-1 py-2.5 rounded-md text-sm " +
                   (isLogin === value
-                    ? "bg-[#1B2B30] text-[#EDF4F2]"
-                    : "text-[#9AADAA]")
+                    ? "bg-[#1D3050] text-[#EEF4FF]"
+                    : "text-[#A5B4CE]")
                 }
                 onClick={() => {
                   setIsLogin(value);
@@ -125,7 +125,7 @@ export default function Login() {
           <h2 className="text-2xl font-medium tracking-tight">
             {isLogin ? "Welcome back, builder." : "Make yourself at home."}
           </h2>
-          <p className="text-xs text-[#9AADAA] mt-2 mb-6">
+          <p className="text-xs text-[#A5B4CE] mt-2 mb-6">
             {isLogin
               ? "Your next project is waiting."
               : "Start with your profile. Find your first collaborator."}
@@ -133,7 +133,7 @@ export default function Login() {
           <form onSubmit={submit} className="space-y-5">
             {!isLogin && (
               <div className="grid grid-cols-2 gap-3">
-                <label className="text-xs text-[#9AADAA]">
+                <label className="text-xs text-[#A5B4CE]">
                   First name
                   <input
                     className={fieldClass}
@@ -144,7 +144,7 @@ export default function Login() {
                     required
                   />
                 </label>
-                <label className="text-xs text-[#9AADAA]">
+                <label className="text-xs text-[#A5B4CE]">
                   Last name
                   <input
                     className={fieldClass}
@@ -157,7 +157,7 @@ export default function Login() {
                 </label>
               </div>
             )}
-            <label className="block text-xs text-[#9AADAA]">
+            <label className="block text-xs text-[#A5B4CE]">
               Email address
               <input
                 type="email"
@@ -173,14 +173,14 @@ export default function Login() {
               <div className="flex justify-between items-center">
                 <label
                   htmlFor="auth-password"
-                  className="text-xs text-[#9AADAA]"
+                  className="text-xs text-[#A5B4CE]"
                 >
                   Password
                 </label>
                 <button
                   type="button"
                   aria-pressed={showPassword}
-                  className="text-xs text-[#B7ED82]"
+                  className="text-xs text-[#82B4FF]"
                   onClick={() => setShowPassword((value) => !value)}
                 >
                   {showPassword ? "Hide password" : "Show password"}
@@ -196,7 +196,7 @@ export default function Login() {
                 required
               />
               {!isLogin && (
-                <p className="text-[11px] text-[#9AADAA] leading-5 mt-2">
+                <p className="text-[11px] text-[#A5B4CE] leading-5 mt-2">
                   Use a strong password with uppercase and lowercase letters, a
                   number, and a symbol.
                 </p>
@@ -222,7 +222,7 @@ export default function Login() {
                   : "Create your workspace →"}
             </button>
           </form>
-          <p className="text-xs text-center text-[#718986] mt-6 font-mono">
+          <p className="text-xs text-center text-[#7B91B5] mt-6 font-mono">
             less solo building. more shared momentum.
           </p>
         </section>

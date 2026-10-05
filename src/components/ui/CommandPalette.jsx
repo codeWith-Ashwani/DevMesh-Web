@@ -29,8 +29,8 @@ function Palette({ onClose }) {
   };
   return (
     <Modal label="Jump to a page" onClose={close}>
-      <div className="flex items-center gap-3 p-4 border-b border-[#26383D]">
-        <IconTerminal className="h-5 w-5 text-[#B7ED82] shrink-0" />
+      <div className="flex items-center gap-3 p-4 border-b border-[#293B5B]">
+        <IconTerminal className="h-5 w-5 text-[#82B4FF] shrink-0" />
         <input
           aria-label="Find a page"
           role="combobox"
@@ -81,8 +81,8 @@ function Palette({ onClose }) {
             className={
               "w-full flex items-center justify-between px-4 py-3 text-sm rounded-lg text-left " +
               (index === selected
-                ? "bg-[#1B2B30] text-[#B7ED82]"
-                : "text-[#9AADAA]")
+                ? "bg-[#1D3050] text-[#82B4FF]"
+                : "text-[#A5B4CE]")
             }
             onMouseEnter={() => setSelected(index)}
             onClick={() => go(path)}
@@ -92,12 +92,12 @@ function Palette({ onClose }) {
           </button>
         ))}
         {!filtered.length && (
-          <p className="p-8 text-center text-sm text-[#9AADAA]">
+          <p className="p-8 text-center text-sm text-[#A5B4CE]">
             No pages match “{query}”.
           </p>
         )}
       </div>
-      <p className="px-5 py-3 border-t border-[#26383D] text-[11px] font-mono text-[#9AADAA]">
+      <p className="px-5 py-3 border-t border-[#293B5B] text-[11px] font-mono text-[#A5B4CE]">
         ↑ ↓ to choose · Enter to open · Esc to close
       </p>
     </Modal>
