@@ -1,5 +1,5 @@
-import axios from "axios";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { cachedGet } from "../utils/resourceCache";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { BASE_URL } from "../utils/constants";
 import { addFeed, appendFeed } from "../utils/feedSlice";
@@ -28,28 +28,31 @@ export default function Feed() {
   const [more, setMore] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const loadController = useRef(null);
   const load = useCallback(
     async (nextPage, replace = false) => {
+      loadController.current?.abort();
+      const controller = new AbortController();
+      loadController.current = controller;
       setBusy(true);
       setError("");
       try {
-        const response = await axios.get(
-          BASE_URL + "/feed?page=" + nextPage + "&limit=" + PAGE_SIZE,
-          { withCredentials: true },
-        );
+        const response = await cachedGet(`/feed?page=${nextPage}&limit=${PAGE_SIZE}`, { signal: controller.signal });
+        if (controller.signal.aborted) return;
         dispatch(replace ? addFeed(response.data) : appendFeed(response.data));
         setPage(nextPage);
         setMore(response.data.length === PAGE_SIZE);
       } catch {
-        setError("Developers could not load. Try again in a moment.");
+        if (!controller.signal.aborted) setError("Developers could not load. Try again in a moment.");
       } finally {
-        setBusy(false);
+        if (!controller.signal.aborted) setBusy(false);
       }
     },
     [dispatch],
   );
   useEffect(() => {
     if (user) load(1, true);
+    return () => loadController.current?.abort();
   }, [user, load]);
   const visible = useMemo(
     () =>

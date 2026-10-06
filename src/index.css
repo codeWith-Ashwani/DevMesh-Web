@@ -89,9 +89,9 @@
   .fintech-card,
   .surface-card,
   .workbench-card {
-    background: #101a2e;
-    border: 1px solid #293b5b;
-    box-shadow: 0 4px 20px #0000000c;
+    background: linear-gradient(145deg, #131f35, #101a2e);
+    border: 1px solid #2b3d5c;
+    box-shadow: 0 8px 24px #00000012;
   }
   .fintech-card-elevated,
   .surface-elevated {
@@ -214,9 +214,10 @@
     color: #eef4ff;
   }
   .nav-link.active {
-    background: #82b4ff0f;
-    border-color: #82b4ff26;
-    color: #82b4ff;
+    background: linear-gradient(100deg, #82b4ff20, #82b4ff08);
+    border-color: #82b4ff38;
+    color: #b6d4ff;
+    box-shadow: inset 3px 0 #82b4ff;
   }
   .workspace-header {
     height: 72px;
@@ -230,7 +231,6 @@
     gap: 12px;
     padding: 0 24px;
     background: #0b1020f2;
-    backdrop-filter: blur(12px);
     border-bottom: 1px solid #293b5b;
   }
   .icon-button {
@@ -349,6 +349,73 @@
     letter-spacing: -0.045em;
     line-height: 1.2;
   }
+  .page-skeleton { min-height: 340px; }
+  .skeleton-line { border-radius: 6px; background: #293b5b70; }
+  .skeleton-card {
+    padding: 24px;
+    background: #101a2e;
+    border: 1px solid #293b5b;
+    border-radius: 16px;
+  }
+  .chat-page {
+    display: flex;
+    flex-direction: column;
+    height: calc(100dvh - 72px);
+    min-height: 600px;
+  }
+  .chat-page > :not(.chat-layout) { flex-shrink: 0; }
+  .chat-layout {
+    flex: 1;
+    min-height: 0;
+    grid-template-rows: minmax(0, 1fr);
+    border: 1px solid #344d70;
+    box-shadow: 0 16px 48px #00000024;
+    background: #0e1729;
+  }
+  .chat-thread, .chat-inbox { height: 100%; min-height: 0; }
+  .chat-inbox { background: #101a2e; }
+  .chat-thread-header, .chat-composer { background: #111d32; }
+  .chat-stream { overscroll-behavior: contain; }
+  .chat-search {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid #293b5b;
+    background: #0d1628;
+    border-radius: 9px;
+    padding: 10px;
+    color: #7b91b5;
+  }
+  .chat-search input { width: 100%; min-width: 0; background: transparent; font-size: 13px; outline: none; }
+  .chat-search:focus-within { border-color: #82b4ff; }
+  .chat-conversation:hover { background: #16233d; }
+  .chat-conversation.active { background: #82b4ff12; border-color: #82b4ff40; }
+  .chat-group-icon, .chat-empty-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #82b4ff12;
+    border: 1px solid #82b4ff28;
+    color: #82b4ff;
+    flex-shrink: 0;
+    border-radius: 12px;
+    width: 40px;
+    height: 40px;
+  }
+  .chat-empty-icon { width: 72px; height: 72px; border-radius: 22px; }
+  .chat-unread {
+    align-self: center;
+    background: #82b4ff;
+    color: #0c1d38;
+    border-radius: 20px;
+    min-width: 21px;
+    padding: 2px 6px;
+    font-size: 10px;
+    text-align: center;
+  }
+  .chat-status-dot { width: 6px; height: 6px; border-radius: 50%; background: #7b91b5; }
+  .chat-status-dot.online { background: #82b4ff; box-shadow: 0 0 0 3px #82b4ff14; }
+  .chat-pending { border: 1px dashed #82b4ff66; background: #82b4ff18; color: #c7ddff; }
   .hero-workbench {
     position: relative;
     overflow: hidden;
@@ -402,6 +469,8 @@
     .page-wrap {
       padding: 28px 18px;
     }
+    .chat-page { padding: 22px 12px; height: calc(100dvh - 60px); }
+    .chat-composer { padding: 12px; }
     .workspace-header {
       height: 60px;
       padding: 0 12px;

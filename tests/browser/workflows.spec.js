@@ -42,7 +42,7 @@ test("personal and group messages reach another browser immediately", async ({
       .fill("Personal message delivered live");
     await pa.getByRole("button", { name: "Send", exact: true }).click();
     await expect(
-      pb.getByText("Personal message delivered live", { exact: true }),
+      pb.getByRole('log', { name: 'Messages' }).getByText("Personal message delivered live", { exact: true }),
     ).toBeVisible();
     await pa.getByRole("button", { name: "New group" }).click();
     await pa.getByLabel("Group name").fill("Browser team");
@@ -59,11 +59,11 @@ test("personal and group messages reach another browser immediately", async ({
       .fill("Group message delivered live");
     await pa.getByRole("button", { name: "Send", exact: true }).click();
     await expect(
-      pb.getByText("Group message delivered live", { exact: true }),
+      pb.getByRole('log', { name: 'Messages' }).getByText("Group message delivered live", { exact: true }),
     ).toBeVisible();
     await pb.reload();
     await expect(
-      pb.getByText("Group message delivered live", { exact: true }),
+      pb.getByRole('log', { name: 'Messages' }).getByText("Group message delivered live", { exact: true }),
     ).toBeVisible();
     await pa.screenshot({
       path: testInfo.outputPath("group-chat.png"),
@@ -81,6 +81,8 @@ test("personal and group messages reach another browser immediately", async ({
         () => document.documentElement.scrollWidth <= innerWidth,
       ),
     ).toBeTruthy();
+    const composer = await pa.getByRole('textbox', { name: 'Message', exact: true }).boundingBox();
+    expect(composer.y + composer.height).toBeLessThanOrEqual(844);
     await pa.screenshot({
       path: testInfo.outputPath("mobile-group-chat.png"),
       fullPage: true,

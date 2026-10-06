@@ -3,21 +3,24 @@ import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { BASE_URL } from "../utils/constants";
+import { cachedGet, peekResource } from "../utils/resourceCache";
 const options = { withCredentials: true };
 const input =
   "block w-full bg-[#16233D] border border-[#293B5B] rounded-xl p-3 mt-1";
 export default function Collaboration() {
   const navigate = useNavigate();
   const user = useSelector((s) => s.user);
-  const [form, setForm] = useState({
+  const [form, setForm] = useState(() => {
+    const profile = peekResource('/collaboration/profile')?.data;
+    return profile ? { ...profile, roles: profile.roles.join(', ') } : {
     hoursPerWeek: 5,
     durationWeeks: 4,
     goal: "Ship a portfolio project",
     roles: "",
-  });
+  }; });
   const [recommendations, setRecommendations] = useState([]);
-  const [trials, setTrials] = useState([]);
-  const [showcase, setShowcase] = useState([]);
+  const [trials, setTrials] = useState(() => peekResource('/collaboration/trials')?.data || []);
+  const [showcase, setShowcase] = useState(() => peekResource('/collaboration/showcase')?.data || []);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
@@ -26,7 +29,7 @@ export default function Collaboration() {
     let alive = true;
     const controller = new AbortController();
     const load = (path, apply) => {
-      axios.get(`${BASE_URL}/collaboration/${path}`, { ...options, signal: controller.signal })
+      cachedGet(`/collaboration/${path}`, { signal: controller.signal })
         .then(response => { if (alive) apply(response.data.data); })
         .catch(e => {
           if (alive) setError(e.response?.data?.message || "Unable to load collaboration hub");

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { loadWorkbench } from "../utils/workbench";
+import { loadWorkbench, readWorkbench } from "../utils/workbench";
 import GuideAvatar from "./ui/GuideAvatar";
 import {
   IconChevronRight,
@@ -13,7 +13,7 @@ import {
 
 export default function Dashboard() {
   const user = useSelector((store) => store.user);
-  const [data, setData] = useState(null);
+  const [data, setData] = useState(readWorkbench);
   const [retry, setRetry] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
   useEffect(() => {
@@ -22,7 +22,7 @@ export default function Dashboard() {
     const controller = new AbortController();
     loadWorkbench(controller.signal, (result) => {
       if (alive) setData(result);
-    }).then((result) => {
+    }, retry > 0).then((result) => {
       if (!alive) return;
       setData(result);
       setRefreshing(false);

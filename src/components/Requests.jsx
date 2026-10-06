@@ -6,24 +6,27 @@ import { BASE_URL } from "../utils/constants";
 import { addRequests, removeRequests } from "../utils/requestsSlice";
 import { IconCheck, IconX, IconRequests } from "./ui/Icons";
 import { isLegacyEmptyCollection } from "../utils/workbench";
+import { cachedGet, peekResource } from "../utils/resourceCache";
 
 function Requests() {
   const requests = useSelector((store) => store.requests);
   const dispatch = useDispatch();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => !peekResource('/user/requests/received'));
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(null);
 
   useEffect(() => {
-    axios
-      .get(`${BASE_URL}/user/requests/received`, { withCredentials: true })
-      .then((res) => dispatch(addRequests(res.data.data)))
+    let alive = true;
+    cachedGet('/user/requests/received')
+      .then((res) => { if (alive) dispatch(addRequests(res.data.data)); })
       .catch((error) => {
+        if (!alive) return;
         if (isLegacyEmptyCollection(error, "requests"))
           dispatch(addRequests([]));
         else setError("Requests could not load. Please refresh and try again.");
       })
-      .finally(() => setLoading(false));
+      .finally(() => { if (alive) setLoading(false); });
+    return () => { alive = false; };
   }, [dispatch]);
 
   const review = async (status, id) => {

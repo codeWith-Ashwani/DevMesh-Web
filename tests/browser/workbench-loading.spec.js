@@ -112,6 +112,8 @@ test("a misconfigured API response reports an error instead of crashing the work
   context,
 }) => {
   await login(context);
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
   await page.route(api + "/projects?limit=50", (route) =>
     route.fulfill({
       status: 200,
@@ -131,4 +133,12 @@ test("a misconfigured API response reports an error instead of crashing the work
       exact: false,
     }),
   ).toBeVisible();
+  const nav = page.locator('aside[aria-label="Main navigation"]');
+  await nav.getByRole('link', { name: 'Projects', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Find a problem worth solving.' })).toBeVisible();
+  await nav.getByRole('link', { name: 'Overview', exact: true }).click();
+  await expect(page.getByRole('alert')).toContainText('Could not load: Project spaces.');
+  await page.getByRole('button', { name: 'Try again', exact: true }).click();
+  await expect(page.getByRole('alert')).toContainText('Could not load: Project spaces.');
+  expect(errors).toEqual([]);
 });

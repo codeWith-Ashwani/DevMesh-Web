@@ -1,10 +1,12 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { BASE_URL } from "../utils/constants";
 import Avatar from "./ui/Avatar";
 import AccessibleModal from "./ui/Modal";
+import { cachedGet, peekResource } from "../utils/resourceCache";
+import PageSkeleton from './ui/PageSkeleton';
 import {
   IconProjects,
   IconPlus,
@@ -26,8 +28,8 @@ const splitValues = (value) =>
 
 function Projects() {
   const currentUser = useSelector((store) => store.user);
-  const [projects, setProjects] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [projects, setProjects] = useState(() => peekResource('/projects?page=1&limit=12')?.data || []);
+  const [loading, setLoading] = useState(() => !peekResource('/projects?page=1&limit=12'));
   const [showCreate, setShowCreate] = useState(false);
   const [applyingTo, setApplyingTo] = useState(null);
   const [reviewing, setReviewing] = useState(null);
@@ -36,16 +38,16 @@ function Projects() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
+  const loadController = useRef(null);
 
   const loadProjects = useCallback(async (nextPage = 1, append = false) => {
+    loadController.current?.abort();
+    const controller = new AbortController();
+    loadController.current = controller;
     setLoadingMore(true);
     try {
-      const response = await axios.get(
-        `${BASE_URL}/projects?page=${nextPage}&limit=12`,
-        {
-          withCredentials: true,
-        },
-      );
+      const response = await cachedGet(`/projects?page=${nextPage}&limit=12`, { signal: controller.signal });
+      if (controller.signal.aborted) return;
       setProjects((previous) =>
         append
           ? [
@@ -62,17 +64,21 @@ function Projects() {
       setHasMore(response.data.data.length === 12);
       setError("");
     } catch (err) {
+      if (controller.signal.aborted) return;
       setError(
         err?.response?.data?.message || "Unable to load engineering projects.",
       );
     } finally {
-      setLoading(false);
-      setLoadingMore(false);
+      if (!controller.signal.aborted) {
+        setLoading(false);
+        setLoadingMore(false);
+      }
     }
   }, []);
 
   useEffect(() => {
     loadProjects();
+    return () => loadController.current?.abort();
   }, [loadProjects]);
 
   const filteredProjects = projects.filter(
@@ -80,16 +86,7 @@ function Projects() {
   );
 
   if (loading) {
-    return (
-      <div className="flex h-[60vh] flex-col items-center justify-center gap-3">
-        <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[#293B5B] bg-[#101A2E] shadow-xl">
-          <span className="h-5 w-5 rounded-full border-2 border-[#82B4FF] border-t-transparent animate-spin" />
-        </div>
-        <p className="text-xs font-medium text-[#A5B4CE]">
-          Loading collaboration projects...
-        </p>
-      </div>
-    );
+    return <PageSkeleton label="Loading collaboration projects…" />;
   }
 
   return (

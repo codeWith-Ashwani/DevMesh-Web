@@ -1,5 +1,4 @@
-import axios from "axios";
-import { BASE_URL } from "./constants";
+import { cachedGet, invalidateResource, peekResource } from './resourceCache';
 
 const sections = [
   { key: "projects", label: "Project spaces", path: "/projects?limit=50" },
@@ -41,27 +40,31 @@ function describeFailure(error, section) {
       "The server returned an unexpected response. Check that the frontend is connected to the DevMesh API.";
   return { ...section, status, message };
 }
-export async function loadWorkbench(signal, onUpdate) {
-  const data = {
+function validValue(section, value) {
+  return section.key === 'profile'
+    ? value === null || (typeof value === 'object' && value && !Array.isArray(value))
+    : Array.isArray(value);
+}
+export function readWorkbench() {
+  const cached = Object.fromEntries(sections.map(section => {
+    const value = peekResource(section.path)?.data;
+    return [section.key, validValue(section, value) ? value : null];
+  }));
+  return {
     errors: {},
-    pending: Object.fromEntries(sections.map(section => [section.key, true])),
-    ...Object.fromEntries(sections.map(section => [section.key, null])),
+    pending: Object.fromEntries(sections.map(section => [section.key, !peekResource(section.path) || !validValue(section, peekResource(section.path)?.data)])),
+    ...cached,
   };
+}
+export async function loadWorkbench(signal, onUpdate, force = false) {
+  const data = readWorkbench();
   await Promise.all(
     sections.map(async (section) => {
       try {
-        const response = await axios.get(BASE_URL + section.path, {
-          withCredentials: true,
-          timeout: 15000,
-          signal,
-        });
+        const response = await cachedGet(section.path, { signal, force });
         const value = response.data?.data;
-        const valid =
-          section.key === "profile"
-            ? value === null ||
-              (typeof value === "object" && value && !Array.isArray(value))
-            : Array.isArray(value);
-        if (!valid) {
+        if (!validValue(section, value)) {
+          invalidateResource(section.path);
           const error = new Error("Unexpected API response");
           error.code = "INVALID_RESPONSE";
           throw error;

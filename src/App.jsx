@@ -4,21 +4,22 @@ import Body from "./components/Body";
 import Login from "./components/Login";
 import { Provider } from "react-redux";
 import appStore from "./utils/appStore";
-const Profile = lazy(() => import("./components/Profile"));
-const Feed = lazy(() => import("./components/Feed"));
-const Requests = lazy(() => import("./components/Requests"));
-const Connections = lazy(() => import("./components/Connections"));
-const Chat = lazy(() => import("./components/Chat"));
-const Projects = lazy(() => import("./components/Projects"));
-const Collaboration = lazy(() => import("./components/Collaboration"));
-const Workspace = lazy(() => import("./components/Workspace"));
-const Dashboard = lazy(() => import("./components/Dashboard"));
+import { routeModules } from "./utils/routeModules";
+const Profile = lazy(routeModules.profile);
+const Feed = lazy(routeModules.feed);
+const Requests = lazy(routeModules.requests);
+const Connections = lazy(routeModules.connections);
+const Chat = lazy(routeModules.messages);
+const Projects = lazy(routeModules.projects);
+const Collaboration = lazy(routeModules.collaborate);
+const Workspace = lazy(routeModules.workspace);
+const Dashboard = lazy(routeModules.overview);
 
 function App() {
   return (
     <>
       <Provider store={appStore}>
-        <BrowserRouter basename="/">
+        <BrowserRouter basename="/" useTransitions>
           <Routes>
             <Route path="/" element={<Body />}>
               <Route index element={<Dashboard />} />

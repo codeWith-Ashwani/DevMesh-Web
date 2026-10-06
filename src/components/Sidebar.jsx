@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import Avatar from "./ui/Avatar";
+import { prefetchRoute } from "../utils/routeModules";
 import {
   IconHome,
   IconExplore,
@@ -136,6 +137,9 @@ export default function Sidebar({
                     <Link
                       key={path}
                       to={path}
+                      onPointerEnter={() => prefetchRoute(path)}
+                      onFocus={() => prefetchRoute(path)}
+                      onTouchStart={() => prefetchRoute(path)}
                       aria-label={label}
                       aria-current={active(path) ? "page" : undefined}
                       title={!expanded ? label : undefined}

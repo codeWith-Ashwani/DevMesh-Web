@@ -1,6 +1,5 @@
 import Avatar from "./ui/Avatar";
 import React, { useEffect, useState, useMemo, useCallback, useRef } from "react";
-import axios from "axios";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { BASE_URL } from "../utils/constants";
@@ -10,6 +9,7 @@ import { PageTitle } from "./Requests";
 import NetworkGraph from "./network/NetworkGraph";
 import NetworkFilters from "./network/NetworkFilters";
 import NetworkDetailsPanel from "./network/NetworkDetailsPanel";
+import { cachedGet, peekResource } from "../utils/resourceCache";
 import {
   IconNetwork,
   IconMessages,
@@ -24,8 +24,8 @@ export default function Connections() {
   const rawConnections = useSelector((store) => store.connections);
   const connections = useMemo(() => rawConnections || [], [rawConnections]);
 
-  const [projects, setProjects] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [projects, setProjects] = useState(() => peekResource('/projects')?.data || []);
+  const [loading, setLoading] = useState(() => !peekResource('/user/connections'));
   const [error, setError] = useState("");
   const loadController = useRef(null);
 
@@ -36,12 +36,12 @@ export default function Connections() {
   const [selectedNode, setSelectedNode] = useState(null);
 
   // Fetch real connections & real projects
-  const fetchData = useCallback(async () => {
+  const fetchData = useCallback(async (force = false) => {
     loadController.current?.abort();
     const controller = new AbortController();
     loadController.current = controller;
-    const options = { withCredentials: true, signal: controller.signal, timeout: 15000 };
-    const people = axios.get(`${BASE_URL}/user/connections`, options)
+    const options = { force: Boolean(force), signal: controller.signal };
+    const people = cachedGet('/user/connections', options)
       .then(response => { if (!controller.signal.aborted) dispatch(addConnections(response.data.data)); })
       .catch(err => {
         if (controller.signal.aborted) return;
@@ -50,7 +50,7 @@ export default function Connections() {
       })
       .finally(() => { if (!controller.signal.aborted) setLoading(false); });
     // Project graph enrichment must not delay opening the connected people list.
-    const spaces = axios.get(`${BASE_URL}/projects`, options)
+    const spaces = cachedGet('/projects', options)
       .then(response => { if (!controller.signal.aborted) setProjects(response.data.data); })
       .catch(() => {});
     await Promise.all([people, spaces]);
@@ -275,7 +275,7 @@ export default function Connections() {
             onClick={() => {
               setLoading(true);
               setError("");
-              fetchData();
+              fetchData(true);
             }}
             className="btn-primary flex items-center gap-1.5 px-4 py-2 text-xs font-semibold"
           >

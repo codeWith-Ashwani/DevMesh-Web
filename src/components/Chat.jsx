@@ -6,6 +6,9 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { BASE_URL } from "../utils/constants";
 import Avatar from "./ui/Avatar";
+import { useChatState } from "../utils/chatCache";
+import { cachedGet } from "../utils/resourceCache";
+import { IconMessages, IconPlus, IconSearch } from "./ui/Icons";
 const options = { withCredentials: true, timeout: 15000 };
 const merge = (a, b) =>
   [...new Map([...a, ...b].map((m) => [m._id, m])).values()].sort((x, y) =>
@@ -26,46 +29,75 @@ function ChatSession() {
   const { userId, conversationId } = useParams();
   const navigate = useNavigate();
   const user = useSelector((s) => s.user);
-  const { client, status, error: connectionError, reconnect } = useContext(ChatConnection);
+  const { client, status, error: connectionError, reconnect, cache } = useContext(ChatConnection);
+  const [initialRoom] = useState(() => {
+    const direct = cache.get('conversations', []).find(c => c.kind === 'direct' && c.members?.some(m => m._id === userId));
+    const id = conversationId || direct?._id || null;
+    return { id, direct, room: cache.rooms.get(id) };
+  });
+  const { id: initialId, direct: knownDirect, room: cachedRoom } = initialRoom;
   const connected = status === 'connected';
-  const [conversations, setConversations] = useState([]);
-  const [listCursor, setListCursor] = useState(null);
-  const [moreConversations, setMoreConversations] = useState(false);
-  const [connections, setConnections] = useState([]);
-  const [messages, setMessages] = useState([]);
-  const [activeId, setActiveId] = useState(conversationId || null);
-  const [text, setText] = useState("");
+  const [conversations, setConversations] = useChatState('conversations', []);
+  const [listCursor, setListCursor] = useChatState('listCursor', null);
+  const [moreConversations, setMoreConversations] = useChatState('moreConversations', false);
+  const [connections, setConnections] = useChatState('connections', []);
+  const [messages, setMessages] = useState(() => cachedRoom?.messages || []);
+  const [activeId, setActiveId] = useState(initialId);
+  const [text, setText] = useState(() => cachedRoom?.draft || '');
   const [error, setError] = useState("");
   const [loadAttempt, setLoadAttempt] = useState(0);
-  const [inboxLoading, setInboxLoading] = useState(true);
-  const [peopleLoading, setPeopleLoading] = useState(true);
-  const [historyLoading, setHistoryLoading] = useState(Boolean(userId || conversationId));
+  const [inboxLoading, setInboxLoading] = useState(() => !cache.get('inboxLoaded', false));
+  const [peopleLoading, setPeopleLoading] = useState(() => !cache.get('peopleLoaded', false));
+  const [historyLoading, setHistoryLoading] = useState(() => Boolean(userId || conversationId) && !cachedRoom?.loaded);
   const [creating, setCreating] = useState(false);
   const [sending, setSending] = useState(false);
-  const [hasMore, setHasMore] = useState(false);
-  const [cursor, setCursor] = useState(null);
+  const [hasMore, setHasMore] = useState(() => cachedRoom?.hasMore || false);
+  const [cursor, setCursor] = useState(() => cachedRoom?.cursor || null);
   const [groupOpen, setGroupOpen] = useState(false);
   const [groupName, setGroupName] = useState("");
   const [selected, setSelected] = useState([]);
   const [memberToAdd, setMemberToAdd] = useState("");
   const [typing, setTyping] = useState("");
-  const [readers, setReaders] = useState({});
+  const [readers, setReaders] = useState(() => cachedRoom?.readers || {});
+  const [search, setSearch] = useState('');
+  const [pendingMessages, setPendingMessages] = useState(() => cachedRoom?.pendingMessages || []);
   const conversationRef = useRef(conversations);
-  const retry = useRef(null);
   const typingTimer = useRef(null);
   const lastTyping = useRef(0);
-  const latestMessage = useRef(null);
+  const latestMessage = useRef(cachedRoom?.after || null);
+  const lastRead = useRef(null);
+  const mounted = useRef(true);
+  useEffect(() => {
+    mounted.current = true;
+    return () => { mounted.current = false; };
+  }, []);
   const bottom = useRef(null);
   const lastScrolled = useRef(null);
   const active = conversations.find((c) => c._id === activeId);
+  useEffect(() => {
+    if (activeId) cache.remember(activeId, {
+      messages, draft: text, readers, hasMore,
+      cursor: messages.length > 300 ? messages.at(-300)._id : cursor,
+      after: latestMessage.current, pendingMessages,
+      loaded: !historyLoading,
+    });
+  }, [activeId, messages, text, readers, hasMore, cursor, pendingMessages, cache, historyLoading]);
+  useEffect(() => {
+    if (!activeId) return;
+    return cache.subscribeRoom(activeId, room => {
+      setMessages(current => merge(current, room.messages));
+      setPendingMessages(room.pendingMessages || []);
+    });
+  }, [activeId, cache]);
   useEffect(() => { conversationRef.current = conversations; }, [conversations]);
   useEffect(() => {
     if (!user?._id) return;
     let alive = true;
-    axios.get(`${BASE_URL}/user/connections`, options)
+    cachedGet('/user/connections', { force: loadAttempt > 0 })
       .then((response) => {
         if (alive) {
           setConnections(response.data.data || []);
+          cache.set('peopleLoaded', true);
         }
       })
       .catch((e) => {
@@ -77,12 +109,12 @@ function ChatSession() {
     return () => {
       alive = false;
     };
-  }, [user?._id, loadAttempt]);
+  }, [user?._id, loadAttempt, cache, setConnections]);
   useEffect(() => {
     if (!user?._id) return;
     let alive = true;
     // Fetch the inbox once, independently of direct-chat creation and detail.
-    axios.get(`${BASE_URL}/conversations`, options)
+    cachedGet('/conversations', { force: loadAttempt > 0 })
       .then((response) => {
         if (!alive) return;
         setConversations((current) => [
@@ -90,6 +122,7 @@ function ChatSession() {
         ]);
         setListCursor(response.data.before);
         setMoreConversations(response.data.hasMore);
+        cache.set('inboxLoaded', true);
       })
       .catch((e) => {
         if (alive) setError(e.response?.data?.message || "Unable to load conversations");
@@ -97,7 +130,7 @@ function ChatSession() {
       .finally(() => { if (alive) setInboxLoading(false); });
     const resolve = async () => {
       try {
-        const id = userId
+        const id = userId && !knownDirect
           ? (
               await axios.post(
                 `${BASE_URL}/conversations/direct`,
@@ -105,29 +138,39 @@ function ChatSession() {
                 options,
               )
             ).data.data._id
-          : conversationId;
+          : initialId;
         if (!alive) return;
-        setMessages([]);
-        setReaders({});
-        retry.current = null;
-        latestMessage.current = null;
         setActiveId(id || null);
         const detail = id
-          ? (await axios.get(`${BASE_URL}/conversations/${id}`, options)).data
+          ? (await cache.request(`detail:${id}`, () => axios.get(`${BASE_URL}/conversations/${id}`, options))).data
               .data
           : null;
         if (alive && detail)
-          setConversations(current => [...current.filter(c => c._id !== id), detail]);
+          setConversations(current => {
+            const previous = current.find(c => c._id === id);
+            const updated = { unreadCount: 0, ...previous, ...detail };
+            return previous ? current.map(c => c._id === id ? updated : c) : [updated, ...current];
+          });
       } catch (e) {
-        if (alive)
+        if (alive) {
+          if ([401, 403, 404].includes(e.response?.status)) {
+            cache.forget(initialId);
+            setActiveId(null);
+            latestMessage.current = null;
+            setMessages([]);
+            setText('');
+            setPendingMessages([]);
+            setConversations(current => current.filter(c => c._id !== initialId));
+          }
           setError(e.response?.data?.message || "Unable to open conversation");
+        }
       }
     };
     resolve();
     return () => {
       alive = false;
     };
-  }, [userId, conversationId, user?._id, loadAttempt]);
+  }, [userId, initialId, knownDirect, user?._id, loadAttempt, cache, setConversations, setListCursor, setMoreConversations]);
   useEffect(() => {
     if (!user?._id || !client || (userId && !activeId)) return;
     let alive = true;
@@ -135,7 +178,7 @@ function ChatSession() {
     const seenMessages = new Set();
     const refreshRoom = (id) => {
       if (pendingRooms.has(id)) return;
-      const request = axios.get(`${BASE_URL}/conversations/${id}`, options)
+      const request = cache.request(`detail:${id}`, () => axios.get(`${BASE_URL}/conversations/${id}`, options))
         .then(response => {
           if (!alive) return;
           const detail = response.data.data;
@@ -162,10 +205,10 @@ function ChatSession() {
         let after = latestMessage.current;
         let more;
         do {
-          const result = await axios.get(
+          const result = await cache.request(`history:${activeId}:${after || 'latest'}`, () => axios.get(
             `${BASE_URL}/conversations/${activeId}/messages`,
             { ...options, params: after ? { after, limit: 100 } : {} },
-          );
+          ));
           if (!alive) return;
           setMessages((current) => merge(current, result.data.data));
           setHistoryLoading(false);
@@ -192,6 +235,16 @@ function ChatSession() {
           });
       } catch (e) {
         if (alive) {
+          if ([401, 403, 404].includes(e.response?.status)) {
+            cache.forget(activeId);
+            setActiveId(null);
+            latestMessage.current = null;
+            setMessages([]);
+            setText('');
+            setPendingMessages([]);
+            setHasMore(false);
+            setConversations(current => current.filter(c => c._id !== activeId));
+          }
           setHistoryLoading(false);
           setError(
             e.response?.data?.message || "Unable to synchronize messages",
@@ -217,7 +270,7 @@ function ChatSession() {
     const onConnect = () => {
       load();
       // Recover groups/membership events missed while this socket was offline.
-      axios.get(`${BASE_URL}/conversations`, options).then(response => {
+      cachedGet('/conversations', { force: true }).then(response => {
         if (alive) {
           setConversations(current => [...response.data.data, ...current.filter(c => c._id === activeId && !response.data.data.some(r => r._id === c._id))]);
           setListCursor(response.data.before);
@@ -230,25 +283,10 @@ function ChatSession() {
       seenMessages.add(message._id);
       if (seenMessages.size > 1000) seenMessages.delete(seenMessages.values().next().value);
       if (!conversationRef.current.some(c => c._id === message.conversation)) refreshRoom(message.conversation);
-      setConversations((current) =>
-        (current.some(c => c._id === message.conversation) ? current : [...current, {
-          _id: message.conversation, name: 'New conversation', members: [],
-        }]).map((c) =>
-          c._id === message.conversation
-            ? {
-                ...c,
-                lastMessage: message,
-                unreadCount:
-                  c._id === activeId
-                    ? 0
-                    : (c.unreadCount || 0) +
-                      (message.sender === user._id ? 0 : 1),
-              }
-            : c,
-        ),
-      );
       if (message.conversation === activeId) {
         setMessages((current) => merge(current, [message]));
+        setPendingMessages(current => current.filter(item => item.clientId !== message.clientId || message.sender !== user._id));
+        setConversations(current => current.map(c => c._id === activeId ? { ...c, unreadCount: 0 } : c));
         // Keep the replay cursor at the last HTTP sync. A newer live event must
         // not skip messages sent between that snapshot and the socket connect.
       }
@@ -269,7 +307,6 @@ function ChatSession() {
               : current[event.userId],
         }));
     };
-    const onUpdated = event => refreshRoom(event.conversationId);
     const onRemoved = event => {
       setConversations(current => current.filter(c => c._id !== event.conversationId));
       if (activeId === event.conversationId) navigate('/messages');
@@ -278,7 +315,6 @@ function ChatSession() {
     client.on('message:new', onMessage);
     client.on('conversation:typing', onTyping);
     client.on('conversation:read', onRead);
-    client.on('conversation:updated', onUpdated);
     client.on('conversation:removed', onRemoved);
     load();
     return () => {
@@ -288,60 +324,72 @@ function ChatSession() {
       client.off('message:new', onMessage);
       client.off('conversation:typing', onTyping);
       client.off('conversation:read', onRead);
-      client.off('conversation:updated', onUpdated);
       client.off('conversation:removed', onRemoved);
     };
-  }, [activeId, user?._id, userId, client, navigate, loadAttempt]);
+  }, [activeId, user?._id, userId, client, navigate, loadAttempt, cache, setConversations, setListCursor, setMoreConversations]);
   useEffect(() => {
     const last = messages.at(-1);
+    const lastVisible = pendingMessages.at(-1)?.clientId || last?._id;
     const stream = bottom.current?.parentElement;
-    if (last && last._id !== lastScrolled.current) {
+    if (lastVisible && lastVisible !== lastScrolled.current) {
       stream?.scrollTo({ top: stream.scrollHeight, behavior: "smooth" });
-      lastScrolled.current = last._id;
+      lastScrolled.current = lastVisible;
     }
-    if (connected && last && document.visibilityState === "visible")
+    if (connected && last && document.visibilityState === "visible" && lastRead.current !== last._id) {
+      lastRead.current = last._id;
+      setConversations(current => current.map(c => c._id === activeId && c.unreadCount ? { ...c, unreadCount: 0 } : c));
       client?.emit(
         "conversation:read",
         { conversationId: activeId, messageId: last._id },
-        () => {},
+        result => { if (!result?.ok) lastRead.current = null; },
       );
-  }, [messages, activeId, connected, client]);
+    }
+  }, [messages, pendingMessages, activeId, connected, client, setConversations]);
   useEffect(() => {
     const mark = () => {
       const last = messages.at(-1);
       if (
         document.visibilityState === "visible" &&
         last &&
-        client?.connected
+        client?.connected && lastRead.current !== last._id
       )
-        client.emit(
+        { lastRead.current = last._id; client.emit(
           "conversation:read",
           { conversationId: activeId, messageId: last._id },
-          () => {},
-        );
+          result => { if (!result?.ok) lastRead.current = null; },
+        ); }
     };
     document.addEventListener("visibilitychange", mark);
     return () => document.removeEventListener("visibilitychange", mark);
   }, [messages, activeId, client]);
-  const send = (event) => {
+  const send = (event, pending = null) => {
     event.preventDefault();
-    if (!activeId || !active || !text.trim() || sending || !client?.connected) return;
+    if (!activeId || !active || (!pending && !text.trim()) || sending || !client?.connected) return;
     const payload =
-      retry.current?.text === text.trim()
-        ? retry.current
-        : {
+      pending ? { conversationId: activeId, text: pending.text, clientId: pending.clientId } : {
             conversationId: activeId,
             text: text.trim(),
             clientId: crypto.randomUUID(),
           };
-    retry.current = payload;
+    setPendingMessages(current => [...current.filter(item => item.clientId !== payload.clientId), { ...payload, state: 'sending', createdAt: new Date().toISOString() }]);
+    if (!pending) setText('');
     setSending(true);
     setError("");
     client
       .timeout(10000)
       .emit("message:send", payload, (timeout, result) => {
+        const saved = cache.rooms.get(activeId);
+        if (!mounted.current) {
+          if (saved) cache.remember(activeId, { ...saved,
+            messages: result?.ok ? merge(saved.messages, [result.data]) : saved.messages,
+            pendingMessages: result?.ok ? saved.pendingMessages.filter(item => item.clientId !== payload.clientId)
+              : saved.pendingMessages.map(item => item.clientId === payload.clientId ? { ...item, state: 'failed' } : item),
+          }, true);
+          return;
+        }
         setSending(false);
         if (timeout || !result?.ok) {
+          setPendingMessages(current => current.map(item => item.clientId === payload.clientId ? { ...item, state: 'failed' } : item));
           setError(
             result?.message ||
               "Delivery not confirmed. Send again to retry safely.",
@@ -349,8 +397,7 @@ function ChatSession() {
           return;
         }
         setMessages((current) => merge(current, [result.data]));
-        setText(current => current.trim() === payload.text ? '' : current);
-        retry.current = null;
+        setPendingMessages(current => current.filter(item => item.clientId !== payload.clientId));
       });
   };
   const older = async () => {
@@ -425,19 +472,19 @@ function ChatSession() {
     }
   };
   return (
-    <div className="page-wrap text-[#EEF4FF]">
-      <header className="flex justify-between items-center mb-4">
+    <div className="page-wrap chat-page text-[#EEF4FF]">
+      <header className="flex justify-between items-center gap-4 mb-6">
         <div>
           <h1 className="page-title">Messages</h1>
-          <p className="text-sm text-[#A5B4CE]">
+          <p className="text-sm text-[#A5B4CE] mt-2">
             Personal conversations and collaboration groups
           </p>
         </div>
         <button
-          className="btn-primary p-2"
+          className="btn-primary px-4 py-2.5 flex items-center gap-2 shrink-0 text-sm"
           onClick={() => setGroupOpen((v) => !v)}
         >
-          New group
+          <IconPlus className="h-4 w-4" /> New group
         </button>
       </header>
       {connectionError && (
@@ -570,28 +617,43 @@ function ChatSession() {
           Load more conversations
         </button>
       )}
-      <div className="grid md:grid-cols-[260px_1fr] border border-[#293B5B] rounded-2xl overflow-hidden bg-[#0B1020]">
+      <div className="chat-layout grid md:grid-cols-[300px_1fr] rounded-2xl overflow-hidden">
         <aside
-          className={`${activeId ? "hidden md:block" : ""} p-3 border-r border-[#293B5B] md:max-h-[70vh] overflow-y-auto bg-[#101A2E]`}
+          className={`${activeId ? "hidden md:block" : ""} chat-inbox p-4 border-r border-[#293B5B] overflow-y-auto`}
         >
-          <h2 className="font-bold mb-2">Conversations</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-semibold text-sm">Conversations</h2>
+            <span className="text-xs font-mono text-[#7B91B5]">{conversations.length}</span>
+          </div>
+          <label className="chat-search mb-4">
+            <IconSearch className="h-4 w-4 shrink-0" />
+            <input aria-label="Search conversations" placeholder="Search conversations" value={search} onChange={event => setSearch(event.target.value)} />
+          </label>
           {inboxLoading && <p role="status" className="text-sm text-[#A5B4CE] p-2">Loading conversations…</p>}
           {!inboxLoading && !conversations.length && <p className="text-sm text-[#A5B4CE] p-2">No conversations yet. Choose a connected teammate below or create a group.</p>}
-          {conversations.map((c) => (
+          {conversations.filter(c => title(c, user?._id).toLowerCase().includes(search.trim().toLowerCase())).map((c) => (
             <Link
               key={c._id}
               to={`/messages/${c._id}`}
-              className={`block p-3 rounded-lg mb-1 text-sm border ${activeId === c._id ? "bg-[#1D3050] border-[#4C6B94]" : "border-transparent hover:bg-[#16233D]"}`}
+              aria-label={`${title(c, user?._id)} ${c.kind}`}
+              aria-current={activeId === c._id ? 'page' : undefined}
+              className={`chat-conversation flex gap-3 p-3 rounded-xl mb-1 text-sm border ${activeId === c._id ? "active" : "border-transparent"}`}
             >
-              {title(c, user?._id)}
+              {c.kind === 'direct'
+                ? <Avatar user={c.members?.find(member => member._id !== user?._id)} className="h-10 w-10 shrink-0" />
+                : <span className="chat-group-icon"><IconMessages className="h-5 w-5" /></span>}
+              <span className="min-w-0 flex-1">
+                <span className="block font-medium truncate">{title(c, user?._id)}</span>
+                <small className="block truncate text-[#7B91B5] mt-1">{c.lastMessage?.text || (c.kind === 'direct' ? 'Personal conversation' : `${c.members?.length || 0} members`)}</small>
+              </span>
               {c.unreadCount > 0 && (
-                <span className="ml-2 text-blue-400">
-                  ({c.unreadCount} unread)
+                <span className="chat-unread" aria-label={`${c.unreadCount} unread`}>
+                  {c.unreadCount}
                 </span>
               )}
-              <small className="block text-[#A5B4CE]">{c.kind}</small>
             </Link>
           ))}
+          {search.trim() && !conversations.some(c => title(c, user?._id).toLowerCase().includes(search.trim().toLowerCase())) && <p className="p-3 text-sm text-[#A5B4CE]">No matching conversations.</p>}
           <h2 className="font-bold mt-5 mb-2">Start a personal chat</h2>
           {peopleLoading && <p role="status" className="text-sm text-[#A5B4CE] p-2">Loading teammates…</p>}
           {!peopleLoading && !connections.length && <Link to="/feed" className="block p-2 text-sm text-[#82B4FF] underline">Find collaborators to start chatting →</Link>}
@@ -607,9 +669,9 @@ function ChatSession() {
           ))}
         </aside>
         <section
-          className={`${activeId ? "flex" : "hidden md:flex"} flex-col h-[60dvh] min-h-[300px] md:h-[70vh] min-w-0`}
+          className={`${activeId ? "flex" : "hidden md:flex"} chat-thread flex-col min-w-0`}
         >
-          <header className="p-4 border-b border-[#293B5B]">
+          <header className="chat-thread-header p-5 border-b border-[#293B5B]">
             <Link
               to="/messages"
               className="md:hidden block text-xs text-[#82B4FF] mb-3"
@@ -619,7 +681,8 @@ function ChatSession() {
             <h2 className="font-bold">
               {active ? title(active, user?._id) : "Choose a conversation"}
             </h2>
-            <small className="text-[#A5B4CE]">
+            <small className="text-[#A5B4CE] inline-flex items-center gap-2 mt-1">
+              {activeId && <span aria-hidden="true" className={`chat-status-dot ${connected ? 'online' : ''}`} />}
               {activeId
                 ? connected
                   ? "Connected"
@@ -631,11 +694,15 @@ function ChatSession() {
             </small>
           </header>
           <div
-            className="flex-1 overflow-y-auto p-4 space-y-3"
+            className={`chat-stream flex-1 overflow-y-auto p-5 space-y-4 ${!activeId ? 'grid place-content-center text-center' : ''}`}
             role="log"
             aria-label="Messages"
           >
-            {!activeId && <p className="text-sm text-[#A5B4CE]">Choose a conversation or a teammate from the list to start chatting.</p>}
+            {!activeId && <div className="chat-empty max-w-sm">
+              <span className="chat-empty-icon mx-auto"><IconMessages className="h-8 w-8" /></span>
+              <h3 className="font-semibold text-lg mt-5 mb-2">Good projects start with a conversation</h3>
+              <p className="text-sm leading-6 text-[#A5B4CE]">Choose a conversation or a teammate from the list to start chatting.</p>
+            </div>}
             {activeId && historyLoading && <p role="status" className="text-sm text-[#A5B4CE]">Loading messages…</p>}
             {activeId && !historyLoading && !messages.length && !error && <p className="text-sm text-[#A5B4CE]">No messages yet. Say hello to your teammates.</p>}
             {hasMore && (
@@ -671,6 +738,15 @@ function ChatSession() {
                 </small>
               </div>
             ))}
+            {pendingMessages.filter(item => !messages.some(message => message.clientId === item.clientId && message.sender === user?._id)).map(item => (
+              <div key={item.clientId} className="flex flex-col items-end" aria-label="Pending message">
+                <p className="chat-pending max-w-[85%] p-3 rounded-xl text-sm leading-6 whitespace-pre-wrap break-words">{item.text}</p>
+                <span className="text-xs text-[#A5B4CE] mt-1">
+                  {item.state === 'failed' ? 'Delivery not confirmed' : 'Sending…'}
+                  {item.state === 'failed' && <button className="text-[#82B4FF] underline ml-2" disabled={!connected || sending} onClick={event => send(event, item)}>Retry message</button>}
+                </span>
+              </div>
+            ))}
             <div ref={bottom} />
           </div>
           {typing && (
@@ -682,7 +758,7 @@ function ChatSession() {
           )}
           {activeId && <form
             onSubmit={send}
-            className="flex gap-2 p-4 border-t border-[#293B5B]"
+            className="chat-composer flex gap-3 p-4 border-t border-[#293B5B]"
           >
             <input
               aria-label="Message"
@@ -703,7 +779,7 @@ function ChatSession() {
                   );
                 }
               }}
-              className="flex-1 min-w-0 p-3 bg-[#16233D] rounded-xl"
+              className="flex-1 min-w-0 px-4 py-3 bg-[#16233D] border border-[#344D70] focus:border-[#82B4FF] rounded-xl"
               placeholder="Write a message"
             />
             <button

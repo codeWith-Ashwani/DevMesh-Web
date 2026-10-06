@@ -10,6 +10,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { addUser } from "../utils/userSlice";
 import { addRequests } from "../utils/requestsSlice";
 import ChatConnectionProvider from "./ChatConnectionProvider";
+import { cachedGet } from "../utils/resourceCache";
+import PageSkeleton from "./ui/PageSkeleton";
 
 function Body() {
   const dispatch = useDispatch();
@@ -55,8 +57,7 @@ function Body() {
   useEffect(() => {
     if (!userData?._id) return;
     let alive = true;
-    axios
-      .get(BASE_URL + "/user/requests/received", { withCredentials: true })
+    cachedGet("/user/requests/received")
       .then((response) => {
         if (alive) dispatch(addRequests(response.data.data));
       })
@@ -147,9 +148,7 @@ function Body() {
         >
           <Suspense
             fallback={
-              <div className="page-wrap" role="status" aria-live="polite">
-                Loading page…
-              </div>
+              <PageSkeleton />
             }
           >
             <Outlet />
