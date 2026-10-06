@@ -22,6 +22,7 @@ Reviewed route/shell rendering, authentication and account transitions, shared r
 - Production build initial app JavaScript: 350.01 kB / 115.07 kB gzip. Graph worker: 1.20 kB. Route chunks remain split. Added recovery and validation have a small bundle cost.
 - `node scripts/auditHosted.mjs` probes public API health/readiness and the real login page, then checks deployed assets across projects, collaboration, messages, feed, connections, requests and profile at widths 1280 and 390. It explicitly mocks authenticated API data; it does not test production account credentials or message delivery.
 - Before deployment, those hosted rendering checks showed no JavaScript errors, bad assets, horizontal overflow or full-document navigation. Observed route interactions with mocked data were 70–195 ms desktop and 177–417 ms mobile. Network and cache conditions affect these measurements.
+- [GitHub frontend verification](https://github.com/codeWith-Ashwani/DevMesh-Web/actions/runs/37503630537) passed for source commit `577e13b0a3d84bab87c5cc004b3d3f2ab8b86fe8`; Vercel reported its production deployment successful. After deployment, all seven routes passed the same desktop/mobile checks again. The production graph worker loaded with HTTP 200, rendered nodes and accepted zoom interaction without JavaScript errors. These authenticated rendering checks still use mocked API data.
 
 ## Remaining operational verification
 
