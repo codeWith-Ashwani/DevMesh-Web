@@ -1,4 +1,4 @@
-import { StrictMode } from 'react'
+import axios from 'axios'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
@@ -6,6 +6,7 @@ import appStore from './utils/appStore'
 import { installResourceInvalidation, setResourceScope } from './utils/resourceCache'
 
 installResourceInvalidation();
+axios.defaults.timeout = 15000;
 setResourceScope(appStore.getState().user?._id || null);
 appStore.subscribe(() => setResourceScope(appStore.getState().user?._id || null));
 
@@ -18,7 +19,5 @@ if (fonts) {
 }
 
 createRoot(document.getElementById('root')).render(
-  // <StrictMode>
     <App />
-  // </StrictMode>,
 )

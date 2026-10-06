@@ -1,5 +1,5 @@
 import { lazy } from "react";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
 import Body from "./components/Body";
 import Login from "./components/Login";
 import { Provider } from "react-redux";
@@ -37,6 +37,7 @@ function App() {
                 element={<Workspace />}
               />
               <Route path="/projects" element={<Projects />} />
+              <Route path="*" element={<div className="page-wrap space-y-4"><h1 className="page-title">Page not found</h1><p className="text-[#A5B4CE]">This link does not point to a workspace page.</p><Link className="btn-primary inline-block px-4 py-2" to="/">Back to overview</Link></div>} />
             </Route>
           </Routes>
         </BrowserRouter>

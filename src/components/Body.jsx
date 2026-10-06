@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect, useState } from "react";
+import React, { Suspense, useEffect, useRef, useState } from "react";
 import Navbar from "./Navbar";
 import Sidebar from "./Sidebar";
 import CommandPalette from "./ui/CommandPalette";
@@ -12,6 +12,7 @@ import { addRequests } from "../utils/requestsSlice";
 import ChatConnectionProvider from "./ChatConnectionProvider";
 import { cachedGet } from "../utils/resourceCache";
 import PageSkeleton from "./ui/PageSkeleton";
+import PageErrorBoundary from './ui/PageErrorBoundary';
 
 function Body() {
   const dispatch = useDispatch();
@@ -23,18 +24,25 @@ function Body() {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [authError, setAuthError] = useState("");
+  const authRequest = useRef(null);
 
   const isAuthPage = location.pathname === "/login";
 
   const fetchUser = React.useCallback(async () => {
     if (userData || isAuthPage) return;
+    authRequest.current?.abort();
+    const controller = new AbortController();
+    authRequest.current = controller;
     try {
       const user = await axios.get(BASE_URL + "/profile/view", {
         withCredentials: true,
+        signal: controller.signal,
       });
+      if (controller.signal.aborted) return;
       dispatch(addUser(user.data));
       setAuthError("");
     } catch (err) {
+      if (controller.signal.aborted || axios.isCancel(err)) return;
       if (err.response?.status === 401) {
         navigate("/login");
       } else
@@ -51,6 +59,7 @@ function Body() {
     });
     return () => {
       alive = false;
+      authRequest.current?.abort();
     };
   }, [fetchUser]);
 
@@ -151,7 +160,7 @@ function Body() {
               <PageSkeleton />
             }
           >
-            <Outlet />
+            <PageErrorBoundary key={location.pathname}><Outlet /></PageErrorBoundary>
           </Suspense>
         </main>
 

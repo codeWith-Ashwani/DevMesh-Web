@@ -1,14 +1,18 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import { BASE_URL } from "../utils/constants";
 import Avatar from "./ui/Avatar";
+import PageSkeleton from './ui/PageSkeleton';
 const options = { withCredentials: true };
 const input =
   "block w-full bg-[#16233D] border border-[#293B5B] rounded-xl p-2 mt-1";
 export default function Workspace() {
   const { projectId } = useParams();
+  return <WorkspaceSession key={projectId} projectId={projectId} />;
+}
+function WorkspaceSession({ projectId }) {
   const navigate = useNavigate();
   const user = useSelector((s) => s.user);
   const [data, setData] = useState(null);
@@ -28,39 +32,43 @@ export default function Workspace() {
   const [showcase, setShowcase] = useState({ demoUrl: "", outcome: "" });
   const [evidence, setEvidence] = useState({});
   const [matches, setMatches] = useState([]);
+  const requestRef = useRef(null);
+  const busyRef = useRef(false);
   const load = useCallback(async () => {
     const response = await axios.get(
       `${BASE_URL}/projects/${projectId}/workspace`,
-      options,
+      { ...options, signal: requestRef.current?.signal },
     );
+    if (requestRef.current?.signal.aborted) return;
+    if (!response.data.data?.project || !Array.isArray(response.data.data.members) || !Array.isArray(response.data.data.milestones) || !Array.isArray(response.data.data.checkIns)) throw new Error('Invalid workspace response');
     setData(response.data.data);
   }, [projectId]);
   useEffect(() => {
-    let alive = true;
-    axios
-      .get(`${BASE_URL}/projects/${projectId}/workspace`, options)
-      .then((r) => {
-        if (alive) setData(r.data.data);
-      })
+    const controller = new AbortController();
+    requestRef.current = controller;
+    load()
       .catch((e) => {
-        if (alive)
+        if (!controller.signal.aborted)
           setError(
             e.response?.data?.message || "Unable to load team workspace",
           );
       });
     return () => {
-      alive = false;
+      controller.abort();
     };
-  }, [projectId]);
-  const perform = async (fn) => {
+  }, [load]);
+  const perform = async (fn, refresh = true) => {
+    if (busyRef.current) return;
+    busyRef.current = true;
     setBusy(true);
     setError("");
     try {
       await fn();
-      await load();
+      if (refresh && !requestRef.current?.signal.aborted) await load();
     } catch (e) {
       setError(e.response?.data?.message || "Unable to save changes");
     } finally {
+      busyRef.current = false;
       setBusy(false);
     }
   };
@@ -72,7 +80,7 @@ export default function Workspace() {
         options,
       );
       navigate(`/messages/${response.data.data._id}`);
-    });
+    }, false);
   const find = () =>
     perform(async () => {
       const response = await axios.get(
@@ -80,12 +88,10 @@ export default function Workspace() {
         options,
       );
       setMatches(response.data.data);
-    });
+    }, false);
   if (!data)
     return (
-      <div className="p-6" role="status">
-        {error || "Loading workspace…"}
-      </div>
+      error ? <div className="page-wrap"><p role="alert" className="text-red-200">{error}</p><button className="btn-secondary mt-4 px-4 py-2" disabled={busy} onClick={() => perform(() => Promise.resolve())}>Try again</button></div> : <PageSkeleton />
     );
   const owner = data.project.creator === user?._id;
   const membershipControls = (

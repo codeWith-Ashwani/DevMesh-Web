@@ -36,6 +36,11 @@ export async function cachedGet(path, { signal, force = false, maxAge = 30000, .
     const started = generation;
     request = axios.get(BASE_URL + path, { withCredentials: true, timeout: 15000, ...options })
       .then(response => {
+        const collection = path === '/feed' || path.startsWith('/feed?') ? response.data : response.data?.data;
+        const valid = path === '/collaboration/profile'
+          ? collection === null || (collection && typeof collection === 'object' && Array.isArray(collection.roles))
+          : Array.isArray(collection) && collection.every(value => value && typeof value === 'object' && !Array.isArray(value));
+        if (!valid) throw Object.assign(new Error('The server returned invalid data. Please try again.'), { code: 'INVALID_RESPONSE' });
         if (scope && started === generation) {
           entries.delete(path);
           entries.set(path, { response, time: Date.now() });

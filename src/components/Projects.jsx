@@ -40,13 +40,13 @@ function Projects() {
   const [loadingMore, setLoadingMore] = useState(false);
   const loadController = useRef(null);
 
-  const loadProjects = useCallback(async (nextPage = 1, append = false) => {
+  const loadProjects = useCallback(async (nextPage = 1, append = false, force = false) => {
     loadController.current?.abort();
     const controller = new AbortController();
     loadController.current = controller;
     setLoadingMore(true);
     try {
-      const response = await cachedGet(`/projects?page=${nextPage}&limit=12`, { signal: controller.signal });
+      const response = await cachedGet(`/projects?page=${nextPage}&limit=12`, { signal: controller.signal, force });
       if (controller.signal.aborted) return;
       setProjects((previous) =>
         append
@@ -132,13 +132,14 @@ function Projects() {
       </div>
 
       {error && (
-        <div className="rounded-xl border border-[#F43F5E]/30 bg-[#F43F5E]/10 p-3.5 text-xs text-[#F43F5E]">
+        <div role="alert" className="rounded-xl border border-[#F43F5E]/30 bg-[#F43F5E]/10 p-3.5 text-xs text-[#F43F5E]">
           {error}
+          <button className="btn-secondary ml-3 px-3 py-2" disabled={loadingMore} onClick={() => loadProjects(1, false, true)}>Try again</button>
         </div>
       )}
 
       {/* Project Cards Grid */}
-      {filteredProjects.length === 0 ? (
+      {error && projects.length === 0 ? null : filteredProjects.length === 0 ? (
         <div className="fintech-card rounded-2xl border border-[#293B5B] p-12 text-center shadow-sm">
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl border border-[#293B5B] bg-[#16233D] text-[#A5B4CE] mb-3">
             <IconProjects className="h-6 w-6" />
@@ -452,6 +453,8 @@ function ProjectForm({ onClose, onCreated }) {
           <input
             className={inputClass}
             value={form.title}
+            minLength={5}
+            maxLength={100}
             onChange={update("title")}
             placeholder="e.g. Distributed Vector Store in Go"
             required
@@ -461,6 +464,8 @@ function ProjectForm({ onClose, onCreated }) {
           <textarea
             className={`${inputClass} min-h-28`}
             value={form.description}
+            minLength={20}
+            maxLength={2000}
             onChange={update("description")}
             placeholder="Explain the architecture, tech constraints, and role requirements."
             required

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import UserCard from "./UserCard";
@@ -13,7 +13,7 @@ const inputClass =
 const Field = ({ label, children }) => (
   <label className="block text-xs font-semibold uppercase tracking-wider text-[#A5B4CE]">
     {label}
-    {children}
+    {React.cloneElement(children, { 'aria-label': label })}
   </label>
 );
 
@@ -36,24 +36,26 @@ function EditProfile({ user }) {
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
   const dispatch = useDispatch();
+  useEffect(() => {
+    if (!saved) return;
+    const timeout = setTimeout(() => setSaved(false), 3000);
+    return () => clearTimeout(timeout);
+  }, [saved]);
 
   const update = (key, value) =>
     setForm((current) => ({ ...current, [key]: value }));
 
   const saveProfile = async () => {
+    if (saving) return;
     setSaving(true);
     setError("");
     try {
-      // Remove empty-string fields so enum validators don't reject them
-      const payload = Object.fromEntries(
-        Object.entries(form).filter(([, value]) => value !== ""),
-      );
+      const payload = { ...form, age: form.age === '' ? null : Number(form.age), gender: form.gender || null, lookingFor: form.lookingFor || null };
       const res = await axios.patch(`${BASE_URL}/profile/edit`, payload, {
         withCredentials: true,
       });
       dispatch(addUser(res.data.data));
       setSaved(true);
-      setTimeout(() => setSaved(false), 3000);
     } catch (err) {
       setError(
         err?.response?.data?.message ||
@@ -235,7 +237,7 @@ function EditProfile({ user }) {
       {/* Success Toast */}
       {saved && (
         <div className="fixed bottom-8 right-8 z-50 animate-in fade-in slide-in-from-bottom-5">
-          <div className="flex items-center gap-2 rounded-2xl border border-[#10B981]/40 bg-[#101A2E] px-4 py-3 text-xs font-medium text-[#10B981] shadow-2xl shadow-emerald-500/10">
+          <div role="status" className="flex items-center gap-2 rounded-2xl border border-[#82B4FF]/40 bg-[#101A2E] px-4 py-3 text-xs font-medium text-[#82B4FF] shadow-2xl">
             <IconCheck className="h-4 w-4" />
             <span>Profile successfully updated.</span>
           </div>

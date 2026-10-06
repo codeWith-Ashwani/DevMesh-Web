@@ -1,8 +1,10 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 
 export default function Modal({ children, onClose, label, className = "" }) {
   const ref = useRef(null);
+  const closeRef = useRef(onClose);
+  useLayoutEffect(() => { closeRef.current = onClose; }, [onClose]);
   useEffect(() => {
     const trigger = document.activeElement;
     const previousOverflow = document.body.style.overflow;
@@ -13,12 +15,12 @@ export default function Modal({ children, onClose, label, className = "" }) {
         ...dialog.querySelectorAll(
           'button, a[href], input, select, textarea, [tabindex="0"]',
         ),
-      ].filter((el) => !el.disabled);
+      ].filter((el) => !el.disabled && el.getClientRects().length > 0);
     (focusable()[0] || dialog).focus();
     const onKey = (event) => {
       if (event.key === "Escape") {
         event.preventDefault();
-        onClose();
+        closeRef.current();
       }
       if (event.key === "Tab") {
         const elements = focusable();
@@ -43,7 +45,7 @@ export default function Modal({ children, onClose, label, className = "" }) {
       dialog.removeEventListener("keydown", onKey);
       if (trigger?.isConnected) trigger.focus();
     };
-  }, [onClose]);
+  }, []);
   return createPortal(
     <div
       className="modal-backdrop"
